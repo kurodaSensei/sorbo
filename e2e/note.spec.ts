@@ -106,8 +106,7 @@ test.describe('Nota rápida', () => {
     await expect(page.getByText(/como la última vez/)).toBeVisible()
   })
 
-  test('la fila «Recientes» es visible al abrir la hoja', async ({ page }, info) => {
-    if (info.project.name === 'mobile') test.fail(true, 'BUG: .nf-recents colapsa a 0 px cuando la hoja desborda')
+  test('la fila «Recientes» es visible al abrir la hoja', async ({ page }) => {
     await gotoApp(page)
     const tastings = await store<any[]>(page, 'tastings', 'list')
     test.skip(!tastings.length, 'Sin notas no hay recientes')

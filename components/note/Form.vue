@@ -455,6 +455,8 @@ async function save() {
 .nf-cancel { min-width: 84px; min-height: var(--touch-min); padding: 0 8px; text-align: left; font-size: 15px; color: var(--ink-soft); }
 .nf-title { font: 600 16px/20px var(--font-sans); margin: 0; }
 .nf-body { flex: 1; overflow-y: auto; padding: 8px 16px 20px; display: flex; flex-direction: column; gap: 22px; }
+/* El cuerpo hace scroll: sus filas no deben encogerse (las de scroll horizontal colapsaban a 0). */
+.nf-body > * { flex-shrink: 0; }
 .nf-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .nf-rel { position: relative; }
 .nf-label { font: 600 13px/16px var(--font-sans); color: var(--ink-soft); padding: 0; }
