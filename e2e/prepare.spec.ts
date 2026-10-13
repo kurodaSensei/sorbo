@@ -27,8 +27,7 @@ test.describe('Preparar y temporizador', () => {
     await expect(page.getByText('0:00')).toBeVisible()
   })
 
-  test('con receta: el último paso llega a estar activo antes de terminar', async ({ page }) => {
-    test.fail(true, 'BUG: total = inicio del último paso (timer.vue)')
+  test('con receta: el último paso queda activo y se termina con «Terminar»', async ({ page }) => {
     await gotoApp(page, '/app/recipes')
     const recipes = await store<any[]>(page, 'recipes', 'list')
     const r = recipes.find(x => x.steps?.length > 1)
@@ -39,7 +38,11 @@ test.describe('Preparar y temporizador', () => {
     await page.getByRole('button', { name: 'Empezar' }).click()
     await page.clock.runFor(last.timeSeconds * 1000 + 1000)
     await expect(page.getByText('Ahora')).toBeVisible()
+    await expect(page.locator('.tm-now-t')).toHaveText(last.title)
     await expect(page.getByText('Tu taza está lista')).toBeHidden()
+    await page.clock.runFor(30_000) // el reloj sigue durante el último paso
+    await page.getByRole('button', { name: 'Terminar' }).click()
+    await expect(page.getByText('Tu taza está lista')).toBeVisible()
   })
 
   test('al terminar, «Anotar esta taza» precarga método, dosis, agua y tiempo', async ({ page }) => {
@@ -52,6 +55,7 @@ test.describe('Preparar y temporizador', () => {
     await page.goto(`/app/timer?receta=${r.id}`)
     await page.getByRole('button', { name: 'Empezar' }).click()
     await page.clock.runFor(end * 1000 + 1500)
+    await page.getByRole('button', { name: 'Terminar' }).click()
     await page.getByRole('button', { name: 'Anotar esta taza' }).click()
     const sheet = page.getByRole('dialog', { name: 'Nueva nota' })
     await expect(sheet.locator('#nf-dosis')).toHaveValue(String(r.dose))

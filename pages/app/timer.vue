@@ -32,6 +32,9 @@ const total = computed(() => steps.value.length ? steps.value[steps.value.length
 
 const t = ref(0)
 const running = ref(false)
+// El último paso es un hito (cuándo empieza), no su final: al llegar a él el
+// reloj sigue y la persona termina con «Terminar».
+const finished = ref(false)
 let tick: ReturnType<typeof setInterval> | null = null
 let startedAt = 0
 let base = 0
@@ -48,29 +51,29 @@ function start() {
   running.value = true
   tick = setInterval(() => {
     // Se mide contra el reloj para no derivar si el navegador frena el intervalo.
+    const prev = t.value
     t.value = base + Math.floor((Date.now() - startedAt) / 1000)
-    if (total.value && t.value >= total.value) {
-      t.value = total.value
-      stop()
-      light()
-    }
+    if (total.value && prev < total.value && t.value >= total.value) light()
   }, 250)
 }
 
 function toggle() {
   light()
-  if (running.value) stop()
+  if (running.value && atLast.value) { stop(); finished.value = true }
+  else if (running.value) stop()
   else start()
 }
 
 function reset() {
   stop()
   t.value = 0
+  finished.value = false
 }
 
 onUnmounted(stop)
 
-const done = computed(() => total.value ? t.value >= total.value : (!running.value && t.value > 0))
+const atLast = computed(() => !!total.value && t.value >= total.value)
+const done = computed(() => total.value ? finished.value : (!running.value && t.value > 0))
 const current = computed(() => steps.value.reduce((acc, s, i) => t.value >= s.timeSeconds ? i : acc, 0))
 const progress = computed(() => total.value ? Math.min(100, (t.value / total.value) * 100) : 0)
 const ratio = computed(() => recipe.value && recipe.value.dose ? `1:${(recipe.value.water / recipe.value.dose).toFixed(1)}` : '')
@@ -136,7 +139,7 @@ function back() {
       </button>
       <button v-if="done" type="button" class="tm-btn tm-primary" @click="annotate">Anotar esta taza</button>
       <button v-else type="button" class="tm-btn tm-primary" @click="toggle">
-        {{ running ? 'Pausar' : t ? 'Seguir' : 'Empezar' }}
+        {{ running ? (atLast ? 'Terminar' : 'Pausar') : t ? 'Seguir' : 'Empezar' }}
       </button>
     </footer>
   </div>
