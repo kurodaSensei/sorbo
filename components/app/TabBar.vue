@@ -46,6 +46,11 @@ const { light } = useHaptic()
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
 }
+/* En escritorio manda la barra lateral (lg de Tailwind). Va aquí porque una
+   clase lg:hidden desde fuera pierde contra este estilo scoped. */
+@media (min-width: 1024px) {
+  .tabbar { display: none; }
+}
 .tab {
   display: flex;
   flex-direction: column;

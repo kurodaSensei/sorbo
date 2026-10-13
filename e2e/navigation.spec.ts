@@ -13,7 +13,6 @@ test.describe('Navegación v2', () => {
 
   test('escritorio: barra lateral sin barra inferior', async ({ page }, info) => {
     test.skip(info.project.name !== 'desktop')
-    test.fail(true, 'BUG: .tabbar{display:flex} scoped gana a lg:hidden (TabBar.vue)')
     await gotoApp(page)
     await expect(page.getByRole('button', { name: 'Anotar taza' }).first()).toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Navegación' })).toBeHidden()
