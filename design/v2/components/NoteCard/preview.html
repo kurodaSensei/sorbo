@@ -1,0 +1,27 @@
+<!-- @dsCard group="Contenido" height=330 subtitle="Diario, Mis cafés y Quiero probar" -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:358px}
+.card{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;padding:14px 16px;border-radius:var(--radius-lg);background:var(--surface);color:var(--ink);text-decoration:none}
+.card::before{content:'';position:absolute;right:-34px;top:-34px;width:var(--blob-size);height:var(--blob-size);border-radius:9999px;background:var(--tint);opacity:var(--blob-opacity);z-index:-1}
+.card:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.card-eyebrow{margin-bottom:3px}
+.line{font:400 12px/16px var(--font-ui);color:var(--ink-soft);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.btn{height:36px;padding:0 12px;border-radius:10px;border:0;background:var(--primary);color:var(--on-primary);font:600 13px var(--font-ui)}
+</style>
+</head>
+<body>
+<div class="root">
+  <a class="card" href="#nota" style="--tint:var(--blob-honey)"><span class="main"><span class="card-eyebrow">— V60 · 8:14</span><span class="card-name">Rock natural</span><span class="card-by">de [Marca]</span><span class="line">Frutos rojos, Panela</span></span><span class="sc"><span class="card-score-word">muy rico</span><span class="card-score">4</span></span></a>
+  <a class="card" href="#cafe" style="--tint:var(--blob-sage)"><span class="main"><span class="card-eyebrow">— Lavado</span><span class="card-name">Geisha lavado</span><span class="card-by">de [Marca]</span><span class="line">Jazmín · 2 notas</span></span><span class="sc"><span class="card-score-word">wow</span><span class="card-score">5</span></span></a>
+  <div class="card" style="--tint:var(--blob-clay)"><span class="main"><span class="card-eyebrow">— Natural</span><span class="card-name">Sidra natural</span><span class="card-by">de [Marca]</span><span class="line">lo anotó Laura</span></span><button class="btn" type="button">Anotar</button></div>
+</div>
+</body>
+</html>

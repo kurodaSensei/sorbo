@@ -1,0 +1,789 @@
+{
+  "collections": [
+    {
+      "name": "Sorbo v2 · Color",
+      "modes": [
+        "Claro",
+        "Oscuro"
+      ],
+      "variables": [
+        {
+          "name": "color/brand-jungle",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.0784,
+              "g": 0.0902,
+              "b": 0.0706,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.1725,
+              "g": 0.2,
+              "b": 0.149,
+              "a": 1
+            }
+          },
+          "description": "Superficie oscura de marca: botón central +, tarjeta de puntaje, tarjeta '¿Qué estás tomando hoy?'. En oscuro sube de tono para separarse del fondo."
+        },
+        {
+          "name": "color/brand-olive",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.3333,
+              "g": 0.4196,
+              "b": 0.2275,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.3333,
+              "g": 0.4196,
+              "b": 0.2275,
+              "a": 1
+            }
+          },
+          "description": "Verde de marca. Acción principal en tema claro."
+        },
+        {
+          "name": "color/brand-sage",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            }
+          },
+          "description": "Verde claro de marca. Acción principal en tema oscuro; selección de texto."
+        },
+        {
+          "name": "color/brand-honey",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            }
+          },
+          "description": "Acento de marca. Solo sobre brand-jungle (icono +, número del puntaje) o como fondo del botón + en oscuro. Nunca texto sobre bg."
+        },
+        {
+          "name": "color/bg",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9569,
+              "g": 0.949,
+              "b": 0.9216,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.0784,
+              "g": 0.0902,
+              "b": 0.0706,
+              "a": 1
+            }
+          },
+          "description": "Fondo de pantalla (v1: paper)."
+        },
+        {
+          "name": "color/surface",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9216,
+              "g": 0.9137,
+              "b": 0.8627,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.1176,
+              "g": 0.1333,
+              "b": 0.1059,
+              "a": 1
+            }
+          },
+          "description": "Tarjetas, campos, chips sin seleccionar, listas agrupadas. Reemplaza los bordes finos de v1."
+        },
+        {
+          "name": "color/surface-strong",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8941,
+              "g": 0.8902,
+              "b": 0.8235,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.1529,
+              "g": 0.1725,
+              "b": 0.1373,
+              "a": 1
+            }
+          },
+          "description": "Estado presionado de surface; placeholder de foto."
+        },
+        {
+          "name": "color/line",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.1843,
+              "g": 0.2078,
+              "b": 0.1569,
+              "a": 0.102
+            },
+            "Oscuro": {
+              "r": 0.9255,
+              "g": 0.9176,
+              "b": 0.8745,
+              "a": 0.1216
+            }
+          },
+          "description": "Separadores dentro de listas agrupadas y borde superior de la barra de pestañas. No para contornear tarjetas."
+        },
+        {
+          "name": "color/ink",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.1843,
+              "g": 0.2078,
+              "b": 0.1569,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9255,
+              "g": 0.9176,
+              "b": 0.8745,
+              "a": 1
+            }
+          },
+          "description": "Texto principal sobre bg y surface (v1: moss)."
+        },
+        {
+          "name": "color/ink-soft",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.3725,
+              "g": 0.4,
+              "b": 0.3216,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.702,
+              "g": 0.7137,
+              "b": 0.651,
+              "a": 1
+            }
+          },
+          "description": "Texto secundario: metadatos, etiquetas de sección, pestañas inactivas. Es el gris mínimo permitido para texto (≥4.5:1 sobre bg y surface)."
+        },
+        {
+          "name": "color/ink-faint",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.5412,
+              "g": 0.549,
+              "b": 0.498,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.4902,
+              "g": 0.5059,
+              "b": 0.451,
+              "a": 1
+            }
+          },
+          "description": "Solo decorativo: asas de hojas, iconos de relleno de fotos. No cumple 4.5:1 para texto; v1 lo usaba en placeholders y tiempos, v2 no."
+        },
+        {
+          "name": "color/primary",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.3333,
+              "g": 0.4196,
+              "b": 0.2275,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            }
+          },
+          "description": "Botón Guardar, chip seleccionado, interruptor activo, pestaña activa."
+        },
+        {
+          "name": "color/primary-pressed",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.2745,
+              "g": 0.349,
+              "b": 0.1843,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.6627,
+              "g": 0.7686,
+              "b": 0.498,
+              "a": 1
+            }
+          },
+          "description": "Estado presionado de primary; texto de puntaje sobre surface."
+        },
+        {
+          "name": "color/on-primary",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9569,
+              "g": 0.949,
+              "b": 0.9216,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.0784,
+              "g": 0.0902,
+              "b": 0.0706,
+              "a": 1
+            }
+          },
+          "description": "Texto e iconos sobre primary."
+        },
+        {
+          "name": "color/action-bg",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.0784,
+              "g": 0.0902,
+              "b": 0.0706,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            }
+          },
+          "description": "Fondo del botón central + y de la opción de puntaje elegida."
+        },
+        {
+          "name": "color/action-fg",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.0784,
+              "g": 0.0902,
+              "b": 0.0706,
+              "a": 1
+            }
+          },
+          "description": "Icono + y número sobre action-bg."
+        },
+        {
+          "name": "color/on-action",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9569,
+              "g": 0.949,
+              "b": 0.9216,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.0784,
+              "g": 0.0902,
+              "b": 0.0706,
+              "a": 1
+            }
+          },
+          "description": "Texto de apoyo sobre action-bg (p. ej. 'Muy rico')."
+        },
+        {
+          "name": "color/blob-honey",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.898,
+              "g": 0.7216,
+              "b": 0.2941,
+              "a": 1
+            }
+          },
+          "description": "Círculo decorativo de la tarjeta de café (de v1). Se pinta al 70 % de opacidad sobre surface. Nunca lleva texto encima."
+        },
+        {
+          "name": "color/blob-sage",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.5882,
+              "g": 0.702,
+              "b": 0.4157,
+              "a": 1
+            }
+          },
+          "description": "Círculo decorativo de la tarjeta de café, al 70 %."
+        },
+        {
+          "name": "color/blob-clay",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.851,
+              "g": 0.5412,
+              "b": 0.4157,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.851,
+              "g": 0.5412,
+              "b": 0.4157,
+              "a": 1
+            }
+          },
+          "description": "Círculo decorativo de la tarjeta de café, al 70 %."
+        },
+        {
+          "name": "color/blob-neutral",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8941,
+              "g": 0.8902,
+              "b": 0.8235,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.1529,
+              "g": 0.1725,
+              "b": 0.1373,
+              "a": 1
+            }
+          },
+          "description": "Círculo para cafés sin color asignado."
+        },
+        {
+          "name": "color/process-1",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7253,
+              "g": 0.8323,
+              "b": 0.9461,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.7253,
+              "g": 0.8323,
+              "b": 0.9461,
+              "a": 1
+            }
+          },
+          "description": "Color 1 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-2",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.6841,
+              "g": 0.8736,
+              "b": 0.8829,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.6841,
+              "g": 0.8736,
+              "b": 0.8829,
+              "a": 1
+            }
+          },
+          "description": "Color 2 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-3",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8088,
+              "g": 0.8746,
+              "b": 0.7064,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.8088,
+              "g": 0.8746,
+              "b": 0.7064,
+              "a": 1
+            }
+          },
+          "description": "Color 3 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-4",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.945,
+              "g": 0.7819,
+              "b": 0.675,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.945,
+              "g": 0.7819,
+              "b": 0.675,
+              "a": 1
+            }
+          },
+          "description": "Color 4 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-5",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7921,
+              "g": 0.7933,
+              "b": 0.9208,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.7921,
+              "g": 0.7933,
+              "b": 0.9208,
+              "a": 1
+            }
+          },
+          "description": "Color 5 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-6",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9206,
+              "g": 0.756,
+              "b": 0.801,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9206,
+              "g": 0.756,
+              "b": 0.801,
+              "a": 1
+            }
+          },
+          "description": "Color 6 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden."
+        },
+        {
+          "name": "color/process-washed",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7363,
+              "g": 0.8701,
+              "b": 0.7929,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.7363,
+              "g": 0.8701,
+              "b": 0.7929,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Lavado»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/process-natural",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9287,
+              "g": 0.762,
+              "b": 0.7321,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9287,
+              "g": 0.762,
+              "b": 0.7321,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Natural»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/process-honey",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.9168,
+              "g": 0.8359,
+              "b": 0.6702,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.9168,
+              "g": 0.8359,
+              "b": 0.6702,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Honey»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/process-anaerobic",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.8474,
+              "g": 0.7592,
+              "b": 0.8673,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.8474,
+              "g": 0.7592,
+              "b": 0.8673,
+              "a": 1
+            }
+          },
+          "description": "Color del proceso de catálogo «Anaeróbico»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo."
+        },
+        {
+          "name": "color/danger",
+          "type": "COLOR",
+          "valuesByMode": {
+            "Claro": {
+              "r": 0.7569,
+              "g": 0.2902,
+              "b": 0.2275,
+              "a": 1
+            },
+            "Oscuro": {
+              "r": 0.8784,
+              "g": 0.451,
+              "b": 0.3725,
+              "a": 1
+            }
+          },
+          "description": "Errores, borrar, punto de notificación. Nunca decorativo."
+        }
+      ]
+    },
+    {
+      "name": "Sorbo v2 · Medidas",
+      "modes": [
+        "Default"
+      ],
+      "variables": [
+        {
+          "name": "spacing/space-1",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 4.0
+          },
+          "description": "Entre icono y etiqueta de pestaña; entre líneas de metadatos."
+        },
+        {
+          "name": "spacing/space-2",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 8.0
+          },
+          "description": "Entre chips; entre etiqueta y campo."
+        },
+        {
+          "name": "spacing/space-3",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 12.0
+          },
+          "description": "Padding de tarjeta de nota; hueco entre miniatura y texto."
+        },
+        {
+          "name": "spacing/space-4",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 16.0
+          },
+          "description": "Margen lateral de pantalla; padding de listas agrupadas."
+        },
+        {
+          "name": "spacing/space-5",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 24.0
+          },
+          "description": "Entre secciones de un formulario."
+        },
+        {
+          "name": "spacing/space-6",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 40.0
+          },
+          "description": "Separación grande, solo en estados vacíos."
+        },
+        {
+          "name": "radius/radius-sm",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 12.0
+          },
+          "description": "Campos, miniaturas de foto, botones de icono."
+        },
+        {
+          "name": "radius/radius-md",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 14.0
+          },
+          "description": "Botones, listas agrupadas, opciones de puntaje."
+        },
+        {
+          "name": "radius/radius-lg",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 16.0
+          },
+          "description": "Tarjetas de nota y del feed."
+        },
+        {
+          "name": "radius/radius-xl",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 18.0
+          },
+          "description": "Botón central +, tarjeta de puntaje, tarjeta '¿Qué estás tomando hoy?'."
+        },
+        {
+          "name": "radius/radius-sheet",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 24.0
+          },
+          "description": "Esquinas superiores de hojas inferiores."
+        },
+        {
+          "name": "radius/radius-pill",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 9999.0
+          },
+          "description": "Chips, interruptores, avatares."
+        },
+        {
+          "name": "size/touch-min",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 44.0
+          },
+          "description": "Área mínima de cualquier control."
+        },
+        {
+          "name": "size/field-height",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 48.0
+          },
+          "description": "Campos de texto."
+        },
+        {
+          "name": "size/button-height",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 52.0
+          },
+          "description": "Botón principal y secundario de pie de pantalla."
+        },
+        {
+          "name": "size/chip-height",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 34.0
+          },
+          "description": "Chips de sabor y filtros (v1: 25 px)."
+        },
+        {
+          "name": "size/action-size",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 56.0
+          },
+          "description": "Botón central + de la barra de pestañas."
+        },
+        {
+          "name": "size/tabbar-height",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 84.0
+          },
+          "description": "Barra de pestañas incluyendo zona segura inferior."
+        },
+        {
+          "name": "size/blob-size",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 104.0
+          },
+          "description": "Diámetro del círculo de la tarjeta de café; se desplaza -34 px arriba y a la derecha para quedar recortado."
+        },
+        {
+          "name": "size/dot-size",
+          "type": "FLOAT",
+          "valuesByMode": {
+            "Default": 40.0
+          },
+          "description": "Círculo de color en filas de lista (buscador, vista previa de proceso). Sustituye la miniatura de foto: v2 no maneja fotos."
+        }
+      ]
+    }
+  ]
+}

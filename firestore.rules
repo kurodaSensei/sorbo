@@ -38,10 +38,22 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // Brindar (v2): quien puede leer una nota ajena solo puede añadir o quitar
+    // su propia entrada en `cheers` y no tocar ningún otro campo.
+    function isOwnCheerOnly() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cheers'])
+        && request.resource.data.get('cheers', {}).diff(resource.data.get('cheers', {}))
+          .affectedKeys().hasOnly([request.auth.uid]);
+    }
+
     match /tastings/{docId} {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (
+        resource.data.userId == request.auth.uid
+        || (canReadShareable() && isOwnCheerOnly())
+      );
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /recipes/{docId} {

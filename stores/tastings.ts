@@ -27,12 +27,12 @@ export const useTastingsStore = defineStore('tastings', () => {
       fetchShared: () => getSharedWithMe<Tasting>('tastings'),
     },
     messages: {
-      created: 'Cata registrada',
-      updated: 'Cata actualizada',
-      removed: 'Cata eliminada',
-      createFailed: 'No se pudo crear la cata',
-      updateFailed: 'No se pudo actualizar la cata',
-      removeFailed: 'No se pudo eliminar la cata',
+      created: 'Nota guardada',
+      updated: 'Nota actualizada',
+      removed: 'Nota eliminada',
+      createFailed: 'No se pudo guardar la nota',
+      updateFailed: 'No se pudo actualizar la nota',
+      removeFailed: 'No se pudo eliminar la nota',
       sharedLoadFailed: 'No se pudieron cargar catas compartidas',
     },
     sortShared: items => items.sort((a, b) => {

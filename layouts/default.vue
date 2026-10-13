@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { APP_TABS } from '~/utils/navigation'
 
 const { currentUser } = useAuth()
 const friendsStore = useFriendsStore()
@@ -30,37 +31,30 @@ const sidebarUser = computed(() =>
 
 const sidebarSections = [
   {
-    title: 'Diario',
+    title: 'Sorbo',
+    items: APP_TABS.map(t => ({ key: t.key, label: t.label, to: t.to })),
+  },
+  {
+    title: 'Tu colección',
     items: [
-      { key: 'home', label: 'Inicio', to: '/app' },
-      { key: 'explore', label: 'Explora', to: '/app/explore' },
-      { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
-      { key: 'tastings', label: 'Catas', to: '/app/tastings' },
-      { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
-      { key: 'wishlist', label: 'Wishlist', to: '/app/wishlist' },
+      { key: 'coffees', label: 'Mis cafés', to: '/app/coffees' },
+      { key: 'wishlist', label: 'Quiero probar', to: '/app/coffees?f=wish' },
+      { key: 'friends', label: 'Mis amigos', to: '/app/friends' },
     ],
   },
   {
-    title: 'Catálogo',
+    title: 'Personalizar listas',
     items: [
       { key: 'roasters', label: 'Marcas', to: '/app/roasters' },
       { key: 'varieties', label: 'Variedades', to: '/app/varieties' },
       { key: 'methods', label: 'Métodos', to: '/app/methods' },
       { key: 'processes', label: 'Procesos', to: '/app/processes' },
-      { key: 'notes', label: 'Notas', to: '/app/notes' },
+      { key: 'notes', label: 'Sabores', to: '/app/notes' },
     ],
   },
 ]
 
-// Tab bar mobile: 5 items, el núcleo del diario. Wishlist se accede desde
-// el header de la página Cafés (ícono bookmark) — ver pages/app/coffees.
-const mobileTabs = [
-  { key: 'home', label: 'Inicio', to: '/app' },
-  { key: 'explore', label: 'Explora', to: '/app/explore' },
-  { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
-  { key: 'tastings', label: 'Catas', to: '/app/tastings' },
-  { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
-]
+const ui = useUiStore()
 
 // ─── Swipe horizontal entre tabs ────────────────────────────────────────────
 // Solo en mobile y solo en la raíz de cada tab (no en detalles/wizards).
@@ -71,7 +65,7 @@ const SWIPE_VELOCITY = 0.4
 const SWIPE_VERTICAL_DRIFT = 60
 
 const currentTabIndex = computed(() => {
-  return mobileTabs.findIndex(t => t.to === route.path)
+  return APP_TABS.findIndex(t => t.to === route.path)
 })
 
 const swipeStart = ref({ x: 0, y: 0, t: 0, active: false })
@@ -107,10 +101,10 @@ function onSwipeEnd(e: TouchEvent) {
   const dir = dx > 0 ? -1 : 1 // swipe right → tab previous, swipe left → next
   const nextIndex = currentTabIndex.value + dir
 
-  if (nextIndex < 0 || nextIndex >= mobileTabs.length) return
+  if (nextIndex < 0 || nextIndex >= APP_TABS.length) return
 
   light()
-  router.push(mobileTabs[nextIndex].to)
+  router.push(APP_TABS[nextIndex].to)
 }
 </script>
 
@@ -120,11 +114,16 @@ function onSwipeEnd(e: TouchEvent) {
       :sections="sidebarSections"
       :user="sidebarUser"
       class="hidden lg:flex"
-    />
+    >
+      <button type="button" class="sidebar-note" @click="ui.openNoteSheet()">
+        <AppIcon name="plus" :size="20" :stroke="2.25" />
+        Anotar taza
+      </button>
+    </UiSidebar>
 
     <div class="flex-1 flex flex-col min-w-0">
       <main
-        class="flex-1 pb-[88px] lg:pb-0 pt-[env(safe-area-inset-top)]"
+        :class="['flex-1 lg:pb-0 pt-[env(safe-area-inset-top)]', route.meta.hideTabBar ? '' : 'pb-[calc(var(--tabbar-height)+env(safe-area-inset-bottom)+8px)]']"
         @touchstart.passive="onSwipeStart"
         @touchend.passive="onSwipeEnd"
       >
@@ -132,6 +131,24 @@ function onSwipeEnd(e: TouchEvent) {
       </main>
     </div>
 
-    <UiTabBar :items="mobileTabs" class="lg:hidden" />
+    <AppTabBar v-if="!route.meta.hideTabBar" class="lg:hidden" />
+    <NoteSheet />
   </div>
 </template>
+
+<style scoped>
+.sidebar-note {
+  height: var(--button-height);
+  border-radius: var(--radius-md);
+  background: var(--action-bg);
+  color: var(--on-action);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: 600 15px/20px var(--font-sans);
+}
+.sidebar-note :deep(svg) {
+  color: var(--action-fg);
+}
+</style>

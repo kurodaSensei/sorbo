@@ -1,0 +1,24 @@
+<!-- @dsCard group="Acciones" height=140 subtitle="Activo e inactivo" -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:360px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;font:400 15px/22px var(--font-ui)}
+.sw{width:50px;height:30px;border:0;border-radius:var(--radius-pill);position:relative;padding:0;cursor:pointer;background:var(--surface-strong)}
+.sw span{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:var(--radius-pill);background:var(--bg)}
+.sw[aria-checked="true"]{background:var(--primary)}
+.sw[aria-checked="true"] span{left:auto;right:3px;background:var(--on-primary)}
+.sw:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="root">
+  <div class="row"><span id="l1">Compartir con amigos</span><button class="sw" type="button" role="switch" aria-checked="true" aria-labelledby="l1"><span></span></button></div>
+  <div class="row"><span id="l2">Recordarme a la hora del café</span><button class="sw" type="button" role="switch" aria-checked="false" aria-labelledby="l2"><span></span></button></div>
+</div>
+</body>
+</html>

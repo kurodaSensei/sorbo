@@ -1,10 +1,9 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: false,
-  pageTransition: { name: 'wizard', mode: 'out-in' },
-})
+// Registrar una bolsa antes de probarla (botón + de Mis cafés). El camino
+// habitual es anotar directamente: el café se crea solo desde la nota.
+definePageMeta({ hideTabBar: true })
 </script>
 
 <template>
-  <CoffeeWizard mode="create" />
+  <CoffeeForm />
 </template>

@@ -1287,7 +1287,7 @@ function mobileScrollAndClose(id: string) {
 .device .avatar {
   width: 30px; height: 30px;
   border-radius: 50%;
-  background: var(--surface);
+  background: var(--surface-strong);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display);
   font-size: 13px;
@@ -1303,7 +1303,7 @@ function mobileScrollAndClose(id: string) {
 .device .title-l em { font-style: italic; color: var(--olive); }
 .device .seg-toggle {
   display: inline-flex;
-  background: var(--surface);
+  background: var(--surface-strong);
   border-radius: 999px;
   padding: 4px;
   gap: 2px;
@@ -1333,7 +1333,7 @@ function mobileScrollAndClose(id: string) {
   position: relative;
   border-radius: 18px;
   padding: 18px 16px 16px;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  background: linear-gradient(135deg, var(--surface-strong), var(--surface-2));
   overflow: hidden;
   margin-top: 16px;
 }
@@ -1722,7 +1722,7 @@ function mobileScrollAndClose(id: string) {
 
 .v-mem {
   width: 100%;
-  background: linear-gradient(135deg, var(--surface), var(--surface-2));
+  background: linear-gradient(135deg, var(--surface-strong), var(--surface-2));
   border-radius: 14px;
   padding: 18px;
   position: relative;
@@ -1849,7 +1849,7 @@ function mobileScrollAndClose(id: string) {
 
 /* ==================== VOICES / TESTIMONIALES ==================== */
 .voices {
-  background: var(--surface);
+  background: var(--surface-strong);
   padding: 100px 32px;
 }
 .voices-inner {

@@ -60,7 +60,7 @@ const friends = computed<FriendEntry[]>(() => {
 const OPTIONS: { value: Visibility; icon: string; title: string; desc: string }[] = [
   { value: 'private', icon: 'lucide:lock', title: 'Privado', desc: 'Solo tú lo ves' },
   { value: 'friends', icon: 'lucide:users', title: 'Amigos', desc: 'Los amigos que elijas' },
-  { value: 'community', icon: 'lucide:globe', title: 'Comunidad', desc: 'Todos en Sorbo, en Explora' },
+  { value: 'community', icon: 'lucide:globe', title: 'Comunidad', desc: 'Todos en Sorbo, en Descubrir' },
 ]
 
 function toggleFriend(uid: string) {
@@ -88,7 +88,7 @@ async function save() {
   if (visibility.value === 'community' && !communityWarned.value) {
     const ok = await confirm({
       title: 'Compartir con la comunidad',
-      message: 'Será visible para todos los usuarios de Sorbo en Explora. Tu nombre y avatar aparecerán como autor.',
+      message: 'Será visible para todos los usuarios de Sorbo en Amigos → Descubrir. Tu nombre y avatar aparecerán como autor.',
       confirmLabel: 'Entiendo, compartir',
     })
     if (!ok) return
@@ -203,7 +203,7 @@ function close() {
       >
         <Icon name="lucide:info" class="size-4 text-moss-soft shrink-0 mt-[2px]" aria-hidden="true" />
         <p class="font-display italic text-[13px] text-moss-soft leading-relaxed">
-          Aparecerá en Explora para toda la comunidad de Sorbo, con tu nombre y avatar como autor.
+          Aparecerá en Descubrir para toda la comunidad de Sorbo, con tu nombre y avatar como autor.
         </p>
       </div>
 

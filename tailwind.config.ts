@@ -13,7 +13,7 @@ export default {
       colors: {
         paper: 'rgb(var(--paper-rgb) / <alpha-value>)',
         'surface-2': 'var(--surface-2)',
-        surface: 'var(--surface)',
+        surface: 'var(--surface-strong)',
         jungle: 'rgb(var(--jungle-rgb) / <alpha-value>)',
 
         olive: {

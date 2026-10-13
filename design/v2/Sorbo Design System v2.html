@@ -1,0 +1,1999 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorbo Design System v2</title>
+<style>
+/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url("https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap");
+
+:root, [data-theme="light"] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme="dark"] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: "DM Serif Display", ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 32px 16px 80px; display: flex; flex-direction: column; gap: 48px; }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a { font-size: 14px; color: var(--ink); background: var(--surface); padding: 8px 12px; border-radius: var(--radius-pill); text-decoration: none; }
+button.theme { height: 40px; padding: 0 14px; border: 0; border-radius: var(--radius-md); background: var(--surface); color: var(--ink); font: 600 14px var(--font-ui); cursor: pointer; }
+h2 { font: 400 34px/36px var(--font-display); margin: 0 0 16px; }
+h3 { font: 600 16px/22px var(--font-ui); margin: 24px 0 8px; }
+.cover { width: 100%; aspect-ratio: 960 / 288; border: 0; border-radius: var(--radius-lg); overflow: hidden; }
+.readme { font: 400 15px/24px var(--font-ui); background: var(--surface); padding: 20px; border-radius: var(--radius-lg); max-height: 560px; overflow: auto; }
+.readme h2 { font: 400 28px/32px var(--font-display); margin: 0 0 8px; } .readme h3 { margin-top: 20px; } .readme h4 { font-size: 14px; margin: 16px 0 4px; }
+th { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.sw { background: var(--surface); border-radius: var(--radius-lg); padding: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sw .chips { display: flex; height: 56px; border-radius: var(--radius-sm); overflow: hidden; outline: 1px solid var(--line); }
+.sw .chips span { flex: 1; }
+.sw b { font-size: 14px; } .sw p, .ts p { margin: 0; font-size: 12px; line-height: 16px; color: var(--ink-soft); }
+code { font: 500 12px/16px var(--font-data); color: var(--ink-soft); }
+.ts { border-bottom: 1px solid var(--line); padding: 14px 0; display: flex; flex-direction: column; gap: 4px; }
+.tw { overflow-x: auto; } table { border-collapse: collapse; width: 100%; font-size: 14px; }
+td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.comp iframe { width: 100%; border: 0; border-radius: var(--radius-lg); background: var(--bg); outline: 1px solid var(--line); }
+.guide { font-size: 14px; line-height: 21px; max-width: 70ch; } .guide p { margin: 8px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <nav class="toc" aria-label="Secciones"><a href="#marca">Marca</a><a href="#color">Color</a><a href="#tipo">Tipografía</a><a href="#medidas">Medidas</a><a href="#componentes">Componentes</a></nav>
+    <button class="theme" type="button" id="themeBtn">Tema oscuro</button>
+  </header>
+  <iframe class="cover" title="Portada Sorbo" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;amp;family=Geist:wght@400;500&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg)}
+.cover{position:relative;width:960px;height:288px;background:var(--bg);overflow:hidden}
+.art{position:absolute;left:480px;top:0}
+.jungle{fill:var(--brand-jungle)}
+.olive{fill:var(--brand-olive)}
+.sage{fill:var(--brand-sage)}
+.honey{fill:var(--brand-honey)}
+.surface{fill:var(--surface-strong)}
+.text{position:absolute;left:40px;bottom:40px;max-width:440px;display:flex;flex-direction:column;gap:12px}
+.name{font:400 120px/0.92 var(--font-display);color:var(--ink);letter-spacing:-0.02em}
+.tag{font:400 14px/20px var(--font-ui);color:var(--ink-soft)}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;cover&quot;&gt;
+  &lt;svg class=&quot;art&quot; width=&quot;480&quot; height=&quot;288&quot; viewBox=&quot;0 0 480 288&quot; aria-hidden=&quot;true&quot;&gt;
+    &lt;!-- blocks: brand-jungle 216×288 (slab, bleeds top+bottom), brand-olive 168×144, brand-honey 168×120, surface-strong 96×144, brand-sage disc r=48 --&gt;
+    &lt;!-- arrangement: one tall slab with satellites, flush modular grid on 24px steps (space-5), bleeding right edge --&gt;
+    &lt;!-- pattern: discs and half-rounds from radius-pill: a coffee drop falling into the cup; soft, friendly large radii (README: radius-xl, radius-pill for brand surfaces) --&gt;
+    &lt;!-- steps &amp; radii: space-5 24px grid, radius-xl 18px on blocks, radius-pill on discs --&gt;
+    &lt;rect class=&quot;jungle&quot; x=&quot;24&quot; y=&quot;0&quot; width=&quot;216&quot; height=&quot;288&quot;&gt;&lt;/rect&gt;
+    &lt;rect class=&quot;olive&quot; x=&quot;264&quot; y=&quot;24&quot; width=&quot;168&quot; height=&quot;144&quot; rx=&quot;18&quot;&gt;&lt;/rect&gt;
+    &lt;rect class=&quot;surface&quot; x=&quot;432&quot; y=&quot;24&quot; width=&quot;96&quot; height=&quot;144&quot; rx=&quot;18&quot;&gt;&lt;/rect&gt;
+    &lt;rect class=&quot;honey&quot; x=&quot;264&quot; y=&quot;192&quot; width=&quot;240&quot; height=&quot;120&quot; rx=&quot;18&quot;&gt;&lt;/rect&gt;
+    &lt;circle class=&quot;sage&quot; cx=&quot;132&quot; cy=&quot;96&quot; r=&quot;48&quot;&gt;&lt;/circle&gt;
+    &lt;circle class=&quot;honey&quot; cx=&quot;132&quot; cy=&quot;192&quot; r=&quot;18&quot;&gt;&lt;/circle&gt;
+    &lt;circle class=&quot;honey&quot; cx=&quot;132&quot; cy=&quot;240&quot; r=&quot;10&quot;&gt;&lt;/circle&gt;
+    &lt;path class=&quot;jungle&quot; d=&quot;M312 192 a36 36 0 0 0 72 0 z&quot;&gt;&lt;/path&gt;
+  &lt;/svg&gt;
+  &lt;div class=&quot;text&quot;&gt;
+    &lt;div class=&quot;name&quot;&gt;Sorbo&lt;/div&gt;
+    &lt;div class=&quot;tag&quot;&gt;Una taza, una nota. El diario de café para anotar en segundos y compartir con tu gente.&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+  <section id="marca"><h2>Guía de marca</h2><div class="readme"><h2>Sorbo</h2>
+<p>Sorbo es un diario de café para anotar cada taza en segundos y compartirla con tu gente. Este sistema (v2) conserva la identidad de v1 (paleta de campo, DM Serif Display, tono cercano) y la lleva a una interfaz de app: una acción principal siempre visible, controles grandes, menos texto decorativo.</p>
+<p>Las pantallas de referencia están en el canvas «Sorbo · Rediseño app».</p>
+<h3>Principios</h3>
+<ol><li><strong>Una taza, una nota.</strong> La unidad del producto es la nota. El café es un dato de la nota: se escribe o se elige de recientes, nunca es un paso previo obligatorio.</li><li><strong>Veinte segundos.</strong> Anotar cabe en una sola hoja: café, puntaje, sabores, nota. Todo lo demás (método, receta, dosis, atributos) va plegado en «Más detalles».</li><li><strong>Una acción principal por pantalla.</strong> El botón + central (<code>action-bg</code>) es la acción de la app. Dentro de una pantalla hay un solo botón <code>primary</code>.</li><li><strong>Mostrar lo avanzado solo cuando se pide.</strong> Proceso, variedad, SCA y atributos existen, pero nunca en el camino principal.</li><li><strong>Social ligero.</strong> Brindar (reacción) y «Quiero probarlo» (a la wishlist). Nada de comentarios largos ni métricas públicas.</li></ol>
+<h3>Voz y contenido</h3>
+<ul><li>Tuteo, español neutro, frases cortas. «Anota tu primera taza», no «Registra tu primera degustación».</li><li>Vocabulario de la persona, no del catador: <strong>nota</strong> (no «cata»), <strong>puntaje</strong> (no «score»), <strong>sabores</strong> (no «notas de sabor»), <strong>marca</strong> (no «tostador»), <strong>preparar</strong> (no «extracción»).</li><li>Botones con verbo y objeto: «Guardar nota», «Repetir», «Compartir».</li><li>El puntaje se dice con palabras: 1 Meh · 2 Bien · 3 Rico · 4 Muy rico · 5 Wow. Se guarda como 2, 4, 6, 8, 10 para ser compatible con los datos de v1 (escala 0–10).</li><li>Sin emoji en la interfaz. Sin mayúsculas sostenidas.</li></ul>
+<h3>Fundamentos visuales</h3>
+<h4>Color</h4>
+<ul><li>Fondo <code>bg</code>; todo lo agrupable vive en <code>surface</code> con radio, <strong>sin bordes finos</strong>. <code>line</code> solo separa filas dentro de una lista agrupada.</li><li><code>primary</code> (oliva en claro, salvia en oscuro) marca lo elegido y la acción de guardar. Texto encima: <code>on-primary</code>.</li><li><code>brand-jungle</code> + <code>brand-honey</code> es la firma de marca y se reserva para: el botón +, el puntaje elegido (selector y detalle de nota) y la tarjeta «¿Qué estás tomando hoy?». Si aparece en más sitios pierde fuerza.</li><li>Estados seleccionados en <code>primary</code> (chip elegido, «Brindaste», «Siguiendo»). Excepción: «En tu lista» queda en <code>bg</code> con el icono de marcador relleno, para no tener dos rellenos oliva en la misma tarjeta.</li><li><strong>El puntaje nunca se pinta sobre el círculo</strong> (variante A): en tarjetas y feed va abajo a la derecha («muy rico 4»); en el detalle de nota, el número grande va bajo el nombre del café con la palabra en itálica.</li><li>Los círculos de la tarjeta de café (<code>blob-honey</code>, <code>blob-sage</code>, <code>blob-clay</code>, <code>blob-neutral</code>) son decorativos, al 70 % de opacidad y sin texto encima. Cada café recibe uno al crearse, en rotación. Si su proceso tiene color propio (procesos creados por la persona, paleta <code>process-1</code> … <code>process-6</code>; los procesos de catálogo usan <code>process-washed</code>, <code>process-natural</code>, <code>process-honey</code>, <code>process-anaerobic</code>), se usa ese.</li><li>Texto: <code>ink</code> y <code>ink-soft</code>. <code>ink-faint</code> no se usa para texto (3:1 sobre <code>bg</code>).</li><li><code>danger</code> solo para errores, borrar y el punto de notificaciones.</li></ul>
+<h4>Tipografía por rol</h4>
+<div class="tw"><table><thead><tr><th>Familia</th><th>Rol</th><th>Estilos</th></tr></thead><tbody><tr><td>DM Serif Display</td><td>Títulos de pantalla, nombres de café, puntaje, la cita de la nota, la marca en la tarjeta</td><td><code>title-lg</code>, <code>title-md</code>, <code>coffee-name</code>, <code>card-name</code>, <code>card-by</code>, <code>score</code>, <code>card-score</code>, <code>card-score-word</code>, <code>quote</code></td></tr><tr><td>Geist</td><td>Toda la interfaz</td><td><code>body</code>, <code>body-strong</code>, <code>button</code>, <code>label</code>, <code>meta</code>, <code>caption</code>, <code>tab</code></td></tr><tr><td>JetBrains Mono</td><td>Cifras de preparación y el encabezado de la tarjeta de café</td><td><code>data</code>, <code>card-eyebrow</code></td></tr></tbody></table></div>
+<p>Retirados de v1: eyebrows mono en mayúsculas como etiquetas de campo y sección, ayudas en serif itálica bajo cada campo, saludos de 40–96 px.</p>
+<p>Vuelven de v1, solo en la tarjeta de café: el encabezado mono en mayúsculas (<code>card-eyebrow</code>, «— V60 · 8:14», 11 px en mayúsculas) y la marca en serif itálica (<code>card-by</code>, «de [Marca]»). Fueron lo más valorado de v1 y dan el tono editorial; fuera de la tarjeta siguen retirados.</p>
+<h4>Espacio, radios y tamaños</h4>
+<ul><li>Margen lateral <code>space-4</code> (16 px). Secciones separadas por <code>space-5</code>.</li><li>Radios por rol: <code>radius-sm</code> campos y miniaturas, <code>radius-md</code> botones y listas, <code>radius-lg</code> tarjetas, <code>radius-xl</code> superficies de marca, <code>radius-sheet</code> hojas.</li><li>Ningún control mide menos de <code>touch-min</code> (44 px). Campos <code>field-height</code> 48 px, botones <code>button-height</code> 52 px, chips <code>chip-height</code> 34 px.</li></ul>
+<h4>Superficies y movimiento</h4>
+<ul><li>Una sola sombra: <code>shadow-sheet</code>, para hojas inferiores. Las tarjetas no llevan sombra.</li><li>Crear y editar se hace en hojas que suben desde abajo; el detalle se abre empujando la pantalla. Transiciones de 200 ms con <code>cubic-bezier(0.4, 0, 0.2, 1)</code>; respetar <code>prefers-reduced-motion</code>.</li></ul>
+<h3>Fotos</h3>
+<p>v2 no maneja fotos. La identidad visual de cada café la da su círculo de color; en listas se usa un círculo de <code>dot-size</code>.</p>
+<h3>Iconografía</h3>
+<p>Lucide, trazo 1.75 en reposo y 2 en activo, 24 px en la barra y 20–22 px en cabeceras. Iconos de la barra: libro abierto (Diario), personas (Amigos), + (Anotar), temporizador (Preparar), persona (Yo). Taza para brindar, marcador para «Quiero probarlo». Todo botón solo-icono lleva <code>aria-label</code>.</p>
+<h3>Navegación</h3>
+<p>Barra inferior de 84 px: <strong>Diario · Amigos · + · Preparar · Yo</strong>. El + abre la hoja «Nueva nota» desde cualquier pestaña. Los catálogos de v1 (Marcas, Variedades, Métodos, Procesos, Notas) viven en Yo → Personalizar listas.</p>
+<h3>Componentes</h3>
+<ul><li><strong>Button</strong>: primario, secundario y de marca; 52 px.</li><li><strong>Chip</strong>: sabores y filtros, seleccionable, 34 px.</li><li><strong>Switch</strong>: interruptor para compartir y recordatorios.</li><li><strong>Field</strong>: campo relleno con etiqueta encima.</li><li><strong>ScorePicker</strong>: cinco opciones con número y palabra.</li><li><strong>NoteCard</strong> (tarjeta de café): la entrada del diario y de Mis cafés; estilo editorial heredado de v1, sin fotos.</li><li><strong>ListGroup</strong>: filas agrupadas en Yo y Ajustes.</li><li><strong>TabBar</strong>: barra inferior con el botón + central.</li></ul>
+<h3>Accesibilidad</h3>
+<ul><li>Texto ≥4.5:1 en ambos temas; <code>ink-soft</code> es el gris mínimo.</li><li>Selección indicada por color y por forma (relleno completo), nunca solo por tono.</li><li>Foco visible: contorno de 2 px en <code>primary</code> con separación de 2 px.</li></ul></div></section>
+  <section id="color"><h2>Color</h2><p style="color:var(--ink-soft);margin:0 0 12px">Cada muestra: claro a la izquierda, oscuro a la derecha.</p><div class="grid"><div class="sw"><div class="chips"><span style="background:#141712"></span><span style="background:#2c3326"></span></div><b>brand-jungle</b><code>#141712 · #2c3326</code><p>Superficie oscura de marca: botón central +, tarjeta de puntaje, tarjeta &#x27;¿Qué estás tomando hoy?&#x27;. En oscuro sube de tono para separarse del fondo.</p></div>
+<div class="sw"><div class="chips"><span style="background:#556b3a"></span><span style="background:#556b3a"></span></div><b>brand-olive</b><code>#556b3a · #556b3a</code><p>Verde de marca. Acción principal en tema claro.</p></div>
+<div class="sw"><div class="chips"><span style="background:#96b36a"></span><span style="background:#96b36a"></span></div><b>brand-sage</b><code>#96b36a · #96b36a</code><p>Verde claro de marca. Acción principal en tema oscuro; selección de texto.</p></div>
+<div class="sw"><div class="chips"><span style="background:#e5b84b"></span><span style="background:#e5b84b"></span></div><b>brand-honey</b><code>#e5b84b · #e5b84b</code><p>Acento de marca. Solo sobre brand-jungle (icono +, número del puntaje) o como fondo del botón + en oscuro. Nunca texto sobre bg.</p></div>
+<div class="sw"><div class="chips"><span style="background:#f4f2eb"></span><span style="background:#141712"></span></div><b>bg</b><code>#f4f2eb · #141712</code><p>Fondo de pantalla (v1: paper).</p></div>
+<div class="sw"><div class="chips"><span style="background:#ebe9dc"></span><span style="background:#1e221b"></span></div><b>surface</b><code>#ebe9dc · #1e221b</code><p>Tarjetas, campos, chips sin seleccionar, listas agrupadas. Reemplaza los bordes finos de v1.</p></div>
+<div class="sw"><div class="chips"><span style="background:#e4e3d2"></span><span style="background:#272c23"></span></div><b>surface-strong</b><code>#e4e3d2 · #272c23</code><p>Estado presionado de surface; placeholder de foto.</p></div>
+<div class="sw"><div class="chips"><span style="background:#2f35281a"></span><span style="background:#eceadf1f"></span></div><b>line</b><code>#2f35281a · #eceadf1f</code><p>Separadores dentro de listas agrupadas y borde superior de la barra de pestañas. No para contornear tarjetas.</p></div>
+<div class="sw"><div class="chips"><span style="background:#2f3528"></span><span style="background:#eceadf"></span></div><b>ink</b><code>#2f3528 · #eceadf</code><p>Texto principal sobre bg y surface (v1: moss).</p></div>
+<div class="sw"><div class="chips"><span style="background:#5f6652"></span><span style="background:#b3b6a6"></span></div><b>ink-soft</b><code>#5f6652 · #b3b6a6</code><p>Texto secundario: metadatos, etiquetas de sección, pestañas inactivas. Es el gris mínimo permitido para texto (≥4.5:1 sobre bg y surface).</p></div>
+<div class="sw"><div class="chips"><span style="background:#8a8c7f"></span><span style="background:#7d8173"></span></div><b>ink-faint</b><code>#8a8c7f · #7d8173</code><p>Solo decorativo: asas de hojas, iconos de relleno de fotos. No cumple 4.5:1 para texto; v1 lo usaba en placeholders y tiempos, v2 no.</p></div>
+<div class="sw"><div class="chips"><span style="background:#556b3a"></span><span style="background:#96b36a"></span></div><b>primary</b><code>#556b3a · #96b36a</code><p>Botón Guardar, chip seleccionado, interruptor activo, pestaña activa.</p></div>
+<div class="sw"><div class="chips"><span style="background:#46592f"></span><span style="background:#a9c47f"></span></div><b>primary-pressed</b><code>#46592f · #a9c47f</code><p>Estado presionado de primary; texto de puntaje sobre surface.</p></div>
+<div class="sw"><div class="chips"><span style="background:#f4f2eb"></span><span style="background:#141712"></span></div><b>on-primary</b><code>#f4f2eb · #141712</code><p>Texto e iconos sobre primary.</p></div>
+<div class="sw"><div class="chips"><span style="background:#141712"></span><span style="background:#e5b84b"></span></div><b>action-bg</b><code>#141712 · #e5b84b</code><p>Fondo del botón central + y de la opción de puntaje elegida.</p></div>
+<div class="sw"><div class="chips"><span style="background:#e5b84b"></span><span style="background:#141712"></span></div><b>action-fg</b><code>#e5b84b · #141712</code><p>Icono + y número sobre action-bg.</p></div>
+<div class="sw"><div class="chips"><span style="background:#f4f2eb"></span><span style="background:#141712"></span></div><b>on-action</b><code>#f4f2eb · #141712</code><p>Texto de apoyo sobre action-bg (p. ej. &#x27;Muy rico&#x27;).</p></div>
+<div class="sw"><div class="chips"><span style="background:#e5b84b"></span><span style="background:#e5b84b"></span></div><b>blob-honey</b><code>#e5b84b · #e5b84b</code><p>Círculo decorativo de la tarjeta de café (de v1). Se pinta al 70 % de opacidad sobre surface. Nunca lleva texto encima.</p></div>
+<div class="sw"><div class="chips"><span style="background:#96b36a"></span><span style="background:#96b36a"></span></div><b>blob-sage</b><code>#96b36a · #96b36a</code><p>Círculo decorativo de la tarjeta de café, al 70 %.</p></div>
+<div class="sw"><div class="chips"><span style="background:#d98a6a"></span><span style="background:#d98a6a"></span></div><b>blob-clay</b><code>#d98a6a · #d98a6a</code><p>Círculo decorativo de la tarjeta de café, al 70 %.</p></div>
+<div class="sw"><div class="chips"><span style="background:#e4e3d2"></span><span style="background:#272c23"></span></div><b>blob-neutral</b><code>#e4e3d2 · #272c23</code><p>Círculo para cafés sin color asignado.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.86 0.05 250)"></span><span style="background:oklch(0.86 0.05 250)"></span></div><b>process-1</b><code>oklch(0.86 0.05 250) · oklch(0.86 0.05 250)</code><p>Color 1 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.87 0.05 200)"></span><span style="background:oklch(0.87 0.05 200)"></span></div><b>process-2</b><code>oklch(0.87 0.05 200) · oklch(0.87 0.05 200)</code><p>Color 2 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.88 0.06 125)"></span><span style="background:oklch(0.88 0.06 125)"></span></div><b>process-3</b><code>oklch(0.88 0.06 125) · oklch(0.88 0.06 125)</code><p>Color 3 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.86 0.06 55)"></span><span style="background:oklch(0.86 0.06 55)"></span></div><b>process-4</b><code>oklch(0.86 0.06 55) · oklch(0.86 0.06 55)</code><p>Color 4 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.85 0.045 285)"></span><span style="background:oklch(0.85 0.045 285)"></span></div><b>process-5</b><code>oklch(0.85 0.045 285) · oklch(0.85 0.045 285)</code><p>Color 5 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.85 0.05 0)"></span><span style="background:oklch(0.85 0.05 0)"></span></div><b>process-6</b><code>oklch(0.85 0.05 0) · oklch(0.85 0.05 0)</code><p>Color 6 de la paleta para procesos que crea la persona (Editar café → + Nuevo proceso). Misma luz y croma, cambia el tono. Se asignan en orden.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.87 0.045 160)"></span><span style="background:oklch(0.87 0.045 160)"></span></div><b>process-washed</b><code>oklch(0.87 0.045 160) · oklch(0.87 0.045 160)</code><p>Color del proceso de catálogo «Lavado»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.85 0.05 30)"></span><span style="background:oklch(0.85 0.05 30)"></span></div><b>process-natural</b><code>oklch(0.85 0.05 30) · oklch(0.85 0.05 30)</code><p>Color del proceso de catálogo «Natural»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.88 0.06 85)"></span><span style="background:oklch(0.88 0.06 85)"></span></div><b>process-honey</b><code>oklch(0.88 0.06 85) · oklch(0.88 0.06 85)</code><p>Color del proceso de catálogo «Honey»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo.</p></div>
+<div class="sw"><div class="chips"><span style="background:oklch(0.84 0.045 320)"></span><span style="background:oklch(0.84 0.045 320)"></span></div><b>process-anaerobic</b><code>oklch(0.84 0.045 320) · oklch(0.84 0.045 320)</code><p>Color del proceso de catálogo «Anaeróbico»: punto en chips de proceso y círculo de la tarjeta cuando «color por proceso» está activo.</p></div>
+<div class="sw"><div class="chips"><span style="background:#c14a3a"></span><span style="background:#e0735f"></span></div><b>danger</b><code>#c14a3a · #e0735f</code><p>Errores, borrar, punto de notificación. Nunca decorativo.</p></div></div></section>
+  <section id="tipo"><h2>Tipografía</h2><div class="ts"><div class="title-lg">Diario</div><code>title-lg · 34px/36px · 400</code><p>Título de pestaña (Diario, Amigos). Uno por pantalla.</p></div>
+<div class="ts"><div class="title-md">Rock natural</div><code>title-md · 32px/34px · 400</code><p>Título de detalle de nota o café.</p></div>
+<div class="ts"><div class="coffee-name">Geisha lavado</div><code>coffee-name · 19px/22px · 400</code><p>Nombre del café en listas y en el feed de Amigos.</p></div>
+<div class="ts"><div class="card-name">Rock natural</div><code>card-name · 26px/28px · 400</code><p>Nombre del café en la tarjeta de café (Diario, Mis cafés, buscador).</p></div>
+<div class="ts"><div class="card-by">de [Marca]</div><code>card-by · 14px/18px · 400</code><p>Marca en la tarjeta de café, siempre con «de».</p></div>
+<div class="ts"><div class="card-score">4</div><code>card-score · 36px/30px · 400</code><p>Número del puntaje en la tarjeta de café, abajo a la derecha.</p></div>
+<div class="ts"><div class="card-score-word">muy rico</div><code>card-score-word · 15px/20px · 400</code><p>Palabra del puntaje en minúscula, delante del número, alineada por la base. Color ink-soft.</p></div>
+<div class="ts"><div class="score">4</div><code>score · 22px/24px · 400</code><p>Número del puntaje 1–5.</p></div>
+<div class="ts"><div class="quote">Dulce como panela, con final de fresa.</div><code>quote · 19px/26px · 400</code><p>La nota personal en el detalle.</p></div>
+<div class="ts"><div class="body">Mandarina y té negro.</div><code>body · 15px/22px · 400</code><p>Texto corrido, valores de campos.</p></div>
+<div class="ts"><div class="body-strong">Laura</div><code>body-strong · 15px/22px · 600</code><p>Nombres de persona, filas de lista destacadas.</p></div>
+<div class="ts"><div class="button">Guardar nota</div><code>button · 16px/20px · 600</code><p>Botones de 52 px.</p></div>
+<div class="ts"><div class="label">¿Qué tal estuvo?</div><code>label · 13px/16px · 600</code><p>Etiquetas de campo y de sección, en ink-soft.</p></div>
+<div class="ts"><div class="meta">[Marca] · V60 · 8:14</div><code>meta · 13px/18px · 400</code><p>Metadatos bajo el nombre del café.</p></div>
+<div class="ts"><div class="caption">4 notas · promedio 3.8</div><code>caption · 12px/16px · 400</code><p>Ayudas breves, contadores.</p></div>
+<div class="ts"><div class="tab">Diario</div><code>tab · 11px/14px · 500</code><p>Etiqueta bajo el icono de pestaña; 600 cuando está activa.</p></div>
+<div class="ts"><div class="data">15 g · 250 ml · 1:16.7 · 3:10</div><code>data · 14px/20px · 500</code><p>Cifras de preparación: dosis, agua, ratio, tiempo, temperatura.</p></div>
+<div class="ts"><div class="card-eyebrow">— V60 · 8:14</div><code>card-eyebrow · 11px/14px · 500</code><p>Única línea en mono que vuelve de v1, siempre en MAYÚSCULAS (aplicar text-transform: uppercase): encabeza la tarjeta de café con método y hora, o proceso y origen. Empieza con «— ». Color ink-soft. Mínimo 11 px para que se lea en móvil.</p></div></section>
+  <section id="medidas"><h2>Medidas</h2><h3>Espaciado</h3><div class="tw"><table><tr><td><code>space-1</code></td><td>4px</td><td>Entre icono y etiqueta de pestaña; entre líneas de metadatos.</td></tr><tr><td><code>space-2</code></td><td>8px</td><td>Entre chips; entre etiqueta y campo.</td></tr><tr><td><code>space-3</code></td><td>12px</td><td>Padding de tarjeta de nota; hueco entre miniatura y texto.</td></tr><tr><td><code>space-4</code></td><td>16px</td><td>Margen lateral de pantalla; padding de listas agrupadas.</td></tr><tr><td><code>space-5</code></td><td>24px</td><td>Entre secciones de un formulario.</td></tr><tr><td><code>space-6</code></td><td>40px</td><td>Separación grande, solo en estados vacíos.</td></tr></table></div>
+<h3>Radios</h3><div class="tw"><table><tr><td><code>radius-sm</code></td><td>12px</td><td>Campos, miniaturas de foto, botones de icono.</td></tr><tr><td><code>radius-md</code></td><td>14px</td><td>Botones, listas agrupadas, opciones de puntaje.</td></tr><tr><td><code>radius-lg</code></td><td>16px</td><td>Tarjetas de nota y del feed.</td></tr><tr><td><code>radius-xl</code></td><td>18px</td><td>Botón central +, tarjeta de puntaje, tarjeta &#x27;¿Qué estás tomando hoy?&#x27;.</td></tr><tr><td><code>radius-sheet</code></td><td>24px</td><td>Esquinas superiores de hojas inferiores.</td></tr><tr><td><code>radius-pill</code></td><td>9999px</td><td>Chips, interruptores, avatares.</td></tr></table></div>
+<h3>Medidas táctiles</h3><div class="tw"><table><tr><td><code>touch-min</code></td><td>44px</td><td>Área mínima de cualquier control.</td></tr><tr><td><code>field-height</code></td><td>48px</td><td>Campos de texto.</td></tr><tr><td><code>button-height</code></td><td>52px</td><td>Botón principal y secundario de pie de pantalla.</td></tr><tr><td><code>chip-height</code></td><td>34px</td><td>Chips de sabor y filtros (v1: 25 px).</td></tr><tr><td><code>action-size</code></td><td>56px</td><td>Botón central + de la barra de pestañas.</td></tr><tr><td><code>tabbar-height</code></td><td>84px</td><td>Barra de pestañas incluyendo zona segura inferior.</td></tr><tr><td><code>blob-size</code></td><td>104px</td><td>Diámetro del círculo de la tarjeta de café; se desplaza -34 px arriba y a la derecha para quedar recortado.</td></tr><tr><td><code>dot-size</code></td><td>40px</td><td>Círculo de color en filas de lista (buscador, vista previa de proceso). Sustituye la miniatura de foto: v2 no maneja fotos.</td></tr></table></div></section>
+  <section id="componentes"><h2>Componentes</h2><section class="comp" id="Button"><h3>Button</h3><iframe title="Vista previa de Button" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;amp;family=Geist:wght@400;500;600&amp;amp;family=JetBrains+Mono:wght@500&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:560px}
+.btn{height:var(--button-height);border:0;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;gap:8px;font:600 16px/20px var(--font-ui);cursor:pointer}
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.primary{background:var(--primary);color:var(--on-primary)}
+.secondary{background:var(--surface);color:var(--ink)}
+.brand{background:var(--brand-jungle);color:#f4f2eb}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;button class=&quot;btn primary&quot; type=&quot;button&quot;&gt;Guardar nota&lt;/button&gt;
+  &lt;button class=&quot;btn secondary&quot; type=&quot;button&quot;&gt;
+    &lt;svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M3 12a9 9 0 1 0 3-6.7L3 8&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M3 3v5h5&quot;&gt;&lt;/path&gt;&lt;/svg&gt;
+    Repetir
+  &lt;/button&gt;
+  &lt;button class=&quot;btn brand&quot; type=&quot;button&quot;&gt;
+    &lt;svg width=&quot;18&quot; height=&quot;18&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8&quot;&gt;&lt;/path&gt;&lt;path d=&quot;m16 6-4-4-4 4&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M12 2v13&quot;&gt;&lt;/path&gt;&lt;/svg&gt;
+    Compartir
+  &lt;/button&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:170px"></iframe><div class="guide"><p>Botón de 52 px para la acción de una pantalla o de un pie de hoja.</p>
+<ul><li><strong>Primario</strong> (<code>primary</code> / <code>on-primary</code>): una sola vez por pantalla. «Guardar nota».</li><li><strong>Secundario</strong> (<code>surface</code> / <code>ink</code>): acciones de apoyo junto al primario. «Repetir».</li><li><strong>Marca</strong> (<code>brand-jungle</code> / <code>bg</code>): acción social destacada en detalle. «Compartir».</li></ul>
+<p>Radio <code>radius-md</code>, texto <code>button</code>, ancho completo en pies de pantalla. Con icono: 18 px a la izquierda, separación <code>space-2</code>. Deshabilitado: 50 % de opacidad, sin eventos.</p></div></section>
+<section class="comp" id="Chip"><h3>Chip</h3><iframe title="Vista previa de Chip" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:flex;flex-wrap:wrap;gap:8px;max-width:420px}
+.chip{height:var(--chip-height);padding:0 14px;border-radius:var(--radius-pill);border:0;background:var(--surface);color:var(--ink);font:400 14px/1 var(--font-ui);cursor:pointer}
+.chip[aria-pressed=&quot;true&quot;]{background:var(--primary);color:var(--on-primary)}
+.chip.add{background:transparent;border:1px dashed var(--ink-faint);color:var(--ink-soft)}
+.chip:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;button class=&quot;chip&quot; type=&quot;button&quot; aria-pressed=&quot;true&quot;&gt;Frutos rojos&lt;/button&gt;
+  &lt;button class=&quot;chip&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Chocolate&lt;/button&gt;
+  &lt;button class=&quot;chip&quot; type=&quot;button&quot; aria-pressed=&quot;true&quot;&gt;Panela&lt;/button&gt;
+  &lt;button class=&quot;chip&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Cítrico&lt;/button&gt;
+  &lt;button class=&quot;chip&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;Floral&lt;/button&gt;
+  &lt;button class=&quot;chip add&quot; type=&quot;button&quot;&gt;+ Otro&lt;/button&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:130px"></iframe><div class="guide"><p>Pastilla seleccionable de 34 px para sabores, cafés recientes y filtros.</p>
+<ul><li>Reposo: <code>surface</code> con texto <code>ink</code>, <code>body</code> a 14 px.</li><li>Seleccionado: <code>primary</code> con texto <code>on-primary</code>, y <code>aria-pressed="true"</code>.</li><li>Añadir propio: borde discontinuo <code>line</code> más fuerte, texto <code>ink-soft</code>, «+ Otro».</li></ul>
+<p>Texto en minúscula inicial (v1 usaba mono en mayúsculas de 25 px). Separación entre chips <code>space-2</code>; filas que se envuelven, o scroll horizontal para «Recientes».</p></div></section>
+<section class="comp" id="Field"><h3>Field</h3><iframe title="Vista previa de Field" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:640px}
+.f{display:flex;flex-direction:column;gap:8px}
+label{font:600 13px/16px var(--font-ui);color:var(--ink-soft)}
+label span{font-weight:400}
+input,textarea{box-sizing:border-box;border:0;border-radius:var(--radius-sm);background:var(--surface);color:var(--ink);font:400 16px/22px var(--font-ui);padding:0 14px}
+input{height:var(--field-height)}
+textarea{padding:12px 14px;resize:none}
+input::placeholder,textarea::placeholder{color:var(--ink-soft)}
+input:focus-visible,textarea:focus-visible{outline:none;box-shadow:0 0 0 2px var(--primary)}
+.err input{box-shadow:0 0 0 2px var(--danger)}
+.msg{font:400 12px/16px var(--font-ui);color:var(--danger)}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;div class=&quot;f&quot;&gt;&lt;label for=&quot;c&quot;&gt;Café&lt;/label&gt;&lt;input id=&quot;c&quot; value=&quot;Rock natural&quot;&gt;&lt;/div&gt;
+  &lt;div class=&quot;f err&quot;&gt;&lt;label for=&quot;e&quot;&gt;Café&lt;/label&gt;&lt;input id=&quot;e&quot; placeholder=&quot;Busca o escribe un café&quot; aria-describedby=&quot;em&quot;&gt;&lt;span class=&quot;msg&quot; id=&quot;em&quot;&gt;Escribe el nombre del café para guardar la nota.&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;f&quot; style=&quot;grid-column:span 2&quot;&gt;&lt;label for=&quot;n&quot;&gt;Nota &lt;span&gt;(opcional)&lt;/span&gt;&lt;/label&gt;&lt;textarea id=&quot;n&quot; rows=&quot;2&quot; placeholder=&quot;Lo que se te quedó de esta taza…&quot;&gt;&lt;/textarea&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:270px"></iframe><div class="guide"><p>Campo de texto relleno de 48 px con la etiqueta encima.</p>
+<p>Etiqueta en estilo <code>label</code> color <code>ink-soft</code>; lo opcional se dice en la etiqueta («Nota (opcional)»), no en una ayuda aparte. Fondo <code>surface</code>, radio <code>radius-sm</code>, valor en <code>body</code> a 16 px (evita el zoom de iOS). Foco: anillo de 2 px en <code>primary</code>. Error: texto <code>caption</code> en <code>danger</code> bajo el campo que dice qué falta. Variante multilínea para la nota, 2 líneas por defecto. Reemplaza al campo subrayado con etiqueta mono de v1.</p></div></section>
+<section class="comp" id="ListGroup"><h3>ListGroup</h3><iframe title="Vista previa de ListGroup" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;max-width:358px}
+h2{margin:0 0 6px;font:600 13px/16px var(--font-ui);color:var(--ink-soft)}
+.group{border-radius:var(--radius-md);background:var(--surface);display:flex;flex-direction:column}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:50px;padding:0 14px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row:focus-visible{outline:2px solid var(--primary);outline-offset:-2px;border-radius:var(--radius-md)}
+.t{display:flex;flex-direction:column;padding:8px 0}
+.t b{font:400 15px/22px var(--font-ui)}
+.t small{font:400 12px/16px var(--font-ui);color:var(--ink-soft)}
+.end{font:400 14px/20px var(--font-ui);color:var(--ink-soft)}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;h2&gt;Mi colección&lt;/h2&gt;
+  &lt;div class=&quot;group&quot;&gt;
+    &lt;a class=&quot;row&quot; href=&quot;#cafes&quot;&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;Mis cafés&lt;/b&gt;&lt;/span&gt;&lt;span class=&quot;end&quot;&gt;18 ›&lt;/span&gt;&lt;/a&gt;
+    &lt;a class=&quot;row&quot; href=&quot;#wishlist&quot;&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;Quiero probar&lt;/b&gt;&lt;/span&gt;&lt;span class=&quot;end&quot;&gt;5 ›&lt;/span&gt;&lt;/a&gt;
+    &lt;a class=&quot;row&quot; href=&quot;#listas&quot;&gt;&lt;span class=&quot;t&quot;&gt;&lt;b&gt;Personalizar listas&lt;/b&gt;&lt;small&gt;Métodos, variedades, procesos, sabores&lt;/small&gt;&lt;/span&gt;&lt;span class=&quot;end&quot;&gt;›&lt;/span&gt;&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:250px"></iframe><div class="guide"><p>Filas agrupadas en un bloque <code>surface</code> para menús de Yo y Ajustes.</p>
+<p>Etiqueta de grupo en <code>label</code> <code>ink-soft</code> encima del bloque. Filas de mínimo 50 px con título en <code>body</code>, subtítulo opcional en <code>caption</code>, y a la derecha un contador o chevron en <code>ink-soft</code>. Separadores <code>line</code> entre filas, ninguno arriba ni abajo. Radio <code>radius-md</code>. Una fila puede llevar un Switch en lugar del chevron.</p></div></section>
+<section class="comp" id="NoteCard"><h3>NoteCard</h3><iframe title="Vista previa de NoteCard" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;amp;family=Geist:wght@400;500;600&amp;amp;family=JetBrains+Mono:wght@500&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:358px}
+.card{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;padding:14px 16px;border-radius:var(--radius-lg);background:var(--surface);color:var(--ink);text-decoration:none}
+.card::before{content:&#x27;&#x27;;position:absolute;right:-34px;top:-34px;width:var(--blob-size);height:var(--blob-size);border-radius:9999px;background:var(--tint);opacity:var(--blob-opacity);z-index:-1}
+.card:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.card-eyebrow{margin-bottom:3px}
+.line{font:400 12px/16px var(--font-ui);color:var(--ink-soft);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
+.btn{height:36px;padding:0 12px;border-radius:10px;border:0;background:var(--primary);color:var(--on-primary);font:600 13px var(--font-ui)}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;a class=&quot;card&quot; href=&quot;#nota&quot; style=&quot;--tint:var(--blob-honey)&quot;&gt;&lt;span class=&quot;main&quot;&gt;&lt;span class=&quot;card-eyebrow&quot;&gt;— V60 · 8:14&lt;/span&gt;&lt;span class=&quot;card-name&quot;&gt;Rock natural&lt;/span&gt;&lt;span class=&quot;card-by&quot;&gt;de [Marca]&lt;/span&gt;&lt;span class=&quot;line&quot;&gt;Frutos rojos, Panela&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;sc&quot;&gt;&lt;span class=&quot;card-score-word&quot;&gt;muy rico&lt;/span&gt;&lt;span class=&quot;card-score&quot;&gt;4&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;
+  &lt;a class=&quot;card&quot; href=&quot;#cafe&quot; style=&quot;--tint:var(--blob-sage)&quot;&gt;&lt;span class=&quot;main&quot;&gt;&lt;span class=&quot;card-eyebrow&quot;&gt;— Lavado&lt;/span&gt;&lt;span class=&quot;card-name&quot;&gt;Geisha lavado&lt;/span&gt;&lt;span class=&quot;card-by&quot;&gt;de [Marca]&lt;/span&gt;&lt;span class=&quot;line&quot;&gt;Jazmín · 2 notas&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;sc&quot;&gt;&lt;span class=&quot;card-score-word&quot;&gt;wow&lt;/span&gt;&lt;span class=&quot;card-score&quot;&gt;5&lt;/span&gt;&lt;/span&gt;&lt;/a&gt;
+  &lt;div class=&quot;card&quot; style=&quot;--tint:var(--blob-clay)&quot;&gt;&lt;span class=&quot;main&quot;&gt;&lt;span class=&quot;card-eyebrow&quot;&gt;— Natural&lt;/span&gt;&lt;span class=&quot;card-name&quot;&gt;Sidra natural&lt;/span&gt;&lt;span class=&quot;card-by&quot;&gt;de [Marca]&lt;/span&gt;&lt;span class=&quot;line&quot;&gt;lo anotó Laura&lt;/span&gt;&lt;/span&gt;&lt;button class=&quot;btn&quot; type=&quot;button&quot;&gt;Anotar&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:350px"></iframe><div class="guide"><p>La entrada del Diario y de Mis cafés. Recupera el estilo editorial de las tarjetas de v1 en menos alto, sin fotos.</p>
+<p>Anatomía, de arriba abajo:</p>
+<ul><li>Círculo decorativo arriba a la derecha: <code>blob-size</code> (104 px), desplazado -34 px para quedar recortado, color del café (<code>blob-*</code> o color del proceso) al <code>blob-opacity</code> (70 %). Nunca lleva texto encima.</li><li>Encabezado <code>card-eyebrow</code> en <code>ink-soft</code>: «— V60 · 8:14» en el Diario; «— NATURAL · HUILA» (proceso · origen) en Mis cafés. Si no hay datos, se omite.</li><li>Nombre en <code>card-name</code>.</li><li>Marca en <code>card-by</code>: «de [Marca]».</li><li>Una línea <code>caption</code> <code>ink-soft</code>: hasta 2 sabores separados por coma, o el inicio de la nota entre comillas; en Mis cafés añade «· 4 notas».</li><li>Puntaje abajo a la derecha, alineado por la base con la última línea: palabra en <code>card-score-word</code> minúscula + número en <code>card-score</code> («muy rico 4»). Sin salto de línea. En Mis cafés, el promedio.</li></ul>
+<p>Contenedor: <code>surface</code>, <code>radius-lg</code>, padding 14 px 16 px, rejilla de dos columnas (texto | puntaje), toda la tarjeta es un botón que abre el detalle. Al presionar, escala 0,99.</p>
+<p>Variante Quiero probar: sin número; la línea gris dice «lo anotó Laura» o «lo viste en Descubrir» y a la derecha va un botón pequeño <code>primary</code> «Anotar».</p>
+<p>Accesibilidad: la palabra del puntaje queda fuera del círculo, así mantiene ≥4,5:1 sobre <code>surface</code>.</p>
+<p>Almacenamiento del puntaje: ver ScorePicker (se guarda 2–10).</p></div></section>
+<section class="comp" id="ScorePicker"><h3>ScorePicker</h3><iframe title="Vista previa de ScorePicker" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;amp;family=Geist:wght@400;500;600&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;max-width:380px}
+fieldset{border:0;margin:0;padding:0}
+legend{font:600 13px/16px var(--font-ui);color:var(--ink-soft);padding:0;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.opt{height:64px;border:0;border-radius:var(--radius-md);background:var(--surface);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.opt b{font:400 22px/1 var(--font-display)}
+.opt span{font:400 11px/14px var(--font-ui);color:var(--ink-soft)}
+.opt[aria-pressed=&quot;true&quot;]{background:var(--action-bg)}
+.opt[aria-pressed=&quot;true&quot;] b{color:var(--action-fg)}
+.opt[aria-pressed=&quot;true&quot;] span{color:var(--on-action)}
+.opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;fieldset&gt;
+    &lt;legend&gt;¿Qué tal estuvo?&lt;/legend&gt;
+    &lt;div class=&quot;grid&quot;&gt;
+      &lt;button class=&quot;opt&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;&lt;b&gt;1&lt;/b&gt;&lt;span&gt;Meh&lt;/span&gt;&lt;/button&gt;
+      &lt;button class=&quot;opt&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;&lt;b&gt;2&lt;/b&gt;&lt;span&gt;Bien&lt;/span&gt;&lt;/button&gt;
+      &lt;button class=&quot;opt&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;&lt;b&gt;3&lt;/b&gt;&lt;span&gt;Rico&lt;/span&gt;&lt;/button&gt;
+      &lt;button class=&quot;opt&quot; type=&quot;button&quot; aria-pressed=&quot;true&quot;&gt;&lt;b&gt;4&lt;/b&gt;&lt;span&gt;Muy rico&lt;/span&gt;&lt;/button&gt;
+      &lt;button class=&quot;opt&quot; type=&quot;button&quot; aria-pressed=&quot;false&quot;&gt;&lt;b&gt;5&lt;/b&gt;&lt;span&gt;Wow&lt;/span&gt;&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/fieldset&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:170px"></iframe><div class="guide"><p>Selector de puntaje de cinco opciones con número y palabra, pensado para quien no sabe catar.</p>
+<p>Opciones: 1 Meh · 2 Bien · 3 Rico · 4 Muy rico · 5 Wow. Cada una mide 64 px de alto en una cuadrícula de 5 columnas con <code>space-1</code> a <code>space-2</code> de separación. Reposo: <code>surface</code>, número en <code>score</code>, palabra en <code>caption</code> <code>ink-soft</code>. Elegida: <code>action-bg</code>, número en <code>action-fg</code>, palabra en <code>on-action</code>. Grupo con <code>fieldset</code> y <code>legend</code> «¿Qué tal estuvo?»; cada opción con <code>aria-pressed</code>.</p>
+<p>Almacenamiento: guarda el doble del valor (2–10) en <code>ratingOverall</code> para mantener compatibles las catas de v1. Las catas antiguas se muestran redondeando <code>ratingOverall / 2</code>.</p></div></section>
+<section class="comp" id="Switch"><h3>Switch</h3><iframe title="Vista previa de Switch" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:360px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;font:400 15px/22px var(--font-ui)}
+.sw{width:50px;height:30px;border:0;border-radius:var(--radius-pill);position:relative;padding:0;cursor:pointer;background:var(--surface-strong)}
+.sw span{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:var(--radius-pill);background:var(--bg)}
+.sw[aria-checked=&quot;true&quot;]{background:var(--primary)}
+.sw[aria-checked=&quot;true&quot;] span{left:auto;right:3px;background:var(--on-primary)}
+.sw:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;div class=&quot;row&quot;&gt;&lt;span id=&quot;l1&quot;&gt;Compartir con amigos&lt;/span&gt;&lt;button class=&quot;sw&quot; type=&quot;button&quot; role=&quot;switch&quot; aria-checked=&quot;true&quot; aria-labelledby=&quot;l1&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
+  &lt;div class=&quot;row&quot;&gt;&lt;span id=&quot;l2&quot;&gt;Recordarme a la hora del café&lt;/span&gt;&lt;button class=&quot;sw&quot; type=&quot;button&quot; role=&quot;switch&quot; aria-checked=&quot;false&quot; aria-labelledby=&quot;l2&quot;&gt;&lt;span&gt;&lt;/span&gt;&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:160px"></iframe><div class="guide"><p>Interruptor de 50 × 30 px para opciones de sí o no que se aplican al momento.</p>
+<p>Usos: «Compartir con amigos» en la hoja Nueva nota (recuerda la última elección) y «Recordarme a la hora del café» en Yo. Activo: pista <code>primary</code>, perilla <code>on-primary</code> a la derecha. Inactivo: pista <code>surface-strong</code>, perilla <code>bg</code> a la izquierda. Siempre con <code>role="switch"</code>, <code>aria-checked</code> y una etiqueta visible a su izquierda.</p></div></section>
+<section class="comp" id="TabBar"><h3>TabBar</h3><iframe title="Vista previa de TabBar" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;amp;display=swap&quot;&gt;
+&lt;style&gt;
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;max-width:390px}
+nav{height:var(--tabbar-height);box-sizing:border-box;padding:6px 8px 0;background:var(--bg);border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:flex-start}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;min-height:48px;padding-top:6px;font:500 11px/14px var(--font-ui);color:var(--ink-soft);text-decoration:none}
+.tab[aria-current=&quot;page&quot;]{color:var(--primary);font-weight:600}
+.plus{width:var(--action-size);height:var(--action-size);margin-top:-2px;border-radius:var(--radius-xl);background:var(--action-bg);color:var(--action-fg);display:flex;align-items:center;justify-content:center}
+.tab:focus-visible,.plus:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+&lt;/style&gt;
+&lt;style&gt;/* Sorbo Design System v2 — generado por design/v2/build.py desde tokens.json. No editar a mano. */
+@import url(&quot;https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap&quot;);
+
+:root, [data-theme=&quot;light&quot;] {
+  --brand-jungle: #141712;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: var(--brand-olive);
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --action-bg: var(--brand-jungle);
+  --action-fg: var(--brand-honey);
+  --on-action: #f4f2eb;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #c14a3a;
+  --shadow-sheet: 0 -8px 24px rgba(20,23,18,0.12);
+}
+
+[data-theme=&quot;dark&quot;] {
+  --brand-jungle: #2c3326;
+  --brand-olive: #556b3a;
+  --brand-sage: #96b36a;
+  --brand-honey: #e5b84b;
+  --bg: #141712;
+  --surface: #1e221b;
+  --surface-strong: #272c23;
+  --line: #eceadf1f;
+  --ink: #eceadf;
+  --ink-soft: #b3b6a6;
+  --ink-faint: #7d8173;
+  --primary: var(--brand-sage);
+  --primary-pressed: #a9c47f;
+  --on-primary: #141712;
+  --action-bg: var(--brand-honey);
+  --action-fg: #141712;
+  --on-action: #141712;
+  --blob-honey: #e5b84b;
+  --blob-sage: #96b36a;
+  --blob-clay: #d98a6a;
+  --blob-neutral: var(--surface-strong);
+  --process-1: oklch(0.86 0.05 250);
+  --process-2: oklch(0.87 0.05 200);
+  --process-3: oklch(0.88 0.06 125);
+  --process-4: oklch(0.86 0.06 55);
+  --process-5: oklch(0.85 0.045 285);
+  --process-6: oklch(0.85 0.05 0);
+  --process-washed: oklch(0.87 0.045 160);
+  --process-natural: oklch(0.85 0.05 30);
+  --process-honey: oklch(0.88 0.06 85);
+  --process-anaerobic: oklch(0.84 0.045 320);
+  --danger: #e0735f;
+  --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme=&quot;light&quot;]) {
+    --brand-jungle: #2c3326;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #141712;
+    --surface: #1e221b;
+    --surface-strong: #272c23;
+    --line: #eceadf1f;
+    --ink: #eceadf;
+    --ink-soft: #b3b6a6;
+    --ink-faint: #7d8173;
+    --primary: var(--brand-sage);
+    --primary-pressed: #a9c47f;
+    --on-primary: #141712;
+    --action-bg: var(--brand-honey);
+    --action-fg: #141712;
+    --on-action: #141712;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: var(--surface-strong);
+    --process-1: oklch(0.86 0.05 250);
+    --process-2: oklch(0.87 0.05 200);
+    --process-3: oklch(0.88 0.06 125);
+    --process-4: oklch(0.86 0.06 55);
+    --process-5: oklch(0.85 0.045 285);
+    --process-6: oklch(0.85 0.05 0);
+    --process-washed: oklch(0.87 0.045 160);
+    --process-natural: oklch(0.85 0.05 30);
+    --process-honey: oklch(0.88 0.06 85);
+    --process-anaerobic: oklch(0.84 0.045 320);
+    --danger: #e0735f;
+    --shadow-sheet: 0 -8px 24px rgba(0,0,0,0.4);
+  }
+}
+
+:root {
+  --font-display: &quot;DM Serif Display&quot;, ui-serif, Georgia, serif;
+  --font-ui: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: &quot;JetBrains Mono&quot;, ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+  --radius-sheet: 24px;
+  --radius-pill: 9999px;
+  --touch-min: 44px;
+  --field-height: 48px;
+  --button-height: 52px;
+  --chip-height: 34px;
+  --action-size: 56px;
+  --tabbar-height: 84px;
+  --blob-size: 104px;
+  --dot-size: 40px;
+}
+
+.title-lg { font-family: var(--font-display); font-size: 34px; line-height: 36px; font-weight: 400; letter-spacing: -0.01em; }
+.title-md { font-family: var(--font-display); font-size: 32px; line-height: 34px; font-weight: 400; }
+.coffee-name { font-family: var(--font-display); font-size: 19px; line-height: 22px; font-weight: 400; }
+.card-name { font-family: var(--font-display); font-size: 26px; line-height: 28px; font-weight: 400; letter-spacing: -0.01em; }
+.card-by { font-family: var(--font-display); font-size: 14px; line-height: 18px; font-weight: 400; font-style: italic; }
+.card-score { font-family: var(--font-display); font-size: 36px; line-height: 30px; font-weight: 400; letter-spacing: -0.02em; }
+.card-score-word { font-family: var(--font-display); font-size: 15px; line-height: 20px; font-weight: 400; font-style: italic; }
+.score { font-family: var(--font-display); font-size: 22px; line-height: 24px; font-weight: 400; }
+.quote { font-family: var(--font-display); font-size: 19px; line-height: 26px; font-weight: 400; font-style: italic; }
+.body { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-strong { font-family: var(--font-ui); font-size: 15px; line-height: 22px; font-weight: 600; }
+.button { font-family: var(--font-ui); font-size: 16px; line-height: 20px; font-weight: 600; }
+.label { font-family: var(--font-ui); font-size: 13px; line-height: 16px; font-weight: 600; }
+.meta { font-family: var(--font-ui); font-size: 13px; line-height: 18px; font-weight: 400; }
+.caption { font-family: var(--font-ui); font-size: 12px; line-height: 16px; font-weight: 400; }
+.tab { font-family: var(--font-ui); font-size: 11px; line-height: 14px; font-weight: 500; }
+.data { font-family: var(--font-data); font-size: 14px; line-height: 20px; font-weight: 500; }
+.card-eyebrow { font-family: var(--font-data); font-size: 11px; line-height: 14px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;root&quot;&gt;
+  &lt;nav aria-label=&quot;Navegación&quot;&gt;
+    &lt;a class=&quot;tab&quot; href=&quot;#diario&quot; aria-current=&quot;page&quot;&gt;&lt;svg width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;Diario&lt;/a&gt;
+    &lt;a class=&quot;tab&quot; href=&quot;#amigos&quot;&gt;&lt;svg width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.75&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2&quot;&gt;&lt;/path&gt;&lt;circle cx=&quot;9&quot; cy=&quot;7&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;path d=&quot;M22 21v-2a4 4 0 0 0-3-3.87&quot;&gt;&lt;/path&gt;&lt;path d=&quot;M16 3.13a4 4 0 0 1 0 7.75&quot;&gt;&lt;/path&gt;&lt;/svg&gt;Amigos&lt;/a&gt;
+    &lt;a class=&quot;plus&quot; href=&quot;#anotar&quot; aria-label=&quot;Anotar taza&quot;&gt;&lt;svg width=&quot;26&quot; height=&quot;26&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2.25&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;path d=&quot;M12 5v14M5 12h14&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;
+    &lt;a class=&quot;tab&quot; href=&quot;#preparar&quot;&gt;&lt;svg width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.75&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;14&quot; r=&quot;8&quot;&gt;&lt;/circle&gt;&lt;path d=&quot;M10 2h4M12 14l3-3&quot;&gt;&lt;/path&gt;&lt;/svg&gt;Preparar&lt;/a&gt;
+    &lt;a class=&quot;tab&quot; href=&quot;#yo&quot;&gt;&lt;svg width=&quot;24&quot; height=&quot;24&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.75&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;&gt;&lt;circle cx=&quot;12&quot; cy=&quot;8&quot; r=&quot;4&quot;&gt;&lt;/circle&gt;&lt;path d=&quot;M20 21a8 8 0 0 0-16 0&quot;&gt;&lt;/path&gt;&lt;/svg&gt;Yo&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+" style="height:140px"></iframe><div class="guide"><p>Barra inferior de 84 px con cuatro destinos y el botón + central que abre «Nueva nota».</p>
+<p>Orden fijo: Diario · Amigos · + · Preparar · Yo. Cada destino: icono Lucide de 24 px sobre etiqueta <code>tab</code>, mínimo 60 × 48 px. Activo: <code>primary</code>, trazo 2, peso 600 y <code>aria-current="page"</code>. Inactivo: <code>ink-soft</code>, trazo 1.75. El + mide <code>action-size</code> (56 px), radio <code>radius-xl</code>, fondo <code>action-bg</code> e icono <code>action-fg</code>, con <code>aria-label="Anotar taza"</code>. Fondo <code>bg</code> al 96 % con desenfoque, borde superior <code>line</code>, padding inferior con la zona segura del dispositivo. En escritorio la barra se convierte en barra lateral con los mismos destinos y el + como primer botón.</p></div></section></section>
+</div>
+<script>
+(function () {
+  var dark = false, btn = document.getElementById('themeBtn');
+  function apply() {
+    var th = dark ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', th);
+    document.querySelectorAll('iframe').forEach(function (f) {
+      try { f.contentDocument.documentElement.setAttribute('data-theme', th); } catch (e) {}
+    });
+    btn.textContent = dark ? 'Tema claro' : 'Tema oscuro';
+  }
+  btn.addEventListener('click', function () { dark = !dark; apply(); });
+  document.querySelectorAll('iframe').forEach(function (f) { f.addEventListener('load', apply); });
+  apply();
+})();
+</script>
+</body>
+</html>

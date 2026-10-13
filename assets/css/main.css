@@ -11,7 +11,8 @@
     --honey-rgb: 229 184 75;
     --moss-rgb: 47 53 40;
     --surface-2: #ebe9dc;
-    --surface: #e4e3d2;
+    /* v1 llamaba «surface» a #e4e3d2; en v2 ese tono es surface-strong y
+       surface pasa a #ebe9dc (ver bloque v2 abajo). */
     --jungle: #141712;
 
     /* Brand */
@@ -32,6 +33,43 @@
     --font-display: 'DM Serif Display', ui-serif, Georgia, serif;
     --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+
+    /* ── Sorbo v2 (design/v2/tokens.json) — solo tema claro por ahora ── */
+    --brand-jungle: #141712;
+    --brand-olive: #556b3a;
+    --brand-sage: #96b36a;
+    --brand-honey: #e5b84b;
+    --bg: #f4f2eb;
+    --surface: #ebe9dc;
+    --surface-strong: #e4e3d2;
+    --line: #2f35281a;
+    --ink: #2f3528;
+    --ink-soft: #5f6652;
+    --ink-faint: #8a8c7f;
+    --primary: #556b3a;
+    --primary-pressed: #46592f;
+    --on-primary: #f4f2eb;
+    --action-bg: #141712;
+    --action-fg: #e5b84b;
+    --on-action: #f4f2eb;
+    --danger: #c14a3a;
+    --blob-honey: #e5b84b;
+    --blob-sage: #96b36a;
+    --blob-clay: #d98a6a;
+    --blob-neutral: #e4e3d2;
+    --shadow-sheet: 0 -8px 24px rgba(20, 23, 18, 0.12);
+    --radius-sm: 12px;
+    --radius-md: 14px;
+    --radius-lg: 16px;
+    --radius-xl: 18px;
+    --radius-sheet: 24px;
+    --touch-min: 44px;
+    --field-height: 48px;
+    --button-height: 52px;
+    --chip-height: 34px;
+    --action-size: 56px;
+    --tabbar-height: 84px;
 
     /* Eyebrow letter-spacing baseline (.14em) */
     --tracking-eyebrow: 0.14em;

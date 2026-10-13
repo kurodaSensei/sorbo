@@ -1,0 +1,43 @@
+<!-- @dsCard height=288 -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=Geist:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg)}
+.cover{position:relative;width:960px;height:288px;background:var(--bg);overflow:hidden}
+.art{position:absolute;left:480px;top:0}
+.jungle{fill:var(--brand-jungle)}
+.olive{fill:var(--brand-olive)}
+.sage{fill:var(--brand-sage)}
+.honey{fill:var(--brand-honey)}
+.surface{fill:var(--surface-strong)}
+.text{position:absolute;left:40px;bottom:40px;max-width:440px;display:flex;flex-direction:column;gap:12px}
+.name{font:400 120px/0.92 var(--font-display);color:var(--ink);letter-spacing:-0.02em}
+.tag{font:400 14px/20px var(--font-ui);color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="cover">
+  <svg class="art" width="480" height="288" viewBox="0 0 480 288" aria-hidden="true">
+    <!-- blocks: brand-jungle 216×288 (slab, bleeds top+bottom), brand-olive 168×144, brand-honey 168×120, surface-strong 96×144, brand-sage disc r=48 -->
+    <!-- arrangement: one tall slab with satellites, flush modular grid on 24px steps (space-5), bleeding right edge -->
+    <!-- pattern: discs and half-rounds from radius-pill: a coffee drop falling into the cup; soft, friendly large radii (README: radius-xl, radius-pill for brand surfaces) -->
+    <!-- steps & radii: space-5 24px grid, radius-xl 18px on blocks, radius-pill on discs -->
+    <rect class="jungle" x="24" y="0" width="216" height="288"></rect>
+    <rect class="olive" x="264" y="24" width="168" height="144" rx="18"></rect>
+    <rect class="surface" x="432" y="24" width="96" height="144" rx="18"></rect>
+    <rect class="honey" x="264" y="192" width="240" height="120" rx="18"></rect>
+    <circle class="sage" cx="132" cy="96" r="48"></circle>
+    <circle class="honey" cx="132" cy="192" r="18"></circle>
+    <circle class="honey" cx="132" cy="240" r="10"></circle>
+    <path class="jungle" d="M312 192 a36 36 0 0 0 72 0 z"></path>
+  </svg>
+  <div class="text">
+    <div class="name">Sorbo</div>
+    <div class="tag">Una taza, una nota. El diario de café para anotar en segundos y compartir con tu gente.</div>
+  </div>
+</div>
+</body>
+</html>

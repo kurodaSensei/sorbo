@@ -1,0 +1,26 @@
+<!-- @dsCard group="Acciones" height=110 subtitle="Reposo, seleccionado, añadir" -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:flex;flex-wrap:wrap;gap:8px;max-width:420px}
+.chip{height:var(--chip-height);padding:0 14px;border-radius:var(--radius-pill);border:0;background:var(--surface);color:var(--ink);font:400 14px/1 var(--font-ui);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--primary);color:var(--on-primary)}
+.chip.add{background:transparent;border:1px dashed var(--ink-faint);color:var(--ink-soft)}
+.chip:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="root">
+  <button class="chip" type="button" aria-pressed="true">Frutos rojos</button>
+  <button class="chip" type="button" aria-pressed="false">Chocolate</button>
+  <button class="chip" type="button" aria-pressed="true">Panela</button>
+  <button class="chip" type="button" aria-pressed="false">Cítrico</button>
+  <button class="chip" type="button" aria-pressed="false">Floral</button>
+  <button class="chip add" type="button">+ Otro</button>
+</div>
+</body>
+</html>

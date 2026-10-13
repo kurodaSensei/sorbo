@@ -1,0 +1,30 @@
+<!-- @dsCard group="Acciones" height=150 subtitle="Primario, secundario, marca" -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:560px}
+.btn{height:var(--button-height);border:0;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;gap:8px;font:600 16px/20px var(--font-ui);cursor:pointer}
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.primary{background:var(--primary);color:var(--on-primary)}
+.secondary{background:var(--surface);color:var(--ink)}
+.brand{background:var(--brand-jungle);color:#f4f2eb}
+</style>
+</head>
+<body>
+<div class="root">
+  <button class="btn primary" type="button">Guardar nota</button>
+  <button class="btn secondary" type="button">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>
+    Repetir
+  </button>
+  <button class="btn brand" type="button">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><path d="m16 6-4-4-4 4"></path><path d="M12 2v13"></path></svg>
+    Compartir
+  </button>
+</div>
+</body>
+</html>

@@ -1,291 +1,117 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import type { Recipe } from '~/types'
+import type { Recipe, Tasting } from '~/types'
+import { fmtSeconds } from '~/utils/dates'
 
-const { currentUser } = useAuth()
+// Preparar v2 (design/v2/prototipo, Preparar): tu receta de siempre con
+// «Empezar», tus recetas y las herramientas. Cada receta abre el temporizador.
+
 const recipesStore = useRecipesStore()
-const { getBrewMethodLabel } = useCatalog()
+const tastingsStore = useTastingsStore()
 
-// `ready` evita el flash del empty state mientras la lista aún carga.
 const ready = ref(false)
-
 onMounted(async () => {
   recipesStore.loadShared().catch(() => {})
-  try {
-    await recipesStore.loadAll()
-  }
-  finally {
-    ready.value = true
-  }
+  if (!tastingsStore.list.length) tastingsStore.loadAll().catch(() => {})
+  try { await recipesStore.loadAll() }
+  finally { ready.value = true }
 })
 
-async function refresh() {
-  await Promise.all([
-    recipesStore.loadAll(),
-    recipesStore.loadShared().catch(() => {}),
-  ])
-}
+const totalOf = (r: Recipe) => r.steps?.length ? Math.max(...r.steps.map(s => s.timeSeconds)) : 0
+const summary = (r: Recipe) => [`${r.dose} g`, `${r.water} ml`, r.waterTemp && `${r.waterTemp} °C`, totalOf(r) && fmtSeconds(totalOf(r))].filter(Boolean).join(' · ')
 
-const userName = computed(() =>
-  currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
-)
-
-const tab = ref<'mine' | 'shared'>('mine')
-const search = ref('')
-
-const mineCount = computed(() => recipesStore.list.length)
-const sharedCount = computed(() => recipesStore.sharedList.length)
-
-const segments = computed(() => [
-  { key: 'mine', label: 'Mías', count: mineCount.value },
-  { key: 'shared', label: 'Compartidas', count: sharedCount.value },
-])
-
-const items = computed<Recipe[]>(() => {
-  const source = tab.value === 'mine'
-    ? (recipesStore.list as Recipe[])
-    : (recipesStore.sharedList as Recipe[])
-  const q = search.value.trim().toLowerCase()
-  const searched = q
-    ? (source || []).filter(r =>
-        (r.name || '').toLowerCase().includes(q)
-        || (r.author || '').toLowerCase().includes(q)
-        || getBrewMethodLabel(r.brewMethod).toLowerCase().includes(q),
-      )
-    : (source || [])
-  return [...searched].sort((a, b) => {
-    const ta = a.createdAt?.toMillis?.() ?? 0
-    const tb = b.createdAt?.toMillis?.() ?? 0
-    return tb - ta
-  })
+// La de siempre: la receta más usada en tus notas; si no hay, la más reciente.
+const ordered = computed(() => {
+  const uses = new Map<string, number>()
+  for (const t of tastingsStore.list as Tasting[]) {
+    if (t.recipeName) uses.set(t.recipeName, (uses.get(t.recipeName) ?? 0) + 1)
+  }
+  return [...(recipesStore.list as Recipe[])].sort((a, b) =>
+    (uses.get(b.name) ?? 0) - (uses.get(a.name) ?? 0)
+    || (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0))
 })
-
-const isEmpty = computed(() => items.value.length === 0)
-
-function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
-function durationLabel(r: Recipe): string {
-  if (!r.steps || r.steps.length === 0) return '—'
-  const max = r.steps.reduce((acc, s) => Math.max(acc, s.timeSeconds), 0)
-  return formatTime(max)
-}
-
-function methodPill(r: Recipe): string {
-  return getBrewMethodLabel(r.brewMethod)
-}
-
-// "Desconocido" es el placeholder cuando no se especifica autor — no lo tratamos
-// como autor real para evitar mostrarlo en italic-olive como si fuese una firma.
-function realAuthor(r: Recipe): string | null {
-  const a = r.author?.trim()
-  if (!a || a.toLowerCase() === 'desconocido') return null
-  return a
-}
-
-function rowEyebrow(r: Recipe): string {
-  const method = methodPill(r).toUpperCase()
-  const author = realAuthor(r)
-  if (author) return `${method} · ${author.toUpperCase()}`
-  return method
-}
-
-function recipeName(r: Recipe): string {
-  // If recipe name == "{Method} {Author}", split for visual emphasis.
-  // Otherwise just display the name.
-  return r.name.endsWith('.') ? r.name.slice(0, -1) : r.name
-}
-
-// Sheet detail
-const sheetOpen = ref(false)
-const activeRecipe = ref<Recipe | null>(null)
-
-function openSheet(r: Recipe) {
-  activeRecipe.value = r
-  sheetOpen.value = true
-}
+const usual = computed(() => ordered.value[0] ?? null)
+const rest = computed(() => ordered.value.slice(1))
+const shared = computed(() => recipesStore.sharedList as Recipe[])
 </script>
 
 <template>
-  <UiPullToRefresh :on-refresh="refresh">
-    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
-    <header class="flex items-center justify-between gap-md">
-      <UiEyebrow>Recetas · {{ mineCount }}</UiEyebrow>
-      <div class="lg:hidden inline-flex items-center gap-sm">
-        <UiNotificationBell size="sm" />
-        <NuxtLink to="/app/settings" class="inline-flex">
-          <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
-        </NuxtLink>
-      </div>
+  <div class="pr">
+    <header class="pr-head">
+      <h1 class="pr-title">Preparar</h1>
+      <NuxtLink to="/app/recipes/new" class="pr-icon" aria-label="Nueva receta">
+        <AppIcon name="plus" :size="22" :stroke="2" />
+      </NuxtLink>
     </header>
 
-    <div class="mt-lg flex items-end justify-between gap-md flex-wrap">
-      <div>
-        <h1 class="font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px] lg:text-[64px]">
-          Tus <span class="italic text-olive">recetas</span>
-        </h1>
-        <p class="subtitle-italic mt-xs">
-          <template v-if="tab === 'shared'">Lo que tus amigos comparten.</template>
-          <template v-else-if="items.length > 0">Tus brews favoritos.</template>
-          <template v-else>Tu próximo brew empieza aquí.</template>
-        </p>
+    <section v-if="usual" class="pr-hero">
+      <span class="pr-cap">Tu receta de siempre</span>
+      <span class="pr-hero-name">{{ usual.name }}</span>
+      <span class="pr-mono">{{ summary(usual) }}</span>
+      <NuxtLink :to="`/app/timer?receta=${usual.id}`" class="pr-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3l14 9-14 9z" /></svg>
+        Empezar
+      </NuxtLink>
+    </section>
+    <section v-else-if="ready" class="pr-hero">
+      <span class="pr-hero-name">Guarda tu primera receta</span>
+      <span class="pr-cap">Dosis, agua y los tiempos de cada vertido. Luego la sigues con el temporizador.</span>
+      <NuxtLink to="/app/recipes/new" class="pr-btn">Crear receta</NuxtLink>
+    </section>
+
+    <section v-if="rest.length" class="pr-group">
+      <h2 class="pr-label">Mis recetas</h2>
+      <div class="pr-list">
+        <NuxtLink v-for="r in rest" :key="r.id" :to="`/app/timer?receta=${r.id}`" class="pr-row">
+          <span class="pr-col"><span>{{ r.name }}</span><span class="pr-mono pr-soft">{{ summary(r) }}</span></span>
+          <span class="pr-soft">›</span>
+        </NuxtLink>
       </div>
-      <div class="flex items-center gap-md">
-        <UiSegmented v-model="tab" :items="segments" />
-        <UiButton
-          variant="primary"
-          :block="false"
-          to="/app/recipes/new"
-          size="sm"
-          class="hidden lg:inline-flex"
-        >
-          + Nueva receta
-        </UiButton>
+    </section>
+
+    <section v-if="shared.length" class="pr-group">
+      <h2 class="pr-label">Compartidas contigo</h2>
+      <div class="pr-list">
+        <NuxtLink v-for="r in shared" :key="r.id" :to="`/app/timer?receta=${r.id}`" class="pr-row">
+          <span class="pr-col"><span>{{ r.name }}</span><span class="pr-mono pr-soft">{{ summary(r) }}</span></span>
+          <span class="pr-soft">›</span>
+        </NuxtLink>
       </div>
-    </div>
+    </section>
 
-    <UiListSearch v-model="search" placeholder="Buscar por nombre, autor o método…" class="mt-md" />
-
-    <!-- Empty — solo después de la primera carga. -->
-    <!-- Skeletons mientras carga -->
-    <div
-      v-if="!ready"
-      class="mt-lg flex flex-col gap-sm lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md"
-      aria-busy="true"
-    >
-      <div
-        v-for="n in 3"
-        :key="`skel-${n}`"
-        class="rounded-card-lg bg-surface p-md flex flex-col gap-xs"
-      >
-        <div class="flex items-start justify-between gap-md">
-          <UiSkeleton class="h-3 w-24" />
-          <UiSkeleton class="h-5 w-12 rounded-pill" />
-        </div>
-        <UiSkeleton class="h-7 w-1/2 rounded-card mt-xxs" />
-        <div class="grid grid-cols-3 gap-md mt-sm">
-          <div class="flex flex-col gap-xxs">
-            <UiSkeleton class="h-3 w-12" />
-            <UiSkeleton class="h-4 w-10" />
-          </div>
-          <div class="flex flex-col gap-xxs">
-            <UiSkeleton class="h-3 w-12" />
-            <UiSkeleton class="h-4 w-10" />
-          </div>
-          <div class="flex flex-col gap-xxs">
-            <UiSkeleton class="h-3 w-12" />
-            <UiSkeleton class="h-4 w-10" />
-          </div>
-        </div>
+    <section class="pr-group">
+      <h2 class="pr-label">Herramientas</h2>
+      <div class="pr-list">
+        <NuxtLink to="/app/timer" class="pr-row">
+          <span class="pr-ic"><AppIcon name="timer" :size="20" /><span>Temporizador libre</span></span>
+          <span class="pr-soft">›</span>
+        </NuxtLink>
+        <NuxtLink to="/app/vertido" class="pr-row">
+          <span class="pr-ic"><AppIcon name="drop" :size="20" /><span class="pr-col"><span>El Vertido</span><span class="pr-cap">Preparación guiada paso a paso</span></span></span>
+          <span class="pr-soft">›</span>
+        </NuxtLink>
       </div>
-    </div>
-
-    <div v-if="isEmpty && ready" class="mt-2xl flex flex-col items-center gap-lg">
-      <div class="w-full max-w-[340px] rounded-card-lg bg-surface px-lg py-2xl text-center">
-        <p class="font-display italic text-[16px] text-moss leading-relaxed">
-          <template v-if="tab === 'shared'">
-            Aún no te han compartido recetas. Pide a un amigo que comparta una.
-          </template>
-          <template v-else>
-            "Una buena receta es repetir el sorbo perfecto."
-          </template>
-        </p>
-      </div>
-      <UiButton
-        v-if="tab === 'mine'"
-        variant="dark"
-        :block="false"
-        to="/app/recipes/new"
-        class="lg:hidden"
-      >
-        + Registra tu primera receta
-      </UiButton>
-    </div>
-
-    <!-- List — todas las cards usan el mismo estilo light surface. Los specs
-         (dosis/ratio/temp/bestFor) se muestran solo si existen, evitando el
-         contraste visual fuerte que teníamos entre featured dark vs compact light. -->
-    <div v-else class="mt-lg flex flex-col gap-sm lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-md">
-      <button
-        v-for="r in items"
-        :key="r.id"
-        type="button"
-        class="w-full rounded-card-lg bg-surface p-md text-left transition-colors duration-150 ease-sorbo hover:bg-surface-2"
-        @click="openSheet(r)"
-      >
-        <div class="flex items-start justify-between gap-md">
-          <UiEyebrow>{{ rowEyebrow(r) }}</UiEyebrow>
-          <UiChip v-if="r.brewMethod" variant="default" compact class="!h-[22px]">
-            {{ methodPill(r).toUpperCase() }}
-          </UiChip>
-        </div>
-
-        <div class="mt-xs font-display tracking-[-0.01em] leading-[1.05] text-[26px] sm:text-[28px] text-moss truncate">
-          <template v-if="realAuthor(r)">
-            {{ getBrewMethodLabel(r.brewMethod) }} <span class="italic text-olive">{{ realAuthor(r) }}</span>
-          </template>
-          <template v-else>
-            {{ recipeName(r) }}
-          </template>
-        </div>
-
-        <!-- Specs row — solo si al menos uno existe -->
-        <div v-if="r.dose || r.ratio || r.water || r.waterTemp" class="mt-md grid grid-cols-3 gap-md">
-          <div v-if="r.dose" class="flex flex-col gap-xxs">
-            <UiEyebrow>Dosis</UiEyebrow>
-            <span class="font-mono text-[13px] text-moss">{{ r.dose }}g</span>
-          </div>
-          <div v-if="r.ratio || (r.water && r.dose)" class="flex flex-col gap-xxs">
-            <UiEyebrow>Ratio</UiEyebrow>
-            <span class="font-mono text-[13px] text-olive">
-              {{ r.ratio || `1:${Math.round(r.water / r.dose)}` }}
-            </span>
-          </div>
-          <div v-if="r.waterTemp" class="flex flex-col gap-xxs">
-            <UiEyebrow>Temp</UiEyebrow>
-            <span class="font-mono text-[13px] text-moss">{{ r.waterTemp }}°</span>
-          </div>
-        </div>
-
-        <!-- Duración compacta cuando no hay specs (recetas incompletas) -->
-        <div v-else class="mt-xs">
-          <span class="font-mono text-[12px] text-moss-soft tabular-nums">
-            {{ durationLabel(r) }}
-          </span>
-        </div>
-
-        <p v-if="r.bestFor" class="mt-md font-display italic text-[14px] text-moss-soft leading-relaxed line-clamp-2">
-          "{{ r.bestFor }}"
-        </p>
-      </button>
-    </div>
-
-    <!-- Mobile FAB (only when list has items) -->
-    <NuxtLink
-      v-if="!isEmpty"
-      to="/app/recipes/new"
-      class="lg:hidden fixed bottom-[96px] right-md z-20 inline-flex size-[56px] items-center justify-center rounded-pill bg-olive text-paper shadow-[0_8px_24px_rgba(47,53,40,0.18)] transition-transform duration-150 ease-sorbo hover:-translate-y-[2px] active:translate-y-0"
-      aria-label="Nueva receta"
-    >
-      <Icon name="lucide:plus" class="size-6" />
-    </NuxtLink>
-
-    <!-- Detail sheet -->
-    <UiBottomSheet v-model="sheetOpen">
-      <RecipeDetail v-if="activeRecipe" :recipe="activeRecipe" />
-      <div v-if="activeRecipe" class="mt-lg">
-        <UiButton
-          variant="primary"
-          :to="`/app/recipes/${activeRecipe.id}`"
-          @click="sheetOpen = false"
-        >
-          Ver completa
-        </UiButton>
-      </div>
-    </UiBottomSheet>
-    </div>
-  </UiPullToRefresh>
+    </section>
+  </div>
 </template>
+
+<style scoped>
+.pr { max-width: 640px; margin: 0 auto; padding: 20px 16px 24px; display: flex; flex-direction: column; gap: 22px; color: var(--ink); font-family: var(--font-sans); }
+.pr-head { display: flex; align-items: center; justify-content: space-between; }
+.pr-title { margin: 0; font: 400 34px/36px var(--font-display); letter-spacing: -0.01em; }
+.pr-icon { width: var(--touch-min); height: var(--touch-min); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.pr-hero { padding: 16px; border-radius: var(--radius-xl); background: var(--surface); display: flex; flex-direction: column; gap: 8px; }
+.pr-hero-name { font: 400 24px/28px var(--font-display); }
+.pr-cap { font-size: 13px; line-height: 18px; color: var(--ink-soft); }
+.pr-mono { font: 500 13px/18px var(--font-mono); }
+.pr-soft { color: var(--ink-soft); }
+.pr-btn { margin-top: 6px; height: 48px; border-radius: var(--radius-md); background: var(--primary); color: var(--on-primary); display: flex; align-items: center; justify-content: center; gap: 8px; font: 600 15px/20px var(--font-sans); }
+.pr-group { display: flex; flex-direction: column; }
+.pr-label { margin: 0 0 6px; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.pr-list { border-radius: var(--radius-md); background: var(--surface); display: flex; flex-direction: column; }
+.pr-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 8px 14px; font-size: 15px; color: var(--ink); }
+.pr-row + .pr-row { border-top: 1px solid var(--line); }
+.pr-col { display: flex; flex-direction: column; gap: 2px; }
+.pr-ic { display: flex; align-items: center; gap: 12px; }
+a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+</style>

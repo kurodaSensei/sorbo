@@ -1,322 +1,99 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import type { Coffee, Tasting } from '~/types'
+import { computed, onMounted, ref } from 'vue'
+import type { Tasting } from '~/types'
+import { dayLabel, hourLabel, toDate } from '~/utils/dates'
 
-const { currentUser } = useAuth()
-const coffeesStore = useCoffeesStore()
+// Diario v2: la home es la línea de tiempo de tus notas, agrupada por día.
+// Sin estadísticas ni checklist: la única acción es anotar.
+
 const tastingsStore = useTastingsStore()
-const settingsStore = useSettingsStore()
+const ui = useUiStore()
+const { getBrewMethodLabel } = useCatalog()
 
-// `tastingsReady` evita el flash del empty state "Aún no has registrado..."
-// mientras las catas todavía están cargando.
-const tastingsReady = ref(false)
-
+const ready = ref(false)
 onMounted(async () => {
-  coffeesStore.loadAll().catch(() => {})
-  if (!settingsStore.prefs) settingsStore.load().catch(() => {})
-  try {
-    await tastingsStore.loadAll()
+  try { await tastingsStore.loadAll() }
+  finally { ready.value = true }
+})
+
+const groups = computed(() => {
+  const out: { day: string, items: { t: Tasting, eyebrow: string }[] }[] = []
+  for (const t of tastingsStore.list as Tasting[]) {
+    const d = toDate(t.brewDate) || toDate(t.createdAt)
+    const day = d ? dayLabel(d) : 'Sin fecha'
+    const hour = d ? hourLabel(d) : ''
+    const method = t.brewMethod && t.brewMethod !== 'other' ? getBrewMethodLabel(t.brewMethod) : ''
+    let g = out.find(x => x.day === day)
+    if (!g) out.push(g = { day, items: [] })
+    g.items.push({ t, eyebrow: [method, hour].filter(Boolean).join(' · ') })
   }
-  finally {
-    tastingsReady.value = true
-  }
-})
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Onboarding
-// ─────────────────────────────────────────────────────────────────────────────
-
-const welcomeOpen = ref(false)
-
-// Show the welcome sheet only once, the first time prefs loads with hasSeenWelcome=false.
-// Watch instead of computed because we want a one-shot trigger that survives prefs mutations later.
-watch(
-  () => settingsStore.prefs,
-  (prefs) => {
-    if (prefs && prefs.hasSeenWelcome === false) {
-      welcomeOpen.value = true
-    }
-  },
-  { immediate: true },
-)
-
-async function onWelcomeFinish() {
-  await settingsStore.markWelcomeSeen().catch(() => {})
-}
-
-const showOnboardingChecklist = computed(() => {
-  const prefs = settingsStore.prefs
-  return !!prefs && prefs.hasSeenWelcome === true && prefs.hideOnboardingChecklist !== true
-})
-
-const { confirm } = useConfirm()
-
-async function dismissChecklist() {
-  const ok = await confirm({
-    title: '¿Ocultar la guía?',
-    message: 'La checklist te ayuda con los primeros pasos. Puedes traerla de vuelta desde Ajustes.',
-    confirmLabel: 'Ocultar',
-    cancelLabel: 'Mantener',
-  })
-  if (!ok) return
-  await settingsStore.dismissOnboardingChecklist().catch(() => {})
-}
-
-// Guía próximos pasos cuando el usuario aún no tiene datos suficientes.
-// Prioridad: (1) sin cafés → agregar café · (2) tiene cafés pero no catas
-// → catar el primero · (3) tiene catas → mostrar última.
-const coffeesCount = computed(() => (coffeesStore.list as Coffee[]).length)
-
-const userName = computed(() => {
-  const u = currentUser.value
-  return u?.displayName || u?.email?.split('@')[0] || ''
-})
-
-const greeting = computed(() => {
-  const h = new Date().getHours()
-  if (h < 12) return 'Buenos días'
-  if (h < 19) return 'Buenas tardes'
-  return 'Buenas noches'
-})
-
-const today = computed(() => {
-  const d = new Date()
-  const dayName = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(d).toUpperCase()
-  const day = d.getDate()
-  const month = new Intl.DateTimeFormat('es', { month: 'short' }).format(d).replace('.', '').toUpperCase()
-  const year = d.getFullYear()
-  return { dayName, day, month, year }
-})
-
-const processLabel: Record<string, string> = {
-  washed: 'lavado',
-  natural: 'natural',
-  honey: 'honey',
-  anaerobic: 'anaeróbico',
-  carbonic: 'carbónico',
-  experimental: 'experimental',
-  other: '',
-}
-
-function tsMillis(ts: any): number {
-  if (!ts) return 0
-  if (typeof ts.toMillis === 'function') return ts.toMillis()
-  if (typeof ts.seconds === 'number') return ts.seconds * 1000
-  if (ts instanceof Date) return ts.getTime()
-  return 0
-}
-
-const lastTasting = computed<Tasting | null>(() => {
-  const list = (tastingsStore.list as Tasting[]) ?? []
-  if (list.length === 0) return null
-  return [...list].sort((a, b) => {
-    const ta = tsMillis(a.brewDate) || tsMillis(a.createdAt)
-    const tb = tsMillis(b.brewDate) || tsMillis(b.createdAt)
-    return tb - ta
-  })[0]
-})
-
-const lastCoffee = computed<Coffee | null>(() => {
-  const t = lastTasting.value
-  if (!t) return null
-  return (coffeesStore.list as Coffee[]).find(c => c.id === t.coffeeId) ?? null
-})
-
-const lastTastingLine = computed(() => {
-  const t = lastTasting.value
-  if (!t) return null
-  const proc = lastCoffee.value?.process ? processLabel[lastCoffee.value.process] || '' : ''
-  return {
-    coffeeName: t.coffeeName,
-    process: proc,
-    roasterName: t.roasterName,
-    score: typeof t.ratingOverall === 'number' ? t.ratingOverall : null,
-  }
-})
-
-const monthStartMs = computed(() => {
-  const d = new Date()
-  return new Date(d.getFullYear(), d.getMonth(), 1).getTime()
-})
-
-const stats = computed(() => {
-  const start = monthStartMs.value
-  const monthCoffees = (coffeesStore.list as Coffee[]).filter(c => tsMillis(c.createdAt) >= start)
-  const monthTastings = (tastingsStore.list as Tasting[]).filter(t =>
-    (tsMillis(t.brewDate) || tsMillis(t.createdAt)) >= start,
-  )
-  const scores = monthTastings.map(t => t.ratingOverall).filter((s): s is number => typeof s === 'number')
-  const avg = scores.length > 0
-    ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
-    : null
-  return {
-    coffees: monthCoffees.length,
-    tastings: monthTastings.length,
-    avgScore: avg,
-  }
+  return out
 })
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
-    <!-- Header row: date + (mobile avatar | desktop search) -->
-    <header class="flex items-center justify-between gap-md">
-      <UiEyebrow>
-        {{ today.dayName }} · {{ today.day }} {{ today.month }}<span class="hidden lg:inline"> · {{ today.year }}</span>
-      </UiEyebrow>
-
-      <div class="lg:hidden inline-flex items-center gap-sm">
-        <UiNotificationBell size="sm" />
-        <NuxtLink to="/app/settings" class="inline-flex">
-          <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
-        </NuxtLink>
-      </div>
+  <div class="diario">
+    <header class="d-head">
+      <h1 class="d-title">Diario</h1>
+      <UiNotificationBell size="md" class="lg:hidden" />
     </header>
 
-    <!-- Greeting -->
-    <h1
-      class="mt-lg font-display tracking-[-0.02em] leading-[1.05] text-moss
-             text-[40px] sm:text-[48px] lg:text-[80px] xl:text-[96px]"
-    >
-      {{ greeting }},<br>
-      <span class="italic text-olive">{{ userName || 'cafetero' }}</span>
-    </h1>
-
-    <p
-      v-if="lastTastingLine"
-      class="mt-md font-display italic text-[14px] lg:text-[18px] text-moss-soft max-w-prose"
-    >
-      Tu última taza fue un {{ lastTastingLine.coffeeName
-      }}<template v-if="lastTastingLine.process"> {{ lastTastingLine.process }}</template>
-      de {{ lastTastingLine.roasterName
-      }}<template v-if="lastTastingLine.score !== null">, con {{ lastTastingLine.score }} puntos</template>.
-    </p>
-    <!-- Empty states escalonados: guiar al siguiente paso concreto en vez
-         de preguntar "¿empezamos hoy?" sin dirección. -->
-    <div
-      v-else-if="tastingsReady && coffeesCount === 0"
-      class="mt-md flex flex-col gap-xs max-w-prose"
-    >
-      <p class="font-display italic text-[14px] lg:text-[18px] text-moss-soft">
-        Todavía no tienes cafés guardados. Empieza por agregar el que tienes en casa.
-      </p>
-      <NuxtLink
-        to="/app/coffees/new"
-        class="inline-flex items-center gap-xxs font-mono text-[11px] uppercase tracking-eyebrow text-olive hover:text-olive-dark transition-colors"
-      >
-        + Agregar mi primer café
-      </NuxtLink>
-    </div>
-    <div
-      v-else-if="tastingsReady"
-      class="mt-md flex flex-col gap-xs max-w-prose"
-    >
-      <p class="font-display italic text-[14px] lg:text-[18px] text-moss-soft">
-        Aún no has puntuado ningún café. Prueba uno y anota qué te pareció.
-      </p>
-      <NuxtLink
-        to="/app/tastings/new"
-        class="inline-flex items-center gap-xxs font-mono text-[11px] uppercase tracking-eyebrow text-olive hover:text-olive-dark transition-colors"
-      >
-        Puntuar mi primer café
-      </NuxtLink>
+    <div v-if="ready && !groups.length" class="d-empty">
+      <span class="d-empty-ic"><AppIcon name="cup" :size="30" /></span>
+      <h2 class="d-empty-t">Tu diario empieza<br>con una taza</h2>
+      <p class="d-empty-p">Anota el café que estás tomando hoy. Basta con el nombre y qué tal te supo.</p>
+      <button type="button" class="d-btn" @click="ui.openNoteSheet()">Anotar mi primera taza</button>
+      <NuxtLink to="/app/friends" class="d-link">Invitar a un amigo</NuxtLink>
+      <UiPwaInstallBanner class="d-install" />
     </div>
 
-    <!-- PWA install banner (Android/desktop nativo + iOS con instrucciones) -->
-    <UiPwaInstallBanner class="mt-xl" />
+    <div v-else class="d-stack">
+      <button type="button" class="d-brand" @click="ui.openNoteSheet()">
+        <span class="d-brand-ic"><AppIcon name="cup" :size="24" :stroke="2" /></span>
+        <span class="d-brand-t">
+          <span class="d-brand-h">¿Qué estás tomando hoy?</span>
+          <span class="d-brand-s">Anótalo en 20 segundos</span>
+        </span>
+        <AppIcon name="right" :size="20" :stroke="2" />
+      </button>
 
-    <!-- Onboarding checklist (first-run guide) -->
-    <UiOnboardingChecklist
-      v-if="showOnboardingChecklist"
-      class="mt-xl"
-      @dismiss="dismissChecklist"
-    />
-
-    <!-- Hero + quick actions
-         · HeroCard explica qué es una cata en la subtitle (visible mobile)
-         · QuickCards con hint editorial que define el vocabulario
-         · Cuando hay última cata, mostramos "Repetir" como acelerador para
-           usuarios recurrentes (una de las quejas del audit UX). -->
-    <section class="mt-xl grid grid-cols-2 lg:grid-cols-3 gap-sm lg:gap-md">
-      <UiHeroCard
-        eyebrow="Hoy"
-        title="¿Preparas café?"
-        subtitle="Café, método, receta, taza — el flow completo en ~3 minutos."
-        to="/app/vertido"
-        class="col-span-2 lg:row-span-2"
-      />
-      <UiQuickCard
-        v-if="lastTasting"
-        eyebrow="Acelerador"
-        label="Repetir última cata"
-        :hint="`Volver a probar ${lastTasting.coffeeName}`"
-        :to="`/app/tastings/new?coffeeId=${lastTasting.coffeeId}`"
-      />
-      <UiQuickCard
-        eyebrow="Rápido"
-        label="Nueva cata"
-        hint="Puntúa un café que ya tienes"
-        to="/app/tastings/new"
-      />
-      <UiQuickCard
-        v-if="!lastTasting"
-        eyebrow="Rápido"
-        label="Nuevo café"
-        hint="Guarda origen, tueste y precio"
-        to="/app/coffees/new"
-      />
-    </section>
-
-    <!-- Stats -->
-    <section class="mt-2xl">
-      <div class="border-t border-moss/10 pt-lg">
-        <UiEyebrow>Este mes</UiEyebrow>
-      </div>
-
-      <!-- Mobile: row list -->
-      <div class="lg:hidden mt-md flex flex-col">
-        <div class="flex items-center justify-between border-b border-moss/10 py-md">
-          <span class="font-display italic text-[16px] text-moss-soft">
-            {{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}
-          </span>
-          <span class="font-mono text-[15px] text-moss">{{ stats.coffees }}</span>
-        </div>
-        <div class="flex items-center justify-between border-b border-moss/10 py-md">
-          <span class="font-display italic text-[16px] text-moss-soft">
-            {{ stats.tastings === 1 ? 'cata registrada' : 'catas registradas' }}
-          </span>
-          <span class="font-mono text-[15px] text-moss">{{ stats.tastings }}</span>
-        </div>
-        <div class="flex items-center justify-between border-b border-moss/10 py-md">
-          <span class="font-display italic text-[16px] text-moss-soft">score promedio</span>
-          <span v-if="stats.avgScore !== null" class="font-mono text-[15px] text-olive">{{ stats.avgScore }}</span>
-          <span v-else class="font-mono text-[10px] uppercase tracking-eyebrow text-moss-ghost">sin catas</span>
-        </div>
-      </div>
-
-      <!-- Desktop: 3-col big numbers -->
-      <div class="hidden lg:grid mt-lg grid-cols-3 gap-lg">
-        <div class="flex flex-col gap-sm">
-          <span class="font-display text-[64px] leading-none text-moss">{{ stats.coffees }}</span>
-          <span class="font-display italic text-[14px] text-moss-soft">{{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}</span>
-        </div>
-        <div class="flex flex-col gap-sm">
-          <span class="font-display text-[64px] leading-none text-moss">{{ stats.tastings }}</span>
-          <span class="font-display italic text-[14px] text-moss-soft">{{ stats.tastings === 1 ? 'cata registrada' : 'catas registradas' }}</span>
-        </div>
-        <div class="flex flex-col gap-sm">
-          <span v-if="stats.avgScore !== null" class="font-display text-[64px] leading-none text-olive">{{ stats.avgScore }}</span>
-          <span v-else class="font-display italic text-[28px] leading-none text-moss-ghost">sin catas</span>
-          <span class="font-display italic text-[14px] text-moss-soft">score promedio</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ━━━━━━━━━━ WELCOME (first run) ━━━━━━━━━━ -->
-    <UiOnboardingWelcome
-      v-model="welcomeOpen"
-      :user-name="userName"
-      @finish="onWelcomeFinish"
-    />
+      <section v-for="g in groups" :key="g.day" class="d-day">
+        <h2 class="d-day-h">{{ g.day }}</h2>
+        <NoteCard
+          v-for="{ t, eyebrow } in g.items"
+          :key="t.id"
+          :to="`/app/tastings/${t.id}`"
+          :coffee-id="t.coffeeId"
+          :eyebrow="eyebrow"
+          :name="t.coffeeName"
+          :brand="t.roasterName"
+          :flavors="t.flavorNotes"
+          :quote="t.personalNotes"
+          :rating="t.ratingOverall"
+        />
+      </section>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.diario { max-width: 640px; margin: 0 auto; padding: 20px 16px 24px; color: var(--ink); font-family: var(--font-sans); }
+.d-head { display: flex; align-items: center; justify-content: space-between; min-height: 44px; margin-bottom: 12px; }
+.d-title { margin: 0; font: 400 34px/36px var(--font-display); letter-spacing: -0.01em; }
+.d-stack { display: flex; flex-direction: column; gap: 20px; }
+.d-brand { display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px; border-radius: var(--radius-xl); background: var(--action-bg); color: var(--on-action); text-align: left; }
+.d-brand-ic { width: 48px; height: 48px; border-radius: 14px; background: var(--action-fg); color: var(--action-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.d-brand-t { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.d-brand-h { font: 600 16px/20px var(--font-sans); }
+.d-brand-s { font-size: 13px; opacity: 0.72; }
+.d-day { display: flex; flex-direction: column; gap: 10px; }
+.d-day-h { margin: 0; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.d-empty { display: flex; flex-direction: column; align-items: center; gap: 16px; padding-top: 40px; text-align: center; }
+.d-empty-ic { width: 72px; height: 72px; border-radius: 22px; background: var(--action-bg); color: var(--action-fg); display: flex; align-items: center; justify-content: center; }
+.d-empty-t { margin: 0; font: 400 28px/31px var(--font-display); }
+.d-empty-p { margin: 0; max-width: 300px; font-size: 15px; line-height: 22px; color: var(--ink-soft); }
+.d-btn { width: 100%; max-width: 360px; height: var(--button-height); border-radius: var(--radius-md); background: var(--primary); color: var(--on-primary); font: 600 16px/20px var(--font-sans); }
+.d-link { min-height: var(--touch-min); display: flex; align-items: center; font-weight: 500; color: var(--primary-pressed); }
+.d-install { width: 100%; text-align: left; margin-top: 24px; }
+button:focus-visible, a:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+</style>

@@ -21,7 +21,7 @@ defineProps<{
 const route = useRoute()
 
 function isActive(to: string): boolean {
-  if (to === '/') return route.path === '/'
+  if (to === '/' || to === '/app') return route.path === to
   return route.path === to || route.path.startsWith(`${to}/`)
 }
 </script>
@@ -45,6 +45,8 @@ function isActive(to: string): boolean {
       </NuxtLink>
       <UiNotificationBell size="md" />
     </div>
+
+    <slot />
 
     <nav class="flex-1 flex flex-col gap-lg overflow-y-auto" aria-label="Navegación principal">
       <div v-for="section in sections" :key="section.title" class="flex flex-col gap-xs">

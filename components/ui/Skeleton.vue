@@ -24,7 +24,7 @@ defineProps<{
   background-image: linear-gradient(
     90deg,
     var(--surface-2) 0%,
-    var(--surface) 50%,
+    var(--surface-strong) 50%,
     var(--surface-2) 100%
   );
   background-size: 200% 100%;

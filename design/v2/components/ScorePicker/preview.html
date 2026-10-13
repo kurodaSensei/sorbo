@@ -1,0 +1,36 @@
+<!-- @dsCard group="Formularios" height=150 subtitle="Opción 4 elegida" -->
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;family=Geist:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+.root{padding:16px;max-width:380px}
+fieldset{border:0;margin:0;padding:0}
+legend{font:600 13px/16px var(--font-ui);color:var(--ink-soft);padding:0;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.opt{height:64px;border:0;border-radius:var(--radius-md);background:var(--surface);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.opt b{font:400 22px/1 var(--font-display)}
+.opt span{font:400 11px/14px var(--font-ui);color:var(--ink-soft)}
+.opt[aria-pressed="true"]{background:var(--action-bg)}
+.opt[aria-pressed="true"] b{color:var(--action-fg)}
+.opt[aria-pressed="true"] span{color:var(--on-action)}
+.opt:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="root">
+  <fieldset>
+    <legend>¿Qué tal estuvo?</legend>
+    <div class="grid">
+      <button class="opt" type="button" aria-pressed="false"><b>1</b><span>Meh</span></button>
+      <button class="opt" type="button" aria-pressed="false"><b>2</b><span>Bien</span></button>
+      <button class="opt" type="button" aria-pressed="false"><b>3</b><span>Rico</span></button>
+      <button class="opt" type="button" aria-pressed="true"><b>4</b><span>Muy rico</span></button>
+      <button class="opt" type="button" aria-pressed="false"><b>5</b><span>Wow</span></button>
+    </div>
+  </fieldset>
+</div>
+</body>
+</html>

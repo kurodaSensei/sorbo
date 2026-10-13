@@ -96,7 +96,11 @@ export function useFirestoreStoreState<
     error.value = null
     try {
       const id = await options.api.create(data)
-      await loadAll()
+      // Solo se lee el documento nuevo (desde la caché local si no hay red)
+      // en vez de volver a descargar toda la colección.
+      const item = await options.api.fetchById(id).catch(() => null)
+      if (item) list.value = [item, ...list.value.filter(x => x.id !== id)]
+      else loadAll().catch(() => {})
       toast.success(options.messages.created)
       return id
     } catch (e: any) {
@@ -114,9 +118,10 @@ export function useFirestoreStoreState<
     error.value = null
     try {
       await options.api.update(id, data)
-      await loadAll()
+      // Parche local: los cambios ya se conocen, no hace falta releer.
+      list.value = list.value.map(x => x.id === id ? { ...x, ...data } as T : x)
       if (current.value?.id === id) {
-        current.value = await options.api.fetchById(id)
+        current.value = { ...current.value, ...data } as T
       }
       toast.success(options.messages.updated)
     } catch (e: any) {
@@ -146,6 +151,11 @@ export function useFirestoreStoreState<
     }
   }
 
+  /** Añade o reemplaza un elemento en la lista local sin ir al servidor. */
+  function upsertLocal(item: T) {
+    list.value = [item, ...list.value.filter(x => x.id !== item.id)]
+  }
+
   function reset() {
     list.value = []
     sharedList.value = []
@@ -164,6 +174,7 @@ export function useFirestoreStoreState<
     // actions
     loadAll,
     loadShared,
+    upsertLocal,
     loadById,
     create,
     update,

@@ -88,7 +88,7 @@ export const useCoffeesStore = defineStore('coffees', () => {
   /**
    * Duplica un café de la comunidad a la colección del usuario actual.
    * El nuevo doc nace privado, sin denormalización de autor ni sharedWith.
-   * Se omite photoUrl y roastDate (son del autor original, no del duplicado).
+   * Se omite roastDate (es del autor original, no del duplicado).
    */
   async function duplicate(source: Coffee): Promise<string | null> {
     const toast = useToast()
