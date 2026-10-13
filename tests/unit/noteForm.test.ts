@@ -4,6 +4,7 @@ import { reactive, ref } from 'vue'
 
 vi.mock('firebase/firestore', () => ({ Timestamp: { now: () => ({ ts: 'now', toMillis: () => 0 }) } }))
 import NoteForm from '~/components/note/Form.vue'
+import NoteScorePicker from '../../components/note/ScorePicker.vue'
 
 let m: ReturnType<typeof setupMocks>
 
@@ -34,10 +35,10 @@ function setupMocks(o: { coffees?: any[], tastings?: any[], wishlist?: any[], fr
   return { coffees, tastings, wishlist, friends, createCoffee, updateWish, trackEvent }
 }
 
-const mountForm = (props: any = {}) => mount(NoteForm, { props, global: { stubs: { AppIcon: true } } })
+const mountForm = (props: any = {}) => mount(NoteForm, { props, global: { stubs: { AppIcon: true }, components: { NoteScorePicker } } })
 const saveBtn = (w: any) => w.find('.nf-save')
 const typeCoffee = (w: any, v: string) => w.find('#nf-cafe').setValue(v)
-const pickScore = (w: any, n: number) => w.findAll('.nf-score button')[n - 1].trigger('click')
+const pickScore = (w: any, n: number) => w.findAll('.sp button')[n - 1].trigger('click')
 
 beforeEach(() => {
   vi.unstubAllGlobals()

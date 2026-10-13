@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, Tasting, TastingInput } from '~/types'
 import { BREW_METHOD_DESCRIPTION, TASTING_ATTRIBUTE_INFO } from '~/utils/constants'
+import { ratingToScore, scoreToRating, scoreWord } from '~/utils/score'
 
 const props = withDefaults(
   defineProps<{
@@ -47,6 +48,12 @@ const brewMethod = ref<BrewMethod | ''>('')
 
 // Step 2
 const ratingOverall = ref<number | null>(null)
+// Puntaje general en la escala v2 (1–5). Un valor v1 (p. ej. 7) se muestra
+// redondeado y solo se reescribe si la persona elige otro.
+const overallScore = computed({
+  get: () => ratingToScore(ratingOverall.value),
+  set: (n: number) => { ratingOverall.value = scoreToRating(n) },
+})
 const ratingAroma = ref<number | null>(null)
 const ratingAcidity = ref<number | null>(null)
 const ratingSweetness = ref<number | null>(null)
@@ -451,21 +458,7 @@ const submitLabel = computed(() =>
           Los atributos son opcionales — tap o arrastra para puntuar.
         </p>
 
-        <UiRatingBar
-          v-model="ratingOverall"
-          variant="hero"
-          label="Puntuación general"
-          class="mt-xl"
-        >
-          <template #info>
-            <UiInfoTrigger :info="TASTING_ATTRIBUTE_INFO.overall" />
-          </template>
-          <template #trailing>
-            <span class="font-mono text-[9px] uppercase tracking-eyebrow text-honey">
-              obligatorio
-            </span>
-          </template>
-        </UiRatingBar>
+        <NoteScorePicker v-model="overallScore" class="mt-xl" />
         <p
           v-if="errors.overall"
           class="mt-xs font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
@@ -562,7 +555,7 @@ const submitLabel = computed(() =>
           <div class="flex items-center justify-between gap-md">
             <UiEyebrow class="text-paper">Vista previa</UiEyebrow>
             <span class="font-display text-[28px] leading-none text-paper">
-              {{ ratingOverall.toFixed(1) }}
+              <span class="font-sans text-[13px] italic">{{ scoreWord(ratingOverall).toLowerCase() }}</span> {{ overallScore }}
             </span>
           </div>
           <div class="mt-xs font-display text-[24px] leading-none text-paper">

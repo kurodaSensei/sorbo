@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput, WishlistItem } from '~/types'
 import type { NotePrefill } from '~/stores/ui'
-import { SCORE_WORDS, scoreToRating } from '~/utils/score'
+import { scoreToRating } from '~/utils/score'
 import { fmtSeconds } from '~/utils/dates'
 
 // Nota rápida v2 (design/v2/prototipo, «Nueva nota»): café, puntaje,
@@ -333,21 +333,7 @@ async function save() {
         </button>
       </div>
 
-      <fieldset class="nf-score">
-        <legend class="nf-label">¿Qué tal estuvo?</legend>
-        <div>
-          <button
-            v-for="n in 5"
-            :key="n"
-            type="button"
-            :aria-pressed="score === n"
-            @click="score = n"
-          >
-            <span class="nf-num">{{ n }}</span>
-            <span class="nf-word">{{ SCORE_WORDS[n] }}</span>
-          </button>
-        </div>
-      </fieldset>
+      <NoteScorePicker v-model="score" />
 
       <div class="nf-field">
         <span class="nf-label">Sabores</span>
@@ -481,15 +467,6 @@ async function save() {
 .nf-chip[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
 .nf-chip-add { background: transparent; border: 1px dashed var(--ink-faint); color: var(--ink-soft); }
 .nf-chip-input { width: 120px; border: 0; outline: 2px solid var(--primary); }
-.nf-score { border: 0; margin: 0; padding: 0; }
-.nf-score legend { margin-bottom: 10px; }
-.nf-score > div { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.nf-score button { height: 64px; border-radius: var(--radius-md); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: background 200ms; }
-.nf-num { font: 400 22px/1 var(--font-display); }
-.nf-word { font-size: 11px; color: var(--ink-soft); }
-.nf-score button[aria-pressed='true'] { background: var(--action-bg); }
-.nf-score button[aria-pressed='true'] .nf-num { color: var(--action-fg); }
-.nf-score button[aria-pressed='true'] .nf-word { color: var(--on-action); }
 .nf-more { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .nf-more-h { width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; }
 .nf-col { display: flex; flex-direction: column; gap: 2px; }
