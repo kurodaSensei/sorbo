@@ -9,6 +9,13 @@ service cloud.firestore {
       return request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
+    // El dueño edita su documento pero no puede pasárselo a otra persona.
+    function isOwnerUpdate() {
+      return request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId;
+    }
+
     function isFriendshipParticipant() {
       return request.auth != null
         && request.auth.uid in resource.data.uids;
@@ -28,14 +35,16 @@ service cloud.firestore {
     match /roasters/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // Shareable collections: lectura para dueño, sharedWith o comunidad.
     match /coffees/{docId} {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // Brindar (v2): quien puede leer una nota ajena solo puede añadir o quitar
@@ -50,7 +59,7 @@ service cloud.firestore {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
       allow update: if request.auth != null && (
-        resource.data.userId == request.auth.uid
+        isOwnerUpdate()
         || (canReadShareable() && isOwnCheerOnly())
       );
       allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
@@ -59,13 +68,15 @@ service cloud.firestore {
     match /recipes/{docId} {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /wishlist/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // User preferences: doc id equals user uid

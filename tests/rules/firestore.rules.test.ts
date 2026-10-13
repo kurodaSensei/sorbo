@@ -86,9 +86,10 @@ describe.each(['coffees', 'tastings', 'recipes'])('%s (compartibles)', (col) => 
     expect(ok.size).toBe(1)
     await assertFails(getDocs(collection(db(FRIEND), col)))
   })
-  it.fails('BUG: el dueño no puede reasignar userId a otra persona (inyectaría docs en su lista)', async () => {
+  it('el dueño no puede reasignar userId a otra persona (inyectaría docs en su lista)', async () => {
     await seed(`${col}/a`, base)
     await assertFails(updateDoc(doc(db(OWNER), `${col}/a`), { userId: STRANGER }))
+    await assertSucceeds(updateDoc(doc(db(OWNER), `${col}/a`), { userId: OWNER, name: 'ok' }))
   })
 })
 
@@ -210,6 +211,14 @@ describe('waitlist', () => {
     await assertFails(setDoc(doc(db(null), 'waitlist/a@b.co'), { ...ok, extra: 1 }))
     await assertSucceeds(setDoc(doc(db(null), 'waitlist/a@b.co'), ok))
     await assertFails(setDoc(doc(db(null), 'waitlist/a@b.co'), ok))
+  })
+})
+
+describe.each(['roasters', 'wishlist'])('%s: userId fijo', (col) => {
+  it('el dueño edita pero no puede reasignar userId', async () => {
+    await seed(`${col}/a`, { userId: OWNER, name: 'x' })
+    await assertSucceeds(updateDoc(doc(db(OWNER), `${col}/a`), { name: 'y' }))
+    await assertFails(updateDoc(doc(db(OWNER), `${col}/a`), { userId: STRANGER }))
   })
 })
 
