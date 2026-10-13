@@ -1,0 +1,2 @@
+/* Oculta elementos de desarrollo en las capturas */
+#nuxt-devtools-container, nuxt-devtools-frame { display: none !important; }
