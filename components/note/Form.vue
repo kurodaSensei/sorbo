@@ -36,6 +36,7 @@ const { updateItem: updateWishlistItem } = useWishlist()
 const { brewMethodOptions, flavorNoteOptions, getBrewMethodLabel } = useCatalog()
 const { currentUser } = useAuth()
 const { trackEvent } = useAnalytics()
+const { recordNote } = useReminders()
 const toast = useToast()
 
 onMounted(() => {
@@ -311,6 +312,8 @@ async function save() {
       authorPhotoURL: share.value ? currentUser.value?.photoURL || undefined : undefined,
     }
     const id = await tastingsStore.create(tasting)
+    // El recordatorio no avisa a quien ya anotó hoy. Si falla, la nota ya está guardada.
+    recordNote(new Date()).catch(() => {})
 
     // Sale de «Quiero probar» sin un segundo aviso: el toast de la nota basta.
     if (wishItem) {

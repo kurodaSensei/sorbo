@@ -15,6 +15,41 @@ const userName = computed(() =>
 
 const friendsAcceptedCount = computed(() => friendsStore.accepted.length)
 
+// ─── Recordatorio diario ────────────────────────────────────────────────────
+const settings = useSettingsStore()
+const reminders = useReminders()
+const reminderOn = computed(() => !!settings.prefs?.reminders?.enabled)
+const reminderWindow = computed(() => settings.prefs?.reminders?.window ?? 'morning')
+const reminderBusy = ref(false)
+const reminderIos = ref(false)
+onMounted(() => {
+  settings.load().catch(() => {})
+  reminderIos.value = reminders.needsInstall()
+})
+
+async function toggleReminder(on: boolean) {
+  if (reminderBusy.value || !settings.prefs) return
+  reminderBusy.value = true
+  try {
+    if (on) {
+      if (!(await reminders.enable(reminderWindow.value))) {
+        toast.error('Las notificaciones están bloqueadas. Puedes activarlas en la configuración del navegador.')
+        return
+      }
+    }
+    else await reminders.disable()
+    settings.prefs.reminders = { ...settings.prefs.reminders, enabled: on, window: reminderWindow.value }
+  }
+  catch (e) { toast.error('No se pudo cambiar el recordatorio', e) }
+  finally { reminderBusy.value = false }
+}
+
+async function pickWindow(w: 'morning' | 'afternoon') {
+  if (!settings.prefs || w === reminderWindow.value) return
+  await reminders.setWindow(w)
+  settings.prefs.reminders = { ...settings.prefs.reminders, window: w }
+}
+
 const { confirm } = useConfirm()
 
 async function onLogout() {
@@ -96,6 +131,26 @@ const {
       </div>
     </section>
 
+    <section class="st-group">
+      <h2 class="st-label">Recordatorio</h2>
+      <div class="st-list">
+        <div class="st-row">
+          <span class="st-col">
+            <span id="st-rem">Recordatorio diario</span>
+            <span class="st-sub">{{ reminderIos ? 'En iPhone, instala Sorbo en tu pantalla de inicio para activarlo' : 'Como mucho uno al día, y nunca si ya anotaste' }}</span>
+          </span>
+          <AppSwitch :model-value="reminderOn" :disabled="reminderBusy || reminderIos" aria-labelledby="st-rem" @update:model-value="toggleReminder" />
+        </div>
+        <div v-if="reminderOn" class="st-row">
+          <span>Cuándo</span>
+          <span class="st-seg" role="group" aria-label="Cuándo">
+            <button type="button" :aria-pressed="reminderWindow === 'morning'" @click="pickWindow('morning')">Mañana</button>
+            <button type="button" :aria-pressed="reminderWindow === 'afternoon'" @click="pickWindow('afternoon')">Tarde</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
     <!-- Solo si el navegador deja instalar y la app aún no está instalada. -->
     <section v-if="pwaCanShow && !pwaIsStandalone" class="st-group">
       <h2 class="st-label">App</h2>
@@ -142,4 +197,7 @@ const {
 .st-sub { font-size: 12px; line-height: 16px; color: var(--ink-soft); }
 .st-end { font-size: 14px; color: var(--ink-soft); flex-shrink: 0; }
 .st-danger > .st-col > span:first-child { color: var(--danger); }
+.st-seg { display: flex; gap: 6px; }
+.st-seg button { min-height: var(--chip-height); padding: 0 14px; border-radius: 99px; background: var(--bg); font-size: 14px; color: var(--ink); }
+.st-seg button[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
 </style>

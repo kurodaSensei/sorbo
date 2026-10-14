@@ -11,7 +11,14 @@ const ui = useUiStore()
 const { getBrewMethodLabel } = useCatalog()
 
 const ready = ref(false)
+const route = useRoute()
+const router = useRouter()
 onMounted(async () => {
+  // Desde el recordatorio (?nueva=1): abre la hoja directamente.
+  if (route.query.nueva) {
+    ui.openNoteSheet()
+    router.replace({ query: {} })
+  }
   try { await tastingsStore.loadAll() }
   finally { ready.value = true }
 })
@@ -56,6 +63,8 @@ const groups = computed(() => {
         </span>
         <AppIcon name="right" :size="20" :stroke="2" />
       </button>
+
+      <AppReminderPrompt />
 
       <section v-for="g in groups" :key="g.day" class="d-day">
         <h2 class="d-day-h">{{ g.day }}</h2>

@@ -18,6 +18,7 @@ function setupMocks(o: { coffees?: any[], tastings?: any[], wishlist?: any[], fr
   const createCoffee = vi.fn(async () => 'newc')
   const updateWish = vi.fn(async () => {})
   const trackEvent = vi.fn()
+  const recordNote = vi.fn(async () => {})
   vi.stubGlobal('useCoffeesStore', () => coffees)
   vi.stubGlobal('useTastingsStore', () => tastings)
   vi.stubGlobal('useRecipesStore', () => recipes)
@@ -32,8 +33,9 @@ function setupMocks(o: { coffees?: any[], tastings?: any[], wishlist?: any[], fr
   }))
   vi.stubGlobal('useAuth', () => ({ currentUser: ref({ displayName: 'Ana Pérez', email: 'ana@x.co', photoURL: 'p.png' }) }))
   vi.stubGlobal('useAnalytics', () => ({ trackEvent }))
+  vi.stubGlobal('useReminders', () => ({ recordNote }))
   vi.stubGlobal('useToast', () => ({ error: vi.fn(), success: vi.fn() }))
-  return { coffees, tastings, wishlist, friends, createCoffee, updateWish, trackEvent }
+  return { coffees, tastings, wishlist, friends, createCoffee, updateWish, trackEvent, recordNote }
 }
 
 const mountForm = (props: any = {}) => mount(NoteForm, { props, global: { stubs: { AppIcon: true }, components: { NoteScorePicker } } })
@@ -218,6 +220,15 @@ describe('NoteForm · precarga', () => {
   })
 })
 
+describe('NoteForm · recordatorio', () => {
+  it('guardar una nota nueva registra la actividad; editar no', async () => {
+    const w = mountForm()
+    await typeCoffee(w, 'Geisha'); await pickScore(w, 4)
+    await saveBtn(w).trigger('click'); await flushPromises()
+    expect(m.recordNote).toHaveBeenCalledTimes(1)
+  })
+})
+
 describe('NoteForm · editar', () => {
   const coffee = { id: 'c1', name: 'Sidra', roasterName: 'Green' }
   const note = {
@@ -247,6 +258,7 @@ describe('NoteForm · editar', () => {
     await saveBtn(w).trigger('click')
     await flushPromises()
     expect(m.tastings.create).not.toHaveBeenCalled()
+    expect(m.recordNote).not.toHaveBeenCalled()
     const [id, patch] = (m.tastings as any).update.mock.calls[0]
     expect(id).toBe('t1')
     expect(patch).not.toHaveProperty('ratingOverall')
