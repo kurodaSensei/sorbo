@@ -173,6 +173,11 @@ export default defineNuxtConfig({
   // — declarada abajo en routeRules.
   ssr: true,
 
+  // Worktrees de Claude Code: copias completas del repo con su node_modules.
+  // Vigilarlas agota los descriptores de archivo del dev server (EMFILE).
+  ignore: ['.claude/**'],
+  vite: { server: { watch: { ignored: ['**/.claude/**'] } } },
+
   routeRules: {
     // Páginas públicas: prerender en build (HTML estático completo).
     '/': { prerender: true },
