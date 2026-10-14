@@ -1,10 +1,7 @@
 <script setup lang="ts">
-definePageMeta({
-  layout: false,
-  pageTransition: { name: 'wizard', mode: 'out-in' },
-})
+definePageMeta({ hideTabBar: true })
 </script>
 
 <template>
-  <RecipeWizard mode="create" />
+  <RecipeForm />
 </template>
