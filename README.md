@@ -1,212 +1,153 @@
-# Coffee Tracker
+<p align="center">
+  <img src="public/sorbo.svg" alt="Sorbo" width="96" height="96">
+</p>
 
-Tu base de datos personal de cafes de especialidad. Registra, puntua y descubre patrones en los cafes que pruebas.
+<h1 align="center">Sorbo.</h1>
 
-![Nuxt 3](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt.js&logoColor=white)
-![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?logo=firebase&logoColor=black)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-ready-5A0FC8?logo=pwa&logoColor=white)
-![License: Polyform Noncommercial](https://img.shields.io/badge/License-Polyform%20NC%201.0-blue)
+<p align="center">
+  Un diario para cada sorbo de café. <strong>Una taza, una nota.</strong><br>
+  <a href="https://sorbo.app">sorbo.app</a> · <a href="https://instagram.com/sorbo.app">@sorbo.app</a>
+</p>
 
 ---
 
-## Que hace
+Sorbo es un diario de café para anotar cada taza en unos 20 segundos y compartirla con tu gente. La unidad de la app es la **nota**: el café es un dato de la nota, no un paso previo.
 
-- **Registra cafes** con variedad, proceso, origen, notas de sabor y foto
-- **Puntua degustaciones** con ratings detallados (aroma, acidez, dulzura, cuerpo, balance)
-- **Guarda recetas** de preparacion (V60, AeroPress, Chemex, etc.)
-- **Organiza tostadores** con info de contacto y rating
-- **Wishlist** de cafes que quieres probar
-- **Dashboard** con estadisticas y patrones de preferencia
-- **Cuentas de usuario** con email/password y Google
-- **PWA instalable** en tu celular como app nativa
+## Qué hace
+
+- **Anota una taza en una sola hoja:** café (lo escribes o lo eliges de recientes), puntaje de 1 a 5 con palabras (Meh · Bien · Rico · Muy rico · Wow), sabores y una nota. Método, receta y dosis van plegados en «Más detalles».
+- **Diario:** tus notas agrupadas por día.
+- **Amigos:** las notas que tus amigos comparten contigo (Siguiendo) y las públicas (Descubrir). Puedes brindar por una taza o guardarla en «Quiero probar».
+- **Preparar:** tus recetas, las compartidas contigo y un temporizador que sigue los pasos de la receta y termina en «Anotar esta taza».
+- **Mis cafés:** búsqueda y filtros (Recientes, Favoritos, Quiero probar). Cada café se ve y se edita en una sola pantalla.
+- **Funciona sin conexión:** las notas se guardan en el dispositivo y se sincronizan al volver la red.
+- **Se instala como app** (PWA) en el celular.
+
+## Marca
+
+Sorbo es una marca propia; KurodaCafe solo aparece como crédito («por KurodaCafe»).
+
+- **Fuente única de marca y UI:** [Sorbo Design System v2](https://claude.ai/artifact/QNUja9Q3Q9vetFHHJjXvgf). Los tokens del código viven en `assets/css/main.css` y en `design/v2/` (tokens, guía, componentes y prototipo).
+- **Colores:** jungle `#141712`, olive `#556B3A`, sage `#96B36A`, honey `#E5B84B`, fondo `#F4F2EB`.
+- **Tipografía:** DM Serif Display (títulos y logotipo), Geist (interfaz), JetBrains Mono (cifras de preparación).
+- **Logo:** el ícono «S.» crema con punto miel sobre un cuadrado olivo; el logotipo «Sorbo.» con el punto miel.
+- **Voz:** tuteo, frases cortas y el vocabulario de la persona: nota, puntaje, sabores, marca, preparar. Sin emoji en la interfaz.
+
+`SORBO.md` es el índice de dónde vive cada cosa del proyecto (diseño, marketing, bitácora).
 
 ## Stack
 
-| Capa | Tecnologia |
+| Capa | Tecnología |
 |------|-----------|
 | Frontend | Nuxt 3, Vue 3, TypeScript |
-| Estilos | Tailwind CSS |
-| Base de datos | Firebase Firestore |
-| Storage | Firebase Storage (fotos) |
-| Auth | Firebase Authentication |
-| State | Pinia |
-| Validacion | VeeValidate + Zod |
+| Estado | Pinia |
+| Estilos | Tailwind CSS + tokens del Design System v2 |
+| Datos | Firebase Firestore (con caché persistente para uso sin conexión) |
+| Auth | Firebase Authentication (correo y Google) |
+| PWA | `@vite-pwa/nuxt` |
+| Errores | Sentry |
 | Hosting | Vercel |
+| Tests | Vitest, emulador de Firestore, Playwright |
 
-Todo funciona dentro de la **capa gratuita** de Firebase y Vercel.
+Todo funciona dentro de la capa gratuita de Firebase y Vercel.
 
-## Requisitos previos
+## Empezar en local
 
-- [Node.js](https://nodejs.org/) 18+
-- Una cuenta en [Firebase](https://console.firebase.google.com/)
-- (Opcional) Una cuenta en [Vercel](https://vercel.com/) para deploy
-
-## Instalacion
-
-### 1. Clona el repositorio
+Necesitas [Node.js](https://nodejs.org/) 22 o superior y un proyecto de [Firebase](https://console.firebase.google.com/) con Firestore y Authentication (correo y Google) activos.
 
 ```bash
-git clone https://github.com/kurodasensei/coffee-tracker.git
-cd coffee-tracker
+git clone https://github.com/kurodaSensei/sorbo.git
+cd sorbo
 npm install
-```
-
-### 2. Configura Firebase
-
-1. Ve a [Firebase Console](https://console.firebase.google.com/) y crea un proyecto
-2. Habilita **Firestore Database** (modo produccion)
-3. Habilita **Storage**
-4. Habilita **Authentication** con los proveedores:
-   - Email/Password
-   - Google
-5. En Authentication > Settings, verifica que este activo **"Link accounts that use the same email"**
-
-### 3. Variables de entorno
-
-Copia el archivo de ejemplo y llena tus credenciales de Firebase:
-
-```bash
 cp .env.example .env
 ```
 
+Llena `.env` con las credenciales de tu app web de Firebase (Project Settings → General → Your apps):
+
 ```env
-NUXT_PUBLIC_FIREBASE_API_KEY=tu-api-key
-NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
-NUXT_PUBLIC_FIREBASE_PROJECT_ID=tu-proyecto-id
-NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tu-proyecto.firebasestorage.app
-NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=tu-sender-id
-NUXT_PUBLIC_FIREBASE_APP_ID=tu-app-id
+NUXT_PUBLIC_FIREBASE_API_KEY=
+NUXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NUXT_PUBLIC_FIREBASE_PROJECT_ID=
+NUXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NUXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NUXT_PUBLIC_FIREBASE_APP_ID=
 ```
 
-Las credenciales las encuentras en Firebase Console > Project Settings > General > Your apps > Web app.
-
-### 4. Reglas de Firestore
-
-En Firebase Console > Firestore > Rules, pega estas reglas:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{collection}/{docId} {
-      allow read, write: if request.auth != null
-        && request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null
-        && request.resource.data.userId == request.auth.uid;
-    }
-  }
-}
-```
-
-### 5. Reglas de Storage
-
-En Firebase Console > Storage > Rules:
-
-```javascript
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.resource.size < 5 * 1024 * 1024;
-    }
-  }
-}
-```
-
-### 6. Arranca el proyecto
+Despliega las reglas e índices de Firestore del repo y arranca:
 
 ```bash
+firebase deploy --only firestore
 npm run dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000) y crea tu cuenta.
 
-## Deploy en Vercel
+## Tests
 
-### Opcion A: Desde GitHub (recomendado)
+| Comando | Qué prueba |
+|---------|-----------|
+| `npm test` | Unitarias (Vitest): utilidades, stores, nota rápida, recetas, catálogos |
+| `npm run test:rules` | Reglas de Firestore contra el emulador (necesita Java y `firebase-tools`) |
+| `npm run test:e2e` | E2E y visuales con Playwright, en móvil y escritorio |
 
-1. Sube tu repo a GitHub
-2. Ve a [vercel.com/new](https://vercel.com/new) e importa el repositorio
-3. Agrega las variables de entorno (las mismas del `.env`)
-4. Click en **Deploy**
-5. Agrega tu dominio de Vercel (`tu-app.vercel.app`) en Firebase Console > Authentication > Settings > Authorized domains
+Los E2E usan una cuenta de pruebas: crea `.env.e2e` (no se versiona) con `E2E_EMAIL` y `E2E_PASSWORD`. La primera vez, genera las capturas de referencia con `npm run test:e2e:update`. Los datos que crean llevan el prefijo `QA-E2E` y se borran al terminar.
 
-### Opcion B: CLI
+En GitHub, la Action `Tests` corre las unitarias y las reglas en cada PR.
+
+## Despliegue
+
+`main` se despliega solo en Vercel (sorbo.app). Si cambias `firestore.rules`, despliégalas aparte:
 
 ```bash
-npm i -g vercel
-vercel
+firebase deploy --only firestore:rules
 ```
 
-## Estructura del proyecto
+## Estructura
 
 ```
-coffee-tracker/
-├── assets/css/          # Tailwind base styles
+sorbo/
+├── assets/css/        # Estilos base y tokens v2
 ├── components/
-│   ├── ui/              # Button, Card, Input, Modal, Rating...
-│   ├── coffee/          # CoffeeCard, CoffeeForm, CoffeeFilters
-│   ├── roaster/         # RoasterCard, RoasterForm, RoasterSelect
-│   ├── tasting/         # TastingCard, TastingForm, TastingRatings
-│   ├── recipe/          # RecipeCard, RecipeForm
-│   ├── dashboard/       # StatsOverview, Charts, Favorites
-│   └── layout/          # Sidebar, Navbar, BottomNav
-├── composables/         # useFirebase, useAuth, useCoffees...
-├── layouts/             # default.vue
-├── middleware/           # auth.global.ts
-├── pages/               # Rutas de la app
-├── plugins/             # firebase.client.ts
-├── stores/              # Pinia stores
-├── types/               # TypeScript interfaces
-└── utils/               # constants, formatters, validators
+│   ├── app/           # TabBar e íconos
+│   ├── note/          # Nota rápida, tarjetas, selector de puntaje
+│   ├── coffee/        # Ficha de café
+│   ├── recipe/        # Formulario de receta
+│   ├── settings/      # Listas personalizables
+│   ├── roaster/       # Hoja de marca
+│   ├── ui/            # Componentes base
+│   └── vertido/       # El Vertido (preparación guiada)
+├── composables/       # useFirebase, useAuth, useCheers…
+├── design/v2/         # Design System v2 exportable
+├── e2e/               # Playwright
+├── pages/             # Rutas (la app vive en /app)
+├── plugins/           # Firebase
+├── stores/            # Pinia
+├── tests/             # Unitarias y reglas
+├── types/             # Tipos de TypeScript
+├── utils/             # Puntaje, fechas, navegación…
+└── firestore.rules    # Reglas de seguridad
 ```
 
 ## Colecciones de Firestore
 
-| Coleccion | Descripcion |
-|-----------|-------------|
-| `roasters` | Tostadores de cafe |
-| `coffees` | Cafes con origen, variedad, proceso |
-| `tastings` | Degustaciones con ratings 1-10 |
-| `recipes` | Recetas de preparacion |
-| `wishlist` | Cafes por probar |
+| Colección | Qué guarda |
+|-----------|-----------|
+| `tastings` | Notas: café, puntaje (2–10), sabores, método, receta, visibilidad, brindis |
+| `coffees` | Cafés: marca, origen, proceso, variedad, tueste |
+| `recipes` | Recetas con sus pasos |
+| `roasters` | Marcas |
+| `wishlist` | Quiero probar |
+| `friendships` | Amistades y solicitudes |
+| `users`, `userPreferences` | Perfil y listas personalizadas |
 
-Todos los documentos incluyen `userId` para aislamiento de datos por cuenta.
-
-## Limites gratuitos
-
-| Servicio | Limite |
-|----------|--------|
-| Firestore | 1 GB storage, 50K lecturas/dia, 20K escrituras/dia |
-| Storage | 5 GB storage, 1 GB descarga/dia |
-| Auth | Ilimitado |
-| Vercel | 100 GB bandwidth/mes |
-
-Mas que suficiente para uso personal.
-
-## Personaliza tu Coffee Tracker
-
-Algunas ideas para extender el proyecto:
-
-- Agregar mas metodos de preparacion en `utils/constants.ts`
-- Cambiar la paleta de colores en `tailwind.config.ts`
-- Agregar nuevas variedades a la lista en `utils/constants.ts`
-- Crear nuevos campos en los tipos (`types/index.ts`) y formularios
+Cada documento lleva `userId`. Notas, cafés y recetas pueden ser privados, para amigos o públicos; las reglas viven en `firestore.rules` y se prueban en `tests/rules/`.
 
 ## Licencia
 
-Este proyecto esta bajo la licencia [Polyform Noncommercial 1.0.0](LICENSE).
-
-**Puedes:** usar, copiar, estudiar y modificar el codigo para cualquier proposito no comercial (proyectos personales, educacion, investigacion, hobby).
-
-**No puedes:** usar el codigo o derivados con fines comerciales sin autorizacion del autor.
+[Polyform Noncommercial 1.0.0](LICENSE). Puedes usar, copiar, estudiar y modificar el código para fines no comerciales (proyectos personales, educación, investigación). Para uso comercial necesitas autorización del autor.
 
 ---
 
-Hecho con mucho cafe por [KurodaSensei](https://github.com/kurodasensei)
+<p align="center">Sorbo. · por KurodaCafe</p>
 
-> *Si, este proyecto fue construido con IA ([Claude Code](https://claude.ai/code)). El humano puso el cafe, el criterio y las ideas. La IA puso las manos (que no tiene) en el teclado (que tampoco tiene). Ningun barista fue reemplazado en el proceso.*
+> *Sí, este proyecto se construyó con IA ([Claude Code](https://claude.ai/code)). El humano puso el café, el criterio y las ideas. La IA puso las manos (que no tiene) en el teclado (que tampoco tiene). Ningún barista fue reemplazado en el proceso.*
