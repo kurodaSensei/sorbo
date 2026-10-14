@@ -62,7 +62,7 @@ const shared = computed(() => recipesStore.sharedList as Recipe[])
     <section v-if="rest.length" class="pr-group">
       <h2 class="pr-label">Mis recetas</h2>
       <div class="pr-list">
-        <NuxtLink v-for="r in rest" :key="r.id" :to="`/app/timer?receta=${r.id}`" class="pr-row">
+        <NuxtLink v-for="r in rest" :key="r.id" :to="`/app/recipes/${r.id}`" class="pr-row">
           <span class="pr-col"><span>{{ r.name }}</span><span class="pr-mono pr-soft">{{ summary(r) }}</span></span>
           <span class="pr-soft">›</span>
         </NuxtLink>
@@ -72,7 +72,7 @@ const shared = computed(() => recipesStore.sharedList as Recipe[])
     <section v-if="shared.length" class="pr-group">
       <h2 class="pr-label">Compartidas contigo</h2>
       <div class="pr-list">
-        <NuxtLink v-for="r in shared" :key="r.id" :to="`/app/timer?receta=${r.id}`" class="pr-row">
+        <NuxtLink v-for="r in shared" :key="r.id" :to="`/app/recipes/${r.id}`" class="pr-row">
           <span class="pr-col"><span>{{ r.name }}</span><span class="pr-mono pr-soft">{{ summary(r) }}</span></span>
           <span class="pr-soft">›</span>
         </NuxtLink>
