@@ -78,7 +78,7 @@ const processLabel: Record<CoffeeProcess, string> = {
 }
 
 function coffeeEyebrow(c: Coffee): string {
-  const proc = c.process ? (processLabel[c.process] || c.process.toUpperCase()) : ''
+  const proc = c.process ? (processLabel[c.process] ?? c.process.toUpperCase()) : ''
   const roaster = c.roasterName?.toUpperCase() || ''
   return [proc, roaster].filter(Boolean).join(' · ')
 }
