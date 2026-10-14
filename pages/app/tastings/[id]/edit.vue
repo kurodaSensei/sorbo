@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Tasting } from '~/types'
 
+// Editar nota v2: la misma hoja de la nota rápida, en modo edición.
 definePageMeta({
   layout: false,
   pageTransition: { name: 'wizard', mode: 'out-in' },
@@ -19,27 +20,40 @@ onMounted(async () => {
   try {
     await tastingsStore.loadById(id.value)
     tasting.value = tastingsStore.current as Tasting | null
-    if (!tasting.value) {
-      router.replace('/app/tastings')
-    }
-  }
-  catch {
-    router.replace('/app/tastings')
   }
   finally {
     loading.value = false
+    if (!tasting.value) router.replace('/app')
   }
 })
+
+function cancel() {
+  if (window.history.length > 1) router.back()
+  else router.replace(`/app/tastings/${id.value}`)
+}
+
+function onSaved() {
+  router.replace(`/app/tastings/${id.value}`)
+}
 </script>
 
 <template>
-  <div v-if="loading" class="flex min-h-svh items-center justify-center bg-paper">
-    <span class="size-6 animate-spin rounded-full border-2 border-moss/20 border-t-moss" />
+  <div class="note-page">
+    <div v-if="loading" class="note-state"><span class="note-spin" aria-label="Cargando" /></div>
+    <NoteForm v-else-if="tasting" :key="tasting.id" :tasting="tasting" @cancel="cancel" @saved="onSaved" />
   </div>
-  <TastingWizard
-    v-else-if="tasting"
-    mode="edit"
-    :tasting-id="id"
-    :initial-tasting="tasting"
-  />
 </template>
+
+<style scoped>
+.note-page {
+  height: 100svh;
+  padding-top: env(safe-area-inset-top);
+  box-sizing: border-box;
+  background: var(--bg);
+  max-width: 640px;
+  margin: 0 auto;
+}
+.note-state { display: flex; height: 100%; align-items: center; justify-content: center; }
+.note-spin { width: 24px; height: 24px; border-radius: 99px; border: 2px solid var(--line); border-top-color: var(--ink); animation: note-spin 0.8s linear infinite; }
+@keyframes note-spin { to { transform: rotate(360deg); } }
+</style>

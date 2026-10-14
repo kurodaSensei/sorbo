@@ -1,4 +1,15 @@
 import type { Ref, ComputedRef } from 'vue'
+import { FieldValue } from 'firebase/firestore'
+
+/** Aplica un parche a la copia local; un deleteField() quita la clave en vez de guardarse. */
+export function patchLocal<T>(item: T, data: Partial<T>): T {
+  const next = { ...item } as Record<string, unknown>
+  for (const [k, v] of Object.entries(data)) {
+    if (v instanceof FieldValue) delete next[k]
+    else next[k] = v
+  }
+  return next as T
+}
 
 /**
  * Generic CRUD pipeline + state exposed by every app store.
@@ -119,9 +130,9 @@ export function useFirestoreStoreState<
     try {
       await options.api.update(id, data)
       // Parche local: los cambios ya se conocen, no hace falta releer.
-      list.value = list.value.map(x => x.id === id ? { ...x, ...data } as T : x)
+      list.value = list.value.map(x => x.id === id ? patchLocal(x, data) : x)
       if (current.value?.id === id) {
-        current.value = { ...current.value, ...data } as T
+        current.value = patchLocal(current.value, data)
       }
       toast.success(options.messages.updated)
     } catch (e: any) {

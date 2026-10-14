@@ -2,7 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import { reactive, ref } from 'vue'
 
-vi.mock('firebase/firestore', () => ({ Timestamp: { now: () => ({ ts: 'now', toMillis: () => 0 }) } }))
+const DEL = { __delete: true }
+vi.mock('firebase/firestore', () => ({ Timestamp: { now: () => ({ ts: 'now', toMillis: () => 0 }) }, deleteField: () => DEL }))
 import NoteForm from '~/components/note/Form.vue'
 import NoteScorePicker from '../../components/note/ScorePicker.vue'
 
@@ -10,7 +11,7 @@ let m: ReturnType<typeof setupMocks>
 
 function setupMocks(o: { coffees?: any[], tastings?: any[], wishlist?: any[], friends?: string[], recipes?: any[] } = {}) {
   const coffees = reactive({ list: o.coffees ?? [] as any[], loadAll: vi.fn(async () => {}), upsertLocal: vi.fn() })
-  const tastings = reactive({ list: o.tastings ?? [] as any[], loadAll: vi.fn(async () => {}), create: vi.fn(async () => 'tid') })
+  const tastings = reactive({ list: o.tastings ?? [] as any[], loadAll: vi.fn(async () => {}), create: vi.fn(async () => 'tid'), update: vi.fn(async () => {}) })
   const recipes = reactive({ list: o.recipes ?? [] as any[], loadAll: vi.fn(async () => {}) })
   const wishlist = reactive({ list: o.wishlist ?? [] as any[], loadAll: vi.fn(async () => {}), upsertLocal: vi.fn() })
   const friends = reactive({ list: (o.friends ?? []) as any[], friendUids: o.friends ?? [], load: vi.fn(async () => {}) })
@@ -214,5 +215,53 @@ describe('NoteForm · precarga', () => {
     const w = mountForm({ initialCoffeeId: 'c1' })
     await flushPromises()
     expect((w.find('#nf-cafe').element as HTMLInputElement).value).toBe('Geisha')
+  })
+})
+
+describe('NoteForm · editar', () => {
+  const coffee = { id: 'c1', name: 'Sidra', roasterName: 'Green' }
+  const note = {
+    id: 't1', coffeeId: 'c1', coffeeName: 'Sidra', roasterName: 'Green', brewMethod: 'v60',
+    dose: 18, water: 300, brewTime: 150, recipeName: 'Kubomi', ratingOverall: 7,
+    flavorNotes: ['Cereza', 'Jazmín'], personalNotes: 'rico', visibility: 'friends', isFavorite: true,
+  }
+
+  it('precarga la nota, sin Recientes ni Compartir', async () => {
+    m = setupMocks({ coffees: [coffee], tastings: [note] })
+    const w = mountForm({ tasting: note })
+    await flushPromises()
+    expect(w.find('.nf-title').text()).toBe('Editar nota')
+    expect((w.find('#nf-cafe').element as HTMLInputElement).value).toBe('Sidra')
+    expect(w.findAll('.sp button')[3].attributes('aria-pressed')).toBe('true') // 7 → 4
+    expect(w.text()).toContain('Jazmín')
+    expect(w.find('.nf-recents').exists()).toBe(false)
+    expect(w.find('.nf-share').exists()).toBe(false)
+    expect(saveBtn(w).text()).toBe('Guardar cambios')
+  })
+
+  it('actualiza (no crea), conserva un puntaje v1 sin tocar y borra campos vaciados', async () => {
+    m = setupMocks({ coffees: [coffee], tastings: [note] })
+    const w = mountForm({ tasting: note })
+    await flushPromises()
+    await w.find('textarea').setValue('')
+    await saveBtn(w).trigger('click')
+    await flushPromises()
+    expect(m.tastings.create).not.toHaveBeenCalled()
+    const [id, patch] = (m.tastings as any).update.mock.calls[0]
+    expect(id).toBe('t1')
+    expect(patch).not.toHaveProperty('ratingOverall')
+    expect(patch.personalNotes).toBe(DEL)
+    expect(patch).not.toHaveProperty('visibility')
+    expect(w.emitted('saved')![0]).toEqual(['t1'])
+  })
+
+  it('cambiar el puntaje lo reescribe en la escala v2', async () => {
+    m = setupMocks({ coffees: [coffee], tastings: [note] })
+    const w = mountForm({ tasting: note })
+    await flushPromises()
+    await pickScore(w, 2)
+    await saveBtn(w).trigger('click')
+    await flushPromises()
+    expect((m.tastings as any).update.mock.calls[0][1].ratingOverall).toBe(4)
   })
 })

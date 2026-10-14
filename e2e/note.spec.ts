@@ -115,4 +115,31 @@ test.describe('Nota rápida', () => {
     await expect(row).toBeVisible()
     expect((await row.boundingBox())!.height).toBeGreaterThan(20)
   })
+  test('editar nota: misma hoja, guarda cambios y vuelve al detalle', async ({ page }) => {
+    const name = qaName('Editar')
+    await gotoApp(page)
+    const sheet = await openNoteSheet(page)
+    await sheet.locator('#nf-cafe').fill(name)
+    await sheet.getByRole('button', { name: /3\s*Rico/ }).click()
+    await sheet.locator('#nf-nota').fill('se borra')
+    await sheet.getByRole('button', { name: 'Guardar nota' }).click()
+    await expect(page).toHaveURL(/\/app\/tastings\/\w+$/)
+    const id = page.url().split('/').pop()!
+
+    await page.getByRole('button', { name: 'Más opciones' }).click()
+    await page.getByText('Editar nota').click()
+    await expect(page).toHaveURL(new RegExp(`/app/tastings/${id}/edit`))
+    await expect(page.getByRole('heading', { name: 'Editar nota' })).toBeVisible()
+    await expect(page.locator('#nf-cafe')).toHaveValue(name)
+    await expect(page.getByRole('switch')).toHaveCount(0) // la visibilidad va en «Quién la ve»
+    await page.getByRole('button', { name: /5\s*Wow/ }).click()
+    await page.locator('#nf-nota').fill('')
+    await page.getByRole('button', { name: 'Guardar cambios' }).click()
+
+    await expect(page).toHaveURL(new RegExp(`/app/tastings/${id}$`))
+    await expect(page.getByText('wow')).toBeVisible()
+    const t = (await store<any[]>(page, 'tastings', 'list')).find(x => x.id === id)
+    expect(t.ratingOverall).toBe(10)
+    expect(t.personalNotes).toBeUndefined()
+  })
 })
