@@ -151,9 +151,12 @@ describe('Brindar (cheers) en tastings', () => {
     await assertFails(deleteDoc(ref(FRIEND)))
     await assertSucceeds(updateDoc(ref(OWNER), { personalNotes: 'editada' }))
   })
-  it.fails('BUG: un brindis debe ser exactamente `true` (se acepta false/cadena/objeto y cuenta como brindis)', async () => {
+  it('un brindis debe ser exactamente `true`', async () => {
     await seed('tastings/n1', note())
     await assertFails(updateDoc(ref(FRIEND), { [`cheers.${FRIEND}`]: 'x'.repeat(5000) }))
+    await assertFails(updateDoc(ref(FRIEND), { [`cheers.${FRIEND}`]: false }))
+    await assertFails(updateDoc(ref(FRIEND), { [`cheers.${FRIEND}`]: { a: 1 } }))
+    await assertSucceeds(updateDoc(ref(FRIEND), { [`cheers.${FRIEND}`]: true }))
   })
 })
 
