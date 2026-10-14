@@ -98,6 +98,14 @@ describe('useFirebase.update / remove', () => {
     fs.getDoc.mockResolvedValueOnce(snap(null))
     await expect(useFirebase().remove('coffees', 'zz')).rejects.toThrow('Unauthorized')
   })
+
+  it('remove offline también se da por encolado a los 2,5 s', async () => {
+    fs.getDoc.mockResolvedValue(snap({ userId: 'u1' }))
+    fs.deleteDoc.mockReturnValue(new Promise(() => {}))
+    const p = useFirebase().remove('coffees', 'c1')
+    await vi.advanceTimersByTimeAsync(2500)
+    await expect(p).resolves.toBeUndefined()
+  })
 })
 
 describe('useFirebase.getById (visibilidad en cliente)', () => {

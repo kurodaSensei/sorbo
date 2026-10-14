@@ -168,7 +168,7 @@ export const useFirebase = () => {
     if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
       throw new Error('Unauthorized: document not found or access denied')
     }
-    await deleteDoc(docRef)
+    await settleOrQueue(deleteDoc(docRef), `delete ${collectionName}`)
   }
 
   return {
