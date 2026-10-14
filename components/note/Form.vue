@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { Timestamp } from 'firebase/firestore'
+import { Timestamp, deleteField } from 'firebase/firestore'
 import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput, WishlistItem } from '~/types'
 import type { NotePrefill } from '~/stores/ui'
-import { scoreToRating } from '~/utils/score'
+import { ratingToScore, scoreToRating } from '~/utils/score'
 import { fmtSeconds } from '~/utils/dates'
 
 // Nota rápida v2 (design/v2/prototipo, «Nueva nota»): café, puntaje,
@@ -15,7 +15,11 @@ const props = defineProps<{
   initialCoffeeId?: string | null
   /** Café de Quiero probar o datos del temporizador. */
   prefill?: NotePrefill | null
+  /** Modo edición: la nota a editar. Guardar la actualiza en vez de crear otra. */
+  tasting?: Tasting | null
 }>()
+
+const isEdit = computed(() => !!props.tasting)
 
 const emit = defineEmits<{
   cancel: []
@@ -99,7 +103,7 @@ const addingFlavor = ref(false)
 const newFlavor = ref('')
 const text = ref('')
 
-const flavorChips = computed(() => [...flavorNoteOptions.value.slice(0, 6), ...extraFlavors.value])
+const flavorChips = computed(() => [...new Set([...flavorNoteOptions.value.slice(0, 6), ...extraFlavors.value])])
 
 function toggleFlavor(f: string) {
   flavors.value = flavors.value.includes(f) ? flavors.value.filter(x => x !== f) : [...flavors.value, f]
@@ -212,6 +216,24 @@ onMounted(() => {
   }
 })
 
+// Modo edición: la nota manda; «la última vez» no pisa nada.
+const original = props.tasting
+if (original) {
+  keepDetails.value = true
+  name.value = original.coffeeName || ''
+  brand.value = original.roasterName || ''
+  score.value = ratingToScore(original.ratingOverall)
+  flavors.value = [...(original.flavorNotes ?? [])]
+  extraFlavors.value = [...flavors.value]
+  text.value = original.personalNotes || ''
+  method.value = original.brewMethod && original.brewMethod !== 'other' ? original.brewMethod : ''
+  dose.value = original.dose ? String(original.dose) : ''
+  water.value = original.water ? String(original.water) : ''
+  time.value = fmtSeconds(original.brewTime)
+  recipeName.value = original.recipeName || ''
+  moreOpen.value = !!(method.value || dose.value || water.value || time.value)
+}
+
 // ─── Guardar ────────────────────────────────────────────────────────────────
 const saving = ref(false)
 const canSave = computed(() => !!norm(name.value) && score.value > 0 && !saving.value)
@@ -240,6 +262,30 @@ async function save() {
       const id = await createCoffee(payload)
       coffee = { id, ...payload, createdAt: Timestamp.now(), updatedAt: Timestamp.now() } as Coffee
       coffeesStore.upsertLocal(coffee)
+    }
+
+    if (original) {
+      // Solo lo que la hoja edita; visibilidad, fecha, autor y atributos v1 se conservan.
+      const brewTime = parseTime(time.value)
+      const del = deleteField() // vaciar un campo lo borra del documento
+      const patch: Record<string, unknown> = {
+        coffeeId: coffee.id,
+        coffeeName: coffee.name,
+        roasterName: coffee.roasterName || '',
+        brewMethod: (method.value || 'other') as BrewMethod,
+        dose: Number(dose.value) || del,
+        water: Number(water.value) || del,
+        ratio: ratio.value !== '—' ? ratio.value : del,
+        brewTime: brewTime ?? del,
+        recipeName: recipeName.value || del,
+        flavorNotes: flavors.value,
+        personalNotes: text.value.trim() || del,
+      }
+      // Un puntaje v1 (p. ej. 7) se conserva si no se tocó.
+      if (score.value !== ratingToScore(original.ratingOverall)) patch.ratingOverall = scoreToRating(score.value)
+      await tastingsStore.update(original.id, patch as Partial<Tasting>)
+      emit('saved', original.id)
+      return
     }
 
     const friendUids = friendsStore.friendUids as string[]
@@ -296,7 +342,7 @@ async function save() {
   <div class="note-form">
     <header class="nf-head">
       <button type="button" class="nf-cancel" @click="emit('cancel')">Cancelar</button>
-      <h1 class="nf-title">Nueva nota</h1>
+      <h1 class="nf-title">{{ isEdit ? 'Editar nota' : 'Nueva nota' }}</h1>
       <span class="nf-cancel" aria-hidden="true" />
     </header>
 
@@ -325,7 +371,7 @@ async function save() {
         <input id="nf-marca" v-model="brand" class="nf-input" placeholder="Quién lo tuesta">
       </div>
 
-      <div v-if="recents.length && !initialCoffeeId" class="nf-recents">
+      <div v-if="recents.length && !initialCoffeeId && !isEdit" class="nf-recents">
         <span class="nf-caption">Recientes</span>
         <button
           v-for="c in recents"
@@ -421,7 +467,7 @@ async function save() {
     </div>
 
     <footer class="nf-foot">
-      <div class="nf-share">
+      <div v-if="!isEdit" class="nf-share">
         <span id="nf-share-l" class="nf-share-t"><AppIcon name="users" :size="18" />Compartir con amigos</span>
         <button
           type="button"
@@ -435,7 +481,7 @@ async function save() {
         </button>
       </div>
       <button type="button" class="nf-save" :disabled="!canSave" :aria-busy="saving || undefined" @click="save">
-        {{ saving ? 'Guardando…' : 'Guardar nota' }}
+        {{ saving ? 'Guardando…' : isEdit ? 'Guardar cambios' : 'Guardar nota' }}
       </button>
       <span v-if="!canSave && !saving" class="nf-caption nf-center">{{ saveHint }}</span>
     </footer>
