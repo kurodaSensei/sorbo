@@ -67,7 +67,10 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: '/',
+      // El service worker responde las navegaciones con el shell de la SPA
+      // (200.html, que el módulo precachea como «200»), no con la landing: con
+      // '/' cualquier enlace a /app/... abría la landing.
+      navigateFallback: '/200',
       globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
       runtimeCaching: [
         {
