@@ -114,7 +114,7 @@ async function wish(t: Tasting) {
           @wish="wish(t)"
         />
 
-        <p v-if="!list.length && tab === 'discover'" class="am-empty">Todavía no hay notas públicas. Puedes publicar la tuya desde «Quién la ve» en el detalle de una nota.</p>
+        <p v-if="!list.length && tab === 'discover'" class="am-empty">Todavía no hay notas públicas de otras personas. Puedes publicar las tuyas desde «Quién la ve» en el detalle de una nota.</p>
         <p v-if="!list.length && tab === 'following' && friendsStore.accepted.length" class="am-empty">Tus amigos aún no han compartido notas contigo.</p>
 
         <NuxtLink v-if="tab === 'following'" to="/app/friends" class="am-invite">

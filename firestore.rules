@@ -9,6 +9,13 @@ service cloud.firestore {
       return request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
+    // El dueño edita su documento pero no puede pasárselo a otra persona.
+    function isOwnerUpdate() {
+      return request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == resource.data.userId;
+    }
+
     function isFriendshipParticipant() {
       return request.auth != null
         && request.auth.uid in resource.data.uids;
@@ -28,29 +35,32 @@ service cloud.firestore {
     match /roasters/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // Shareable collections: lectura para dueño, sharedWith o comunidad.
     match /coffees/{docId} {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // Brindar (v2): quien puede leer una nota ajena solo puede añadir o quitar
-    // su propia entrada en `cheers` y no tocar ningún otro campo.
+    // su propia entrada en `cheers` (valor `true`) y no tocar ningún otro campo.
     function isOwnCheerOnly() {
+      let after = request.resource.data.get('cheers', {});
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cheers'])
-        && request.resource.data.get('cheers', {}).diff(resource.data.get('cheers', {}))
-          .affectedKeys().hasOnly([request.auth.uid]);
+        && after.diff(resource.data.get('cheers', {})).affectedKeys().hasOnly([request.auth.uid])
+        && (!(request.auth.uid in after) || after[request.auth.uid] == true);
     }
 
     match /tastings/{docId} {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
       allow update: if request.auth != null && (
-        resource.data.userId == request.auth.uid
+        isOwnerUpdate()
         || (canReadShareable() && isOwnCheerOnly())
       );
       allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
@@ -59,13 +69,15 @@ service cloud.firestore {
     match /recipes/{docId} {
       allow read: if canReadShareable();
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     match /wishlist/{docId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticatedCreate();
-      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if isOwnerUpdate();
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // User preferences: doc id equals user uid
@@ -103,14 +115,21 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
-    // Friendships: both participants can read, either can write if they are participants
+    // Friendships: ambos participantes leen y borran (rechazar o quitar amigo).
+    // Solo quien RECIBE la solicitud puede aceptarla, y aceptar solo toca status.
     match /friendships/{friendshipId} {
       allow read: if isFriendshipParticipant();
       allow create: if request.auth != null
+        && request.resource.data.uids.size() == 2
+        && request.resource.data.uids[0] != request.resource.data.uids[1]
         && request.auth.uid in request.resource.data.uids
         && request.resource.data.status == 'pending'
         && request.resource.data.initiatedBy == request.auth.uid;
-      allow update: if isFriendshipParticipant();
+      allow update: if isFriendshipParticipant()
+        && request.auth.uid != resource.data.initiatedBy
+        && resource.data.status == 'pending'
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']);
       allow delete: if isFriendshipParticipant();
     }
   }

@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { Timestamp } from 'firebase/firestore'
 import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput, WishlistItem } from '~/types'
 import type { NotePrefill } from '~/stores/ui'
-import { SCORE_WORDS, scoreToRating } from '~/utils/score'
+import { scoreToRating } from '~/utils/score'
 import { fmtSeconds } from '~/utils/dates'
 
 // Nota rápida v2 (design/v2/prototipo, «Nueva nota»): café, puntaje,
@@ -132,15 +132,21 @@ function parseTime(v: string): number | undefined {
 // Si la nota llega desde el temporizador, sus datos mandan sobre «la última vez».
 const keepDetails = ref(false)
 
-watch(() => match.value?.id, () => {
+// También mira lastNote: en una carga en frío el café se resuelve antes de que
+// lleguen las notas. Si el café no cambió, solo rellena lo que siga vacío.
+watch(() => [match.value?.id, lastNote.value?.id] as const, ([id], old) => {
   if (keepDetails.value) return
   const t = lastNote.value
   if (!t) { fromLast.value = false; return }
+  if (id === old?.[0] && (method.value || dose.value)) return
   method.value = t.brewMethod
   dose.value = t.dose ? String(t.dose) : ''
   water.value = t.water ? String(t.water) : ''
   time.value = fmtSeconds(t.brewTime)
+  recipeName.value = t.recipeName || ''
   fromLast.value = true
+  // Los sabores propios de ese café vuelven a estar a mano.
+  for (const f of t.flavorNotes ?? []) if (!flavorChips.value.includes(f)) extraFlavors.value.push(f)
 })
 
 function useRecipe(r: Recipe) {
@@ -333,21 +339,7 @@ async function save() {
         </button>
       </div>
 
-      <fieldset class="nf-score">
-        <legend class="nf-label">¿Qué tal estuvo?</legend>
-        <div>
-          <button
-            v-for="n in 5"
-            :key="n"
-            type="button"
-            :aria-pressed="score === n"
-            @click="score = n"
-          >
-            <span class="nf-num">{{ n }}</span>
-            <span class="nf-word">{{ SCORE_WORDS[n] }}</span>
-          </button>
-        </div>
-      </fieldset>
+      <NoteScorePicker v-model="score" />
 
       <div class="nf-field">
         <span class="nf-label">Sabores</span>
@@ -398,6 +390,7 @@ async function save() {
                 :key="r.id"
                 type="button"
                 class="nf-chip nf-chip-sm"
+                :aria-pressed="recipeName === r.name"
                 @click="useRecipe(r)"
               >
                 {{ r.name }}
@@ -455,6 +448,8 @@ async function save() {
 .nf-cancel { min-width: 84px; min-height: var(--touch-min); padding: 0 8px; text-align: left; font-size: 15px; color: var(--ink-soft); }
 .nf-title { font: 600 16px/20px var(--font-sans); margin: 0; }
 .nf-body { flex: 1; overflow-y: auto; padding: 8px 16px 20px; display: flex; flex-direction: column; gap: 22px; }
+/* El cuerpo hace scroll: sus filas no deben encogerse (las de scroll horizontal colapsaban a 0). */
+.nf-body > * { flex-shrink: 0; }
 .nf-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .nf-rel { position: relative; }
 .nf-label { font: 600 13px/16px var(--font-sans); color: var(--ink-soft); padding: 0; }
@@ -479,15 +474,6 @@ async function save() {
 .nf-chip[aria-pressed='true'] { background: var(--primary); color: var(--on-primary); }
 .nf-chip-add { background: transparent; border: 1px dashed var(--ink-faint); color: var(--ink-soft); }
 .nf-chip-input { width: 120px; border: 0; outline: 2px solid var(--primary); }
-.nf-score { border: 0; margin: 0; padding: 0; }
-.nf-score legend { margin-bottom: 10px; }
-.nf-score > div { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.nf-score button { height: 64px; border-radius: var(--radius-md); background: var(--surface); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transition: background 200ms; }
-.nf-num { font: 400 22px/1 var(--font-display); }
-.nf-word { font-size: 11px; color: var(--ink-soft); }
-.nf-score button[aria-pressed='true'] { background: var(--action-bg); }
-.nf-score button[aria-pressed='true'] .nf-num { color: var(--action-fg); }
-.nf-score button[aria-pressed='true'] .nf-word { color: var(--on-action); }
 .nf-more { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .nf-more-h { width: 100%; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; }
 .nf-col { display: flex; flex-direction: column; gap: 2px; }

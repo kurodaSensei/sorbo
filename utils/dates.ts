@@ -32,8 +32,8 @@ export function hourLabel(d: Date): string {
 export function agoLabel(d: Date, now = new Date()): string {
   const min = Math.round((now.getTime() - d.getTime()) / 60000)
   if (min < 60) return min <= 1 ? 'ahora' : `hace ${min} min`
-  const h = Math.round(min / 60)
-  if (h < 24) return `hace ${h} h`
+  // Se compara en minutos: redondear antes hacía que 23,5 h+ cayera en «Hoy».
+  if (min < 24 * 60) return `hace ${Math.min(23, Math.round(min / 60))} h`
   const day = dayLabel(d, now)
   return day === 'Ayer' ? 'ayer' : day
 }

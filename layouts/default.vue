@@ -131,7 +131,7 @@ function onSwipeEnd(e: TouchEvent) {
       </main>
     </div>
 
-    <AppTabBar v-if="!route.meta.hideTabBar" class="lg:hidden" />
+    <AppTabBar v-if="!route.meta.hideTabBar" />
     <NoteSheet />
   </div>
 </template>

@@ -16,9 +16,11 @@ const { processOptions, varieties, getBrewMethodLabel } = useCatalog()
 const { confirm } = useConfirm()
 
 const isNew = computed(() => !props.coffee)
+// Sin esto, mientras cargan las notas decía «Todavía no lo has anotado».
+const notesReady = ref(tastingsStore.list.length > 0)
 
 onMounted(() => {
-  if (!tastingsStore.list.length) tastingsStore.loadAll().catch(() => {})
+  if (!tastingsStore.list.length) tastingsStore.loadAll().catch(() => {}).finally(() => { notesReady.value = true })
 })
 
 const f = reactive({
@@ -148,7 +150,7 @@ function back() {
         <input id="cf-brand" v-model="f.brand" class="cf-input" placeholder="Quién lo tuesta" autocomplete="off">
       </div>
       <p class="cf-cap">
-        <template v-if="!isNew">{{ notes.length ? `${notes.length} ${notes.length === 1 ? 'nota' : 'notas'} de este café` : 'Todavía no lo has anotado' }} · </template>todos los campos son opcionales
+        <template v-if="!isNew && notesReady">{{ notes.length ? `${notes.length} ${notes.length === 1 ? 'nota' : 'notas'} de este café` : 'Todavía no lo has anotado' }} · </template>todos los campos son opcionales
       </p>
 
       <div class="cf-folds">

@@ -32,6 +32,9 @@ const total = computed(() => steps.value.length ? steps.value[steps.value.length
 
 const t = ref(0)
 const running = ref(false)
+// La taza termina cuando la persona toca «Terminar» (en pausa, o al llegar al
+// último paso: es un hito de inicio, no un final, así que el reloj sigue).
+const finished = ref(false)
 let tick: ReturnType<typeof setInterval> | null = null
 let startedAt = 0
 let base = 0
@@ -48,29 +51,35 @@ function start() {
   running.value = true
   tick = setInterval(() => {
     // Se mide contra el reloj para no derivar si el navegador frena el intervalo.
+    const prev = t.value
     t.value = base + Math.floor((Date.now() - startedAt) / 1000)
-    if (total.value && t.value >= total.value) {
-      t.value = total.value
-      stop()
-      light()
-    }
+    if (total.value && prev < total.value && t.value >= total.value) light()
   }, 250)
 }
 
 function toggle() {
+  if (running.value && atLast.value) return finish()
   light()
   if (running.value) stop()
   else start()
 }
 
+function finish() {
+  light()
+  stop()
+  finished.value = true
+}
+
 function reset() {
   stop()
   t.value = 0
+  finished.value = false
 }
 
 onUnmounted(stop)
 
-const done = computed(() => total.value ? t.value >= total.value : (!running.value && t.value > 0))
+const atLast = computed(() => !!total.value && t.value >= total.value)
+const done = computed(() => finished.value)
 const current = computed(() => steps.value.reduce((acc, s, i) => t.value >= s.timeSeconds ? i : acc, 0))
 const progress = computed(() => total.value ? Math.min(100, (t.value / total.value) * 100) : 0)
 const ratio = computed(() => recipe.value && recipe.value.dose ? `1:${(recipe.value.water / recipe.value.dose).toFixed(1)}` : '')
@@ -135,8 +144,12 @@ function back() {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /></svg>
       </button>
       <button v-if="done" type="button" class="tm-btn tm-primary" @click="annotate">Anotar esta taza</button>
+      <template v-else-if="!running && t">
+        <button type="button" class="tm-btn tm-secondary tm-grow" @click="toggle">Seguir</button>
+        <button type="button" class="tm-btn tm-primary" @click="finish">Terminar</button>
+      </template>
       <button v-else type="button" class="tm-btn tm-primary" @click="toggle">
-        {{ running ? 'Pausar' : t ? 'Seguir' : 'Empezar' }}
+        {{ running ? (atLast ? 'Terminar' : 'Pausar') : 'Empezar' }}
       </button>
     </footer>
   </div>

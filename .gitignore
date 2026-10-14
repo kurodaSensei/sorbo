@@ -25,3 +25,8 @@ logs
 .agents/
 .claude/skills/
 skills-lock.json
+
+# Playwright
+e2e/.auth/
+test-results/
+playwright-report/
