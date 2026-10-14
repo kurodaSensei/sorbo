@@ -132,15 +132,21 @@ function parseTime(v: string): number | undefined {
 // Si la nota llega desde el temporizador, sus datos mandan sobre «la última vez».
 const keepDetails = ref(false)
 
-watch(() => match.value?.id, () => {
+// También mira lastNote: en una carga en frío el café se resuelve antes de que
+// lleguen las notas. Si el café no cambió, solo rellena lo que siga vacío.
+watch(() => [match.value?.id, lastNote.value?.id] as const, ([id], old) => {
   if (keepDetails.value) return
   const t = lastNote.value
   if (!t) { fromLast.value = false; return }
+  if (id === old?.[0] && (method.value || dose.value)) return
   method.value = t.brewMethod
   dose.value = t.dose ? String(t.dose) : ''
   water.value = t.water ? String(t.water) : ''
   time.value = fmtSeconds(t.brewTime)
+  recipeName.value = t.recipeName || ''
   fromLast.value = true
+  // Los sabores propios de ese café vuelven a estar a mano.
+  for (const f of t.flavorNotes ?? []) if (!flavorChips.value.includes(f)) extraFlavors.value.push(f)
 })
 
 function useRecipe(r: Recipe) {
@@ -384,6 +390,7 @@ async function save() {
                 :key="r.id"
                 type="button"
                 class="nf-chip nf-chip-sm"
+                :aria-pressed="recipeName === r.name"
                 @click="useRecipe(r)"
               >
                 {{ r.name }}
