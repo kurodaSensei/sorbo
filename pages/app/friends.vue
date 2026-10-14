@@ -121,7 +121,7 @@ async function onRemove(id: string) {
           <UiAvatar :name="label(f)" size="md" />
           <span class="fr-col">
             <span class="fr-name">{{ label(f) }}</span>
-            <span class="fr-sub">{{ getOther(f)?.email }}</span>
+            <span v-if="getOther(f)?.displayName" class="fr-sub">{{ getOther(f)?.email }}</span>
           </span>
           <button type="button" class="fr-act" :aria-label="`Eliminar a ${label(f)}`" @click="onRemove(f.id)">Eliminar</button>
         </li>
