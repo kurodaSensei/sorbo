@@ -66,7 +66,7 @@ const streak = computed(() => {
     <section class="yo-group">
       <h2 class="yo-label">Cuenta</h2>
       <div class="yo-list">
-        <NuxtLink to="/app/settings" class="yo-row">
+        <NuxtLink to="/app/lists" class="yo-row">
           <span class="yo-col"><span>Personalizar listas</span><span class="yo-sub">Marcas, métodos, variedades, procesos, sabores</span></span>
           <span class="yo-end">›</span>
         </NuxtLink>

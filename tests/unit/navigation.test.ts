@@ -22,6 +22,7 @@ describe('navigation', () => {
     expect(active('/app/coffees/xyz')).toEqual(['yo'])
     expect(active('/app/wishlist')).toEqual(['yo'])
     expect(active('/app/settings')).toEqual(['yo'])
+    expect(active('/app/lists')).toEqual(['yo'])
   })
   it('«/app» no captura todo /app/*: sin coincidencias parciales de prefijo', () => {
     expect(active('/app/coffeesfoo')).toEqual([])

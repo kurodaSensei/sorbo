@@ -18,7 +18,7 @@ export const APP_TABS: AppTab[] = [
     label: 'Yo',
     to: '/app/yo',
     icon: 'user',
-    match: ['/app/coffees', '/app/wishlist', '/app/settings', '/app/profile', '/app/roasters',
+    match: ['/app/coffees', '/app/wishlist', '/app/settings', '/app/lists', '/app/profile', '/app/roasters',
       '/app/varieties', '/app/methods', '/app/processes', '/app/notes'],
   },
 ]
