@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 
+// Mis amigos v2: agregar por correo y tres listas agrupadas.
+// Aceptar solo se ofrece en solicitudes recibidas (las reglas solo dejan aceptar al destinatario).
+definePageMeta({ hideTabBar: true })
+
 const router = useRouter()
 const friendsStore = useFriendsStore()
+const { confirm } = useConfirm()
 
-// `ready` evita el flash del "Aún no tienes amigos" mientras carga.
+// `ready` evita el flash del vacío mientras carga.
 const ready = ref(false)
 
 onMounted(async () => {
@@ -35,45 +40,37 @@ async function sendInvite() {
   }
 }
 
-const search = ref('')
-
-const accepted = computed(() => {
-  const list = friendsStore.accepted
-  const q = search.value.trim().toLowerCase()
-  if (!q) return list
-  return list.filter((f) => {
-    const u = friendsStore.getOtherUser(f)
-    return (
-      (u?.displayName || '').toLowerCase().includes(q)
-      || (u?.email || '').toLowerCase().includes(q)
-    )
-  })
-})
+const accepted = computed(() => friendsStore.accepted)
 const pendingIncoming = computed(() => friendsStore.pendingIncoming)
 const pendingOutgoing = computed(() => friendsStore.pendingOutgoing)
 
 function getOther(f: any) {
   return friendsStore.getOtherUser(f)
 }
+const label = (f: any) => getOther(f)?.displayName || getOther(f)?.email || '?'
 
-const { confirm } = useConfirm()
+function back() {
+  if (window.history.length > 1) router.back()
+  else router.replace('/app/yo')
+}
 
 async function onAccept(id: string) {
   await friendsStore.accept(id)
 }
 async function onReject(id: string) {
-  const ok = await confirm({
-    title: 'Rechazar solicitud',
-    confirmLabel: 'Rechazar',
-    destructive: true,
-  })
+  const ok = await confirm({ title: 'Rechazar solicitud', confirmLabel: 'Rechazar', destructive: true })
+  if (!ok) return
+  await friendsStore.reject(id)
+}
+async function onCancel(id: string) {
+  const ok = await confirm({ title: 'Cancelar solicitud', confirmLabel: 'Cancelar solicitud', cancelLabel: 'Volver', destructive: true })
   if (!ok) return
   await friendsStore.reject(id)
 }
 async function onRemove(id: string) {
   const ok = await confirm({
     title: 'Eliminar amigo',
-    message: 'Dejarán de ver tus cafés y catas compartidas.',
+    message: 'Dejarán de ver tus cafés y notas compartidas.',
     confirmLabel: 'Eliminar',
     destructive: true,
   })
@@ -83,148 +80,95 @@ async function onRemove(id: string) {
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
-    <header class="flex items-center justify-between gap-md">
-      <button
-        type="button"
-        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
-        aria-label="Volver"
-        @click="router.back()"
-      >
-        <Icon name="lucide:arrow-left" class="size-5" />
+  <div class="fr">
+    <header class="fr-head">
+      <button type="button" class="fr-icon" aria-label="Volver" @click="back">
+        <AppIcon name="right" :size="22" :stroke="2" style="transform: rotate(180deg)" />
       </button>
-      <UiEyebrow>Social</UiEyebrow>
-      <div class="size-[44px]" aria-hidden="true" />
+      <h1 class="fr-title">Mis amigos</h1>
     </header>
 
-    <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
-      Tus <span class="italic text-olive">amigos</span>
-    </h1>
-    <p class="subtitle-italic mt-xs">
-      Comparte tu memoria de taza.
-    </p>
+    <form class="fr-add" @submit.prevent="sendInvite">
+      <label class="fr-field">
+        <span class="fr-label">Correo de tu amigo</span>
+        <input v-model="inviteEmail" type="email" autocomplete="email" inputmode="email" placeholder="amigo@correo.com" class="fr-input">
+      </label>
+      <p v-if="inviteMessage" :class="['fr-msg', inviteMessage.tone]" role="status">{{ inviteMessage.text }}</p>
+      <button type="submit" class="fr-primary" :disabled="!inviteEmail.trim() || inviting">
+        {{ inviting ? 'Enviando…' : 'Enviar solicitud' }}
+      </button>
+    </form>
 
-    <!-- Invite -->
-    <div class="mt-xl rounded-card-lg bg-surface-2 p-md flex flex-col gap-sm">
-      <UiEyebrow>Invitar por correo</UiEyebrow>
-      <input
-        v-model="inviteEmail"
-        type="email"
-        autocomplete="email"
-        inputmode="email"
-        placeholder="amigo@email.com"
-        class="rounded-input bg-paper border border-moss/10 px-md py-sm font-display italic text-[16px] text-moss placeholder:text-moss-ghost outline-none focus:border-moss transition-colors"
-        @keydown.enter.prevent="sendInvite"
-      >
-      <UiButton variant="primary" :loading="inviting" :disabled="!inviteEmail.trim()" @click="sendInvite">
-        Enviar invitación
-      </UiButton>
-      <p
-        v-if="inviteMessage"
-        :class="['font-mono text-[10px] font-medium uppercase tracking-eyebrow', inviteMessage.tone === 'success' ? 'text-olive' : 'text-terracotta']"
-      >
-        <span aria-hidden="true">— </span>{{ inviteMessage.text }}
-      </p>
-    </div>
-
-    <!-- Pending incoming -->
-    <section v-if="pendingIncoming.length > 0" class="mt-xl">
-      <UiEyebrow>Solicitudes recibidas · {{ pendingIncoming.length }}</UiEyebrow>
-      <ul class="mt-sm flex flex-col">
-        <li
-          v-for="f in pendingIncoming"
-          :key="f.id"
-          class="flex items-center gap-md py-md border-b border-moss/10"
-        >
-          <UiAvatar :name="getOther(f)?.displayName || getOther(f)?.email || '?'" size="sm" />
-          <div class="flex-1 min-w-0">
-            <div class="font-sans text-[14px] font-medium text-moss truncate">
-              {{ getOther(f)?.displayName || getOther(f)?.email }}
-            </div>
-            <UiEyebrow>quiere ser tu amigo</UiEyebrow>
-          </div>
-          <div class="flex items-center gap-xs shrink-0">
-            <button
-              type="button"
-              class="inline-flex items-center justify-center size-[44px] rounded-pill bg-olive text-paper hover:bg-olive-dark transition-colors"
-              aria-label="Aceptar"
-              @click="onAccept(f.id)"
-            >
-              <Icon name="lucide:check" class="size-4" />
-            </button>
-            <button
-              type="button"
-              class="inline-flex items-center justify-center size-[44px] rounded-pill bg-surface-2 text-moss hover:bg-surface transition-colors"
-              aria-label="Rechazar"
-              @click="onReject(f.id)"
-            >
-              <Icon name="lucide:x" class="size-4" />
-            </button>
-          </div>
+    <section v-if="pendingIncoming.length" class="fr-group">
+      <h2 class="fr-label">Solicitudes recibidas · {{ pendingIncoming.length }}</h2>
+      <ul class="fr-list">
+        <li v-for="f in pendingIncoming" :key="f.id" class="fr-row">
+          <UiAvatar :name="label(f)" size="md" />
+          <span class="fr-col">
+            <span class="fr-name">{{ label(f) }}</span>
+            <span class="fr-sub">Quiere ser tu amigo</span>
+          </span>
+          <button type="button" class="fr-act fr-accept" @click="onAccept(f.id)">Aceptar</button>
+          <button type="button" class="fr-act" @click="onReject(f.id)">Rechazar</button>
         </li>
       </ul>
     </section>
 
-    <!-- Accepted -->
-    <section class="mt-xl">
-      <UiEyebrow>{{ accepted.length }} {{ accepted.length === 1 ? 'amigo' : 'amigos' }}</UiEyebrow>
-      <UiListSearch
-        v-if="friendsStore.accepted.length > 5"
-        v-model="search"
-        placeholder="Buscar amigo…"
-        class="mt-sm"
-      />
-      <ul v-if="accepted.length > 0" class="mt-sm flex flex-col">
-        <li
-          v-for="f in accepted"
-          :key="f.id"
-          class="flex items-center gap-md py-md border-b border-moss/10"
-        >
-          <UiAvatar :name="getOther(f)?.displayName || getOther(f)?.email || '?'" size="sm" />
-          <div class="flex-1 min-w-0">
-            <div class="font-sans text-[14px] font-medium text-moss truncate">
-              {{ getOther(f)?.displayName || getOther(f)?.email }}
-            </div>
-            <UiEyebrow>{{ getOther(f)?.email }}</UiEyebrow>
-          </div>
-          <UiActionMenu>
-            <UiActionMenuItem destructive icon="lucide:user-minus" @click="onRemove(f.id)">
-              Eliminar amigo
-            </UiActionMenuItem>
-          </UiActionMenu>
+    <section class="fr-group">
+      <h2 class="fr-label">Amigos{{ accepted.length ? ` · ${accepted.length}` : '' }}</h2>
+      <ul v-if="accepted.length" class="fr-list">
+        <li v-for="f in accepted" :key="f.id" class="fr-row">
+          <UiAvatar :name="label(f)" size="md" />
+          <span class="fr-col">
+            <span class="fr-name">{{ label(f) }}</span>
+            <span v-if="getOther(f)?.displayName" class="fr-sub">{{ getOther(f)?.email }}</span>
+          </span>
+          <button type="button" class="fr-act" :aria-label="`Eliminar a ${label(f)}`" @click="onRemove(f.id)">Eliminar</button>
         </li>
       </ul>
-      <p v-else-if="ready" class="mt-sm font-display italic text-[14px] text-moss-soft">
-        Aún no tienes amigos. Invita a alguien con su correo.
-      </p>
+      <p v-else-if="ready" class="fr-empty">Aún no tienes amigos. Envía una solicitud con su correo.</p>
     </section>
 
-    <!-- Pending outgoing -->
-    <section v-if="pendingOutgoing.length > 0" class="mt-xl">
-      <UiEyebrow>Invitaciones enviadas · {{ pendingOutgoing.length }}</UiEyebrow>
-      <ul class="mt-sm flex flex-col">
-        <li
-          v-for="f in pendingOutgoing"
-          :key="f.id"
-          class="flex items-center gap-md py-md border-b border-moss/10"
-        >
-          <UiAvatar :name="getOther(f)?.displayName || getOther(f)?.email || '?'" size="sm" tone="surface" />
-          <div class="flex-1 min-w-0">
-            <div class="font-sans text-[14px] text-moss-soft truncate">
-              {{ getOther(f)?.email }}
-            </div>
-            <UiEyebrow>esperando respuesta</UiEyebrow>
-          </div>
-          <button
-            type="button"
-            class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss-ghost hover:bg-surface-2/60 transition-colors"
-            aria-label="Cancelar invitación"
-            @click="onReject(f.id)"
-          >
-            <Icon name="lucide:x" class="size-4" />
-          </button>
+    <section v-if="pendingOutgoing.length" class="fr-group">
+      <h2 class="fr-label">Solicitudes enviadas · {{ pendingOutgoing.length }}</h2>
+      <ul class="fr-list">
+        <li v-for="f in pendingOutgoing" :key="f.id" class="fr-row">
+          <UiAvatar :name="label(f)" size="md" tone="surface" />
+          <span class="fr-col">
+            <span class="fr-name">{{ label(f) }}</span>
+            <span class="fr-sub">Esperando respuesta</span>
+          </span>
+          <button type="button" class="fr-act" @click="onCancel(f.id)">Cancelar</button>
         </li>
       </ul>
     </section>
   </div>
 </template>
+
+<style scoped>
+.fr { max-width: 640px; margin: 0 auto; padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 20px; color: var(--ink); font-family: var(--font-sans); }
+.fr-head { display: flex; align-items: center; gap: 4px; margin: 0 -8px; }
+.fr-title { flex: 1; margin: 0; font: 400 28px/30px var(--font-display); }
+.fr-icon { width: var(--touch-min); height: var(--touch-min); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.fr-add { display: flex; flex-direction: column; gap: 12px; }
+.fr-field { display: flex; flex-direction: column; gap: 8px; }
+.fr-label { margin: 0; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.fr-input { box-sizing: border-box; width: 100%; height: var(--field-height); border: 0; border-radius: var(--radius-sm); background: var(--surface); padding: 0 14px; font: 400 16px/22px var(--font-sans); color: var(--ink); }
+.fr-input::placeholder { color: var(--ink-soft); }
+.fr-input:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--primary); }
+.fr-msg { margin: 0; font-size: 12px; line-height: 16px; color: var(--ink-soft); }
+.fr-msg.error { color: var(--danger); }
+.fr-primary { height: var(--button-height); border-radius: var(--radius-md); background: var(--primary); color: var(--on-primary); font: 600 16px/1 var(--font-sans); }
+.fr-primary:disabled { opacity: 0.5; pointer-events: none; }
+.fr-group { display: flex; flex-direction: column; gap: 6px; }
+.fr-list { list-style: none; margin: 0; padding: 0; border-radius: var(--radius-md); background: var(--surface); }
+.fr-row { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 6px 8px 6px 14px; }
+.fr-row + .fr-row { border-top: 1px solid var(--line); }
+.fr-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.fr-name { font-size: 15px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-sub { font-size: 12px; line-height: 16px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-act { min-height: var(--touch-min); padding: 0 10px; font-size: 14px; color: var(--ink-soft); flex-shrink: 0; }
+.fr-accept { color: var(--primary); font-weight: 600; }
+.fr-empty { margin: 8px 0; font-size: 14px; line-height: 20px; color: var(--ink-soft); }
+button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+</style>
