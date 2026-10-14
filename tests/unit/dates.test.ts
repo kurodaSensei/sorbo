@@ -73,7 +73,7 @@ describe('dates', () => {
       expect(agoLabel(new Date(2026, 9, 12, 8, 0))).toBe('ayer')
       expect(agoLabel(new Date(2026, 9, 10, 8, 0))).toBe('Sábado 10')
     })
-    it.fails('BUG: una nota de hoy a 23,8 h de distancia no debe decir «Hoy» en un feed de tiempo relativo', () => {
+    it('una nota de hoy a 23,8 h de distancia no dice «Hoy» en un feed de tiempo relativo', () => {
       // 00:10 de hoy visto a las 23:59 → 23,8 h → redondea a 24 → cae a dayLabel → «Hoy»
       expect(agoLabel(new Date(2026, 9, 13, 0, 10), new Date(2026, 9, 13, 23, 59))).toMatch(/^hace/)
     })

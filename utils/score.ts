@@ -9,7 +9,7 @@ export function scoreToRating(score: number): number {
 }
 
 export function ratingToScore(rating?: number | null): number {
-  if (typeof rating !== 'number' || rating <= 0) return 0
+  if (typeof rating !== 'number' || !Number.isFinite(rating) || rating <= 0) return 0
   return Math.min(5, Math.max(1, Math.round(rating / 2)))
 }
 

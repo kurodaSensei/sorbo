@@ -34,7 +34,7 @@ describe('score', () => {
     }
   })
 
-  it.fails('BUG: NaN debe tratarse como sin puntaje (0)', () => {
+  it('NaN se trata como sin puntaje (0)', () => {
     expect(ratingToScore(NaN)).toBe(0)
   })
 
