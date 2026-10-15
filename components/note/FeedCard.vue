@@ -14,12 +14,14 @@ const props = defineProps<{
   wished: boolean
   /** El café ya es tuyo: no se ofrece «Quiero probarlo». */
   owned: boolean
+  /** La nota es mía: solo se abre, sin acciones. */
+  own?: boolean
 }>()
 
 const emit = defineEmits<{ cheer: [], wish: [] }>()
 const { getBrewMethodLabel } = useCatalog()
 
-const author = computed(() => props.tasting.authorName || 'Alguien')
+const author = computed(() => props.own ? 'Tuyo' : props.tasting.authorName || 'Alguien')
 const meta = computed(() => {
   const d = toDate(props.tasting.brewDate) || toDate(props.tasting.createdAt)
   const method = props.tasting.brewMethod && props.tasting.brewMethod !== 'other' ? getBrewMethodLabel(props.tasting.brewMethod) : ''
@@ -45,11 +47,11 @@ const score = computed(() => ratingToScore(props.tasting.ratingOverall))
       </span>
     </NuxtLink>
     <div class="fc-actions">
-      <button type="button" class="fc-pill" :class="{ on: cheered }" :aria-pressed="cheered" @click="emit('cheer')">
+      <button v-if="!own" type="button" class="fc-pill" :class="{ on: cheered }" :aria-pressed="cheered" @click="emit('cheer')">
         <AppIcon name="cup" :size="16" :stroke="cheered ? 2 : 1.75" />
         {{ cheered ? `Brindaste · ${cheers}` : cheers ? `Brindar · ${cheers}` : 'Brindar' }}
       </button>
-      <button v-if="!owned" type="button" class="fc-pill" :class="{ kept: wished }" :aria-pressed="wished" :disabled="wished" @click="emit('wish')">
+      <button v-if="!owned && !own" type="button" class="fc-pill" :class="{ kept: wished }" :aria-pressed="wished" :disabled="wished" @click="emit('wish')">
         <svg width="16" height="16" viewBox="0 0 24 24" :fill="wished ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" /></svg>
         {{ wished ? 'En tu lista' : 'Quiero probarlo' }}
       </button>
