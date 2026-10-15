@@ -79,54 +79,52 @@ async function wish(t: Tasting) {
 </script>
 
 <template>
-  <UiPullToRefresh :on-refresh="load">
-    <div class="am">
-      <header class="am-head">
-        <h1 class="am-title">Amigos</h1>
-        <NuxtLink to="/app/friends" class="am-icon" aria-label="Mis amigos e invitaciones">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
-        </NuxtLink>
-      </header>
+  <div class="am">
+    <header class="am-head">
+      <h1 class="am-title">Amigos</h1>
+      <NuxtLink to="/app/friends" class="am-icon" aria-label="Mis amigos e invitaciones">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
+      </NuxtLink>
+    </header>
 
-      <div role="tablist" aria-label="Notas" class="am-seg">
-        <button type="button" role="tab" :aria-selected="tab === 'following'" @click="tab = 'following'">Siguiendo</button>
-        <button type="button" role="tab" :aria-selected="tab === 'discover'" @click="tab = 'discover'">Descubrir</button>
-      </div>
-
-      <p v-if="tab === 'discover'" class="am-hint">Notas públicas de la comunidad</p>
-
-      <div v-if="loading" class="am-list" aria-busy="true">
-        <div v-for="n in 3" :key="n" class="am-skel" />
-      </div>
-
-      <p v-else-if="error" class="am-empty">{{ error }}</p>
-
-      <div v-else class="am-list">
-        <NoteFeedCard
-          v-for="t in list"
-          :key="t.id"
-          :tasting="t"
-          :cheered="hasCheered(t)"
-          :cheers="cheerCount(t)"
-          :wished="wished(t)"
-          :owned="owned(t)"
-          @cheer="cheer(t)"
-          @wish="wish(t)"
-        />
-
-        <p v-if="!list.length && tab === 'discover'" class="am-empty">Todavía no hay notas públicas de otras personas. Puedes publicar las tuyas desde «Quién la ve» en el detalle de una nota.</p>
-        <p v-if="!list.length && tab === 'following' && friendsStore.accepted.length" class="am-empty">Tus amigos aún no han compartido notas contigo.</p>
-
-        <NuxtLink v-if="tab === 'following'" to="/app/friends" class="am-invite">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
-          <span class="am-col">
-            <span class="am-strong">Invita a tu gente cafetera</span>
-            <span class="am-hint">Así ves sus notas aquí y ellos las tuyas</span>
-          </span>
-        </NuxtLink>
-      </div>
+    <div role="tablist" aria-label="Notas" class="am-seg">
+      <button type="button" role="tab" :aria-selected="tab === 'following'" @click="tab = 'following'">Siguiendo</button>
+      <button type="button" role="tab" :aria-selected="tab === 'discover'" @click="tab = 'discover'">Descubrir</button>
     </div>
-  </UiPullToRefresh>
+
+    <p v-if="tab === 'discover'" class="am-hint">Notas públicas de la comunidad</p>
+
+    <div v-if="loading" class="am-list" aria-busy="true">
+      <div v-for="n in 3" :key="n" class="am-skel" />
+    </div>
+
+    <p v-else-if="error" class="am-empty">{{ error }}</p>
+
+    <div v-else class="am-list">
+      <NoteFeedCard
+        v-for="t in list"
+        :key="t.id"
+        :tasting="t"
+        :cheered="hasCheered(t)"
+        :cheers="cheerCount(t)"
+        :wished="wished(t)"
+        :owned="owned(t)"
+        @cheer="cheer(t)"
+        @wish="wish(t)"
+      />
+
+      <p v-if="!list.length && tab === 'discover'" class="am-empty">Todavía no hay notas públicas de otras personas. Puedes publicar las tuyas desde «Quién la ve» en el detalle de una nota.</p>
+      <p v-if="!list.length && tab === 'following' && friendsStore.accepted.length" class="am-empty">Tus amigos aún no han compartido notas contigo.</p>
+
+      <NuxtLink v-if="tab === 'following'" to="/app/friends" class="am-invite">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
+        <span class="am-col">
+          <span class="am-strong">Invita a tu gente cafetera</span>
+          <span class="am-hint">Así ves sus notas aquí y ellos las tuyas</span>
+        </span>
+      </NuxtLink>
+    </div>
+  </div>
 </template>
 
 <style scoped>
