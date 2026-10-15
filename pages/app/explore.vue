@@ -122,61 +122,60 @@ const asR = (i: FeedItem) => i.doc as Recipe
 </script>
 
 <template>
-  <UiPullToRefresh :on-refresh="load">
-    <div class="am">
-      <header class="am-head">
-        <h1 class="am-title">Amigos</h1>
-        <NuxtLink to="/app/friends" class="am-icon" aria-label="Mis amigos e invitaciones">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
-        </NuxtLink>
-      </header>
-
-      <div role="tablist" aria-label="Amigos" class="am-seg">
-        <button type="button" role="tab" :aria-selected="tab === 'following'" @click="tab = 'following'">Siguiendo</button>
-        <button type="button" role="tab" :aria-selected="tab === 'discover'" @click="tab = 'discover'">Descubrir</button>
-      </div>
-
-      <NuxtLink v-if="tab === 'following' && friends.length" to="/app/friends" class="am-friends" aria-label="Mis amigos">
-        <span v-for="f in friends" :key="f.uid" class="am-friend">
-          <UiAvatar :name="f.name" size="md" />
-          <span class="am-fname">{{ f.name }}</span>
-        </span>
+  <div class="am">
+    <header class="am-head">
+      <h1 class="am-title">Amigos</h1>
+      <NuxtLink to="/app/friends" class="am-icon" aria-label="Mis amigos e invitaciones">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M19 8v6M22 11h-6" /></svg>
       </NuxtLink>
+    </header>
 
-      <p v-if="tab === 'discover'" class="am-hint">Lo que la comunidad comparte, y lo tuyo si es público</p>
+    <div role="tablist" aria-label="Amigos" class="am-seg">
+      <button type="button" role="tab" :aria-selected="tab === 'following'" @click="tab = 'following'">Siguiendo</button>
+      <button type="button" role="tab" :aria-selected="tab === 'discover'" @click="tab = 'discover'">Descubrir</button>
+    </div>
 
-      <div class="am-chips" role="group" aria-label="Filtro">
-        <button v-for="f in FILTERS" :key="f.id" type="button" :aria-pressed="filter === f.id" @click="filter = f.id">{{ f.label }}</button>
-      </div>
+    <NuxtLink v-if="tab === 'following' && friends.length" to="/app/friends" class="am-friends" aria-label="Mis amigos">
+      <span v-for="f in friends" :key="f.uid" class="am-friend">
+        <UiAvatar :name="f.name" size="md" />
+        <span class="am-fname">{{ f.name }}</span>
+      </span>
+    </NuxtLink>
 
-      <div v-if="loading" class="am-list" aria-busy="true">
-        <div v-for="n in 3" :key="n" class="am-skel" />
-      </div>
+    <p v-if="tab === 'discover'" class="am-hint">Lo que la comunidad comparte, y lo tuyo si es público</p>
 
-      <p v-else-if="error" class="am-empty">{{ error }}</p>
+    <div class="am-chips" role="group" aria-label="Filtro">
+      <button v-for="f in FILTERS" :key="f.id" type="button" :aria-pressed="filter === f.id" @click="filter = f.id">{{ f.label }}</button>
+    </div>
 
-      <div v-else class="am-list">
-        <template v-for="i in list" :key="i.key">
-          <NoteFeedCard
-            v-if="i.kind === 'tasting'"
-            :tasting="asT(i)"
-            :own="i.own"
-            :cheered="hasCheered(asT(i))"
-            :cheers="cheerCount(asT(i))"
-            :wished="wished(asT(i))"
-            :owned="owned(asT(i))"
-            @cheer="cheer(asT(i))"
-            @wish="wish(asT(i).coffeeName, asT(i).roasterName)"
-          />
-          <FeedCoffee
-            v-else-if="i.kind === 'coffee'"
-            :coffee="asC(i)"
-            :own="i.own"
-            :wished="!!wishlistStore.findMatchingItem(asC(i))"
-            @wish="wish(asC(i).name, asC(i).roasterName)"
-          />
-          <FeedRecipe v-else :recipe="asR(i)" :own="i.own" :saved="savedRecipes.has(i.id)" @save="saveRecipe(asR(i))" />
-        </template>
+    <div v-if="loading" class="am-list" aria-busy="true">
+      <div v-for="n in 3" :key="n" class="am-skel" />
+    </div>
+
+    <p v-else-if="error" class="am-empty">{{ error }}</p>
+
+    <div v-else class="am-list">
+      <template v-for="i in list" :key="i.key">
+        <NoteFeedCard
+          v-if="i.kind === 'tasting'"
+          :tasting="asT(i)"
+          :own="i.own"
+          :cheered="hasCheered(asT(i))"
+          :cheers="cheerCount(asT(i))"
+          :wished="wished(asT(i))"
+          :owned="owned(asT(i))"
+          @cheer="cheer(asT(i))"
+          @wish="wish(asT(i).coffeeName, asT(i).roasterName)"
+        />
+        <FeedCoffee
+          v-else-if="i.kind === 'coffee'"
+          :coffee="asC(i)"
+          :own="i.own"
+          :wished="!!wishlistStore.findMatchingItem(asC(i))"
+          @wish="wish(asC(i).name, asC(i).roasterName)"
+        />
+        <FeedRecipe v-else :recipe="asR(i)" :own="i.own" :saved="savedRecipes.has(i.id)" @save="saveRecipe(asR(i))" />
+      </template>
 
         <p v-if="!list.length && tab === 'discover'" class="am-empty">Todavía no hay nada público en esta vista. Puedes publicar lo tuyo desde «Quién lo ve».</p>
         <p v-if="!list.length && tab === 'following' && friends.length" class="am-empty">Tus amigos aún no han compartido nada. Cuando lo hagan, lo verás aquí.</p>
@@ -190,7 +189,6 @@ const asR = (i: FeedItem) => i.doc as Recipe
         </NuxtLink>
       </div>
     </div>
-  </UiPullToRefresh>
 </template>
 
 <style scoped>
