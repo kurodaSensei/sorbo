@@ -11,23 +11,26 @@
 
 ---
 
-Sorbo es un diario de café para anotar cada taza en unos 20 segundos y compartirla con tu gente. La unidad de la app es la **nota**: el café es un dato de la nota, no un paso previo.
+Sorbo es un diario de café de especialidad: registra cafés, catas y recetas, comparte con tu gente y descubre lo que toma la comunidad.
 
 ## Qué hace
 
-- **Anota una taza en una sola hoja:** café (lo escribes o lo eliges de recientes), puntaje de 1 a 5 con palabras (Meh · Bien · Rico · Muy rico · Wow), sabores y una nota. Método, receta y dosis van plegados en «Más detalles».
-- **Diario:** tus notas agrupadas por día.
-- **Amigos:** las notas que tus amigos comparten contigo (Siguiendo) y las públicas (Descubrir). Puedes brindar por una taza o guardarla en «Quiero probar».
-- **Preparar:** tus recetas, las compartidas contigo y un temporizador que sigue los pasos de la receta y termina en «Anotar esta taza».
-- **Mis cafés:** búsqueda y filtros (Recientes, Favoritos, Quiero probar). Cada café se ve y se edita en una sola pantalla.
-- **Funciona sin conexión:** las notas se guardan en el dispositivo y se sincronizan al volver la red.
+- **Cafés:** origen, proceso, variedad, tueste y marca, con un asistente paso a paso.
+- **Catas:** puntuación general y atributos (aroma, acidez, dulzura, cuerpo, retrogusto), notas y favoritos.
+- **Recetas:** método, dosis, agua y pasos con tiempos, y temporizador en el detalle.
+- **El Vertido:** preparación guiada paso a paso.
+- **Explora:** cafés, catas y recetas que la comunidad comparte; guárdalos en tu wishlist o duplícalos.
+- **Amigos:** comparte cafés, catas y recetas con quien elijas (privado, amigos o comunidad).
+- **Wishlist** y **catálogos** personalizables (marcas, variedades, métodos, procesos, notas de sabor).
 - **Se instala como app** (PWA) en el celular.
+
+> Hubo un rediseño v2 («una taza, una nota») en octubre de 2026 que se retiró para rehacerlo por partes. Todo quedó guardado en la rama `backup/v2-2026-10-14` y el tag `v2-snapshot`.
 
 ## Marca
 
 Sorbo es una marca propia; KurodaCafe solo aparece como crédito («por KurodaCafe»).
 
-- **Fuente única de marca y UI:** [Sorbo Design System v2](https://claude.ai/artifact/QNUja9Q3Q9vetFHHJjXvgf). Los tokens del código viven en `assets/css/main.css` y en `design/v2/` (tokens, guía, componentes y prototipo).
+- **Fuente única de marca y UI:** [Sorbo Design System v2](https://claude.ai/artifact/QNUja9Q3Q9vetFHHJjXvgf). El código actual (v1) usa sus propios tokens en `assets/css/main.css` y `tailwind.config.ts`; `design/v2/` guarda el sistema exportado (tokens, guía, componentes y prototipo) como referencia para el rediseño.
 - **Colores:** jungle `#141712`, olive `#556B3A`, sage `#96B36A`, honey `#E5B84B`, fondo `#F4F2EB`.
 - **Tipografía:** DM Serif Display (títulos y logotipo), Geist (interfaz), JetBrains Mono (cifras de preparación).
 - **Logo:** el ícono «S.» crema con punto miel sobre un cuadrado olivo; el logotipo «Sorbo.» con el punto miel.
@@ -41,13 +44,13 @@ Sorbo es una marca propia; KurodaCafe solo aparece como crédito («por KurodaCa
 |------|-----------|
 | Frontend | Nuxt 3, Vue 3, TypeScript |
 | Estado | Pinia |
-| Estilos | Tailwind CSS + tokens del Design System v2 |
+| Estilos | Tailwind CSS |
 | Datos | Firebase Firestore (con caché persistente para uso sin conexión) |
 | Auth | Firebase Authentication (correo y Google) |
 | PWA | `@vite-pwa/nuxt` |
 | Errores | Sentry |
 | Hosting | Vercel |
-| Tests | Vitest, emulador de Firestore, Playwright |
+| Tests | Vitest + emulador de Firestore (reglas) |
 
 Todo funciona dentro de la capa gratuita de Firebase y Vercel.
 
@@ -84,15 +87,11 @@ Abre [http://localhost:3000](http://localhost:3000) y crea tu cuenta.
 
 ## Tests
 
-| Comando | Qué prueba |
-|---------|-----------|
-| `npm test` | Unitarias (Vitest): utilidades, stores, nota rápida, recetas, catálogos |
-| `npm run test:rules` | Reglas de Firestore contra el emulador (necesita Java y `firebase-tools`) |
-| `npm run test:e2e` | E2E y visuales con Playwright, en móvil y escritorio |
+```bash
+npm run test:rules
+```
 
-Los E2E usan una cuenta de pruebas: crea `.env.e2e` (no se versiona) con `E2E_EMAIL` y `E2E_PASSWORD`. La primera vez, genera las capturas de referencia con `npm run test:e2e:update`. Los datos que crean llevan el prefijo `QA-E2E` y se borran al terminar.
-
-En GitHub, la Action `Tests` corre las unitarias y las reglas en cada PR.
+Prueba las reglas de Firestore contra el emulador (necesita Java y `firebase-tools`). En GitHub, la Action `Tests` las corre en cada PR.
 
 ## Despliegue
 
@@ -106,25 +105,16 @@ firebase deploy --only firestore:rules
 
 ```
 sorbo/
-├── assets/css/        # Estilos base y tokens v2
-├── components/
-│   ├── app/           # TabBar e íconos
-│   ├── note/          # Nota rápida, tarjetas, selector de puntaje
-│   ├── coffee/        # Ficha de café
-│   ├── recipe/        # Formulario de receta
-│   ├── settings/      # Listas personalizables
-│   ├── roaster/       # Hoja de marca
-│   ├── ui/            # Componentes base
-│   └── vertido/       # El Vertido (preparación guiada)
-├── composables/       # useFirebase, useAuth, useCheers…
-├── design/v2/         # Design System v2 exportable
-├── e2e/               # Playwright
+├── assets/css/        # Estilos base
+├── components/        # coffee, tasting, recipe, roaster, explore, vertido, ui…
+├── composables/       # useFirebase, useAuth, useFriends…
+├── design/v2/         # Design System v2 exportable (referencia de marca)
 ├── pages/             # Rutas (la app vive en /app)
 ├── plugins/           # Firebase
 ├── stores/            # Pinia
-├── tests/             # Unitarias y reglas
+├── tests/rules/       # Pruebas de reglas de Firestore
 ├── types/             # Tipos de TypeScript
-├── utils/             # Puntaje, fechas, navegación…
+├── utils/             # Constantes y formatters
 └── firestore.rules    # Reglas de seguridad
 ```
 
@@ -132,7 +122,7 @@ sorbo/
 
 | Colección | Qué guarda |
 |-----------|-----------|
-| `tastings` | Notas: café, puntaje (2–10), sabores, método, receta, visibilidad, brindis |
+| `tastings` | Catas: café, puntuación (0–10) y atributos, notas, método, visibilidad |
 | `coffees` | Cafés: marca, origen, proceso, variedad, tueste |
 | `recipes` | Recetas con sus pasos |
 | `roasters` | Marcas |

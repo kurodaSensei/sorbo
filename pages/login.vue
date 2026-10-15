@@ -80,7 +80,7 @@ function mapAuthError(code?: string): string {
 <template>
   <main class="flex min-h-svh items-center justify-center px-md py-2xl">
     <div class="w-full max-w-[390px]">
-      <UiEyebrow>Sorbo · por KurodaCafe</UiEyebrow>
+      <UiEyebrow>Sorbo · by KurodaCafe</UiEyebrow>
 
       <h1 class="mt-md font-display text-[46px] leading-[42px] tracking-[-0.01em] text-moss">
         Bienvenido<br>

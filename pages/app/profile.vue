@@ -74,63 +74,76 @@ async function save() {
 </script>
 
 <template>
-  <div class="pf">
-    <header class="pf-head">
-      <button type="button" class="pf-icon" aria-label="Volver" @click="router.back()">
-        <AppIcon name="right" :size="22" :stroke="2" style="transform: rotate(180deg)" />
+  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
+    <header class="flex items-center justify-between gap-md">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center size-[44px] rounded-pill text-moss hover:bg-surface-2/60 transition-colors"
+        aria-label="Volver"
+        @click="router.back()"
+      >
+        <Icon name="lucide:arrow-left" class="size-5" />
       </button>
-      <h1 class="pf-title">Editar perfil</h1>
+      <UiEyebrow>Perfil</UiEyebrow>
+      <div class="size-[44px]" aria-hidden="true" />
     </header>
 
-    <div class="pf-avatar">
-      <UiAvatar :name="initialAvatar" :src="currentUser?.photoURL ?? undefined" size="lg" class="!size-[96px] !text-[34px]" />
-    </div>
+    <h1 class="mt-md font-display tracking-[-0.02em] leading-[1.05] text-moss text-[40px] sm:text-[48px]">
+      Tu <span class="italic text-olive">perfil</span>
+    </h1>
 
-    <div class="pf-field">
-      <label for="pf-name" class="pf-label">Nombre</label>
-      <input id="pf-name" v-model="name" class="pf-input" placeholder="Tu nombre" autocomplete="name">
-      <span v-if="errors.name" class="pf-error">{{ errors.name }}</span>
-    </div>
-
-    <div class="pf-field">
-      <div class="pf-bio-h">
-        <label for="pf-bio" class="pf-label">Bio (opcional)</label>
-        <span :class="['pf-count', { 'pf-over': bioOver }]">{{ bioCount }}/{{ BIO_MAX }}</span>
+    <!-- Avatar (large) -->
+    <div class="mt-xl flex justify-center">
+      <div class="relative">
+        <UiAvatar :name="initialAvatar" :src="currentUser?.photoURL ?? undefined" size="lg" class="!size-[140px] !text-[44px]" />
       </div>
-      <textarea
-        id="pf-bio"
-        v-model="bio"
-        rows="2"
-        :maxlength="BIO_MAX + 20"
-        class="pf-input pf-area"
-        placeholder="Cuenta algo sobre ti"
-      />
-      <span v-if="errors.bio" class="pf-error">{{ errors.bio }}</span>
     </div>
 
-    <button type="button" class="pf-save" :disabled="loading || saving" :aria-busy="saving || undefined" @click="save">
-      {{ saving ? 'Guardando…' : 'Guardar cambios' }}
-    </button>
+    <!-- Form -->
+    <div class="mt-xl flex flex-col gap-xs">
+      <UiInput
+        v-model="name"
+        label="Nombre"
+        placeholder="Tu nombre"
+        :error="errors.name"
+      />
+
+      <div class="flex flex-col gap-xs pt-[14px] pb-[13px] border-b border-moss/10">
+        <div class="flex items-baseline justify-between gap-md">
+          <label for="bio" class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-moss-soft">
+            <span aria-hidden="true">— </span>Bio
+            <span class="lowercase normal-case font-display italic text-moss-soft">corta · {{ BIO_MAX }} chars</span>
+          </label>
+          <span :class="['font-mono text-[10px] tracking-eyebrow uppercase', bioOver ? 'text-terracotta' : 'text-moss-ghost']">
+            {{ bioCount }}/{{ BIO_MAX }}
+          </span>
+        </div>
+        <textarea
+          id="bio"
+          v-model="bio"
+          rows="2"
+          :maxlength="BIO_MAX + 20"
+          placeholder="Cuenta algo sobre ti…"
+          class="w-full bg-transparent border-0 p-0 leading-snug text-moss outline-none font-display italic text-[16px] resize-none placeholder:text-moss-ghost"
+        />
+        <p
+          v-if="errors.bio"
+          class="font-mono text-[10px] font-medium uppercase tracking-eyebrow text-terracotta"
+        >
+          <span aria-hidden="true">— </span>{{ errors.bio }}
+        </p>
+      </div>
+    </div>
+
+    <UiButton
+      type="button"
+      variant="primary"
+      class="mt-xl"
+      :loading="saving"
+      :disabled="loading"
+      @click="save"
+    >
+      Guardar cambios
+    </UiButton>
   </div>
 </template>
-
-<style scoped>
-.pf { max-width: 640px; margin: 0 auto; padding: 12px 16px 32px; display: flex; flex-direction: column; gap: 16px; color: var(--ink); font-family: var(--font-sans); }
-.pf-head { display: flex; align-items: center; gap: 4px; margin: 0 -8px; }
-.pf-title { flex: 1; margin: 0; font: 400 28px/30px var(--font-display); }
-.pf-icon { width: var(--touch-min); height: var(--touch-min); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
-.pf-avatar { display: flex; justify-content: center; padding: 8px 0; }
-.pf-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.pf-label { font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
-.pf-bio-h { display: flex; align-items: baseline; justify-content: space-between; }
-.pf-count { font: 400 12px/16px var(--font-sans); color: var(--ink-soft); }
-.pf-over, .pf-error { color: var(--danger); }
-.pf-error { font: 400 12px/16px var(--font-sans); }
-.pf-input { box-sizing: border-box; width: 100%; height: var(--field-height); border: 0; border-radius: var(--radius-sm); background: var(--surface); padding: 0 14px; font: 400 16px/22px var(--font-sans); color: var(--ink); }
-.pf-input::placeholder { color: var(--ink-soft); }
-.pf-input:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--primary); }
-.pf-area { height: auto; padding: 12px 14px; resize: none; }
-.pf-save { height: var(--button-height); border-radius: var(--radius-md); background: var(--primary); color: var(--on-primary); font: 600 16px/20px var(--font-sans); }
-.pf-save:disabled { background: var(--surface-strong); color: var(--ink-soft); }
-button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-</style>

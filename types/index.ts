@@ -107,6 +107,7 @@ export interface Coffee {
   price?: number
   weight?: number
   flavorNotes: string[]
+  photoUrl?: string
   /** Canal por el que se compró el café (web, Instagram, WhatsApp, tienda, otro). */
   purchaseChannel?: PurchaseChannel
   /** Referencia del canal: URL, @handle, nombre de tienda o detalle libre. */
@@ -147,10 +148,7 @@ export interface Tasting {
   personalNotes?: string
   wouldBuyAgain?: boolean
   isFavorite?: boolean
-  /** Sabores elegidos en la nota rápida v2 (chips «Sabores»). */
-  flavorNotes?: string[]
-  /** Brindis de otras personas: uid → true (ver composables/useCheers). */
-  cheers?: Record<string, true>
+  photoUrl?: string
   sharedWith?: string[]
   /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
   visibility?: Visibility

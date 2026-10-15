@@ -7,17 +7,6 @@ interface Toast {
   duration?: number
 }
 
-export interface NotePrefill {
-  name?: string
-  brand?: string
-  method?: string
-  dose?: number
-  water?: number
-  /** Segundos de preparación. */
-  time?: number
-  recipeName?: string
-}
-
 interface ModalState {
   open: boolean
   component: string | null
@@ -27,19 +16,6 @@ interface ModalState {
 export const useUiStore = defineStore('ui', () => {
   const sidebarOpen = ref(false)
   const toasts = ref<Toast[]>([])
-  // Hoja «Nueva nota» (v2): se abre desde el botón + de la barra, la tarjeta
-  // del Diario, «Repetir», «Anotar» en Quiero probar o al terminar el
-  // temporizador. `coffeeId` precarga un café tuyo; `prefill` el resto.
-  const noteSheet = ref<{ open: boolean, coffeeId: string | null, prefill: NotePrefill | null }>({ open: false, coffeeId: null, prefill: null })
-
-  function openNoteSheet(coffeeId: string | null = null, prefill: NotePrefill | null = null) {
-    noteSheet.value = { open: true, coffeeId, prefill }
-  }
-
-  function closeNoteSheet() {
-    noteSheet.value = { ...noteSheet.value, open: false }
-  }
-
   const modal = ref<ModalState>({
     open: false,
     component: null,
@@ -86,9 +62,6 @@ export const useUiStore = defineStore('ui', () => {
     sidebarOpen,
     toasts,
     modal,
-    noteSheet,
-    openNoteSheet,
-    closeNoteSheet,
     toggleSidebar,
     openSidebar,
     closeSidebar,
