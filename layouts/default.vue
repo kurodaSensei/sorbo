@@ -1,4 +1,13 @@
 <script setup lang="ts">
+// Deslizar hacia abajo para recargar, en todas las pantallas de la app. El
+// navegador tiene el suyo desactivado (overscroll-behavior en main.css) para
+// que la PWA no se cierre; sin esto, en la app instalada no había forma de
+// recargar ni de recibir una versión nueva.
+async function refreshApp() {
+  try { await (await navigator.serviceWorker?.getRegistration())?.update() }
+  catch { /* sin service worker: igual se recarga */ }
+  window.location.reload()
+}
 import { computed, ref, watch } from 'vue'
 import { APP_TABS } from '~/utils/navigation'
 
@@ -127,7 +136,9 @@ function onSwipeEnd(e: TouchEvent) {
         @touchstart.passive="onSwipeStart"
         @touchend.passive="onSwipeEnd"
       >
-        <slot />
+        <UiPullToRefresh :on-refresh="refreshApp">
+          <slot />
+        </UiPullToRefresh>
       </main>
     </div>
 
