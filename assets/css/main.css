@@ -69,7 +69,10 @@
     --button-height: 52px;
     --chip-height: 34px;
     --action-size: 56px;
-    --tabbar-height: 84px;
+    /* Zona de contenido de la barra inferior. La zona segura del dispositivo se
+       suma aparte con env(safe-area-inset-bottom); el token del DS (84 px)
+       ya la incluía y sumarla de nuevo dejaba la barra alta y vacía. */
+    --tabbar-height: 64px;
 
     /* Eyebrow letter-spacing baseline (.14em) */
     --tracking-eyebrow: 0.14em;
