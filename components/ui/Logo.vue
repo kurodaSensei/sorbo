@@ -68,7 +68,7 @@ const markPx = computed(() => markSizePx[props.size])
         v-if="variant === 'lockup'"
         class="font-mono text-eyebrow font-medium uppercase tracking-eyebrow text-moss-soft"
       >
-        — por KurodaCafe
+        — by KurodaCafe
       </span>
     </div>
   </div>

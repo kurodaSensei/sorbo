@@ -1,15 +1,4 @@
 import type { Ref, ComputedRef } from 'vue'
-import { FieldValue } from 'firebase/firestore'
-
-/** Aplica un parche a la copia local; un deleteField() quita la clave en vez de guardarse. */
-export function patchLocal<T>(item: T, data: Partial<T>): T {
-  const next = { ...item } as Record<string, unknown>
-  for (const [k, v] of Object.entries(data)) {
-    if (v instanceof FieldValue) delete next[k]
-    else next[k] = v
-  }
-  return next as T
-}
 
 /**
  * Generic CRUD pipeline + state exposed by every app store.
@@ -107,11 +96,7 @@ export function useFirestoreStoreState<
     error.value = null
     try {
       const id = await options.api.create(data)
-      // Solo se lee el documento nuevo (desde la caché local si no hay red)
-      // en vez de volver a descargar toda la colección.
-      const item = await options.api.fetchById(id).catch(() => null)
-      if (item) list.value = [item, ...list.value.filter(x => x.id !== id)]
-      else loadAll().catch(() => {})
+      await loadAll()
       toast.success(options.messages.created)
       return id
     } catch (e: any) {
@@ -129,10 +114,9 @@ export function useFirestoreStoreState<
     error.value = null
     try {
       await options.api.update(id, data)
-      // Parche local: los cambios ya se conocen, no hace falta releer.
-      list.value = list.value.map(x => x.id === id ? patchLocal(x, data) : x)
+      await loadAll()
       if (current.value?.id === id) {
-        current.value = patchLocal(current.value, data)
+        current.value = await options.api.fetchById(id)
       }
       toast.success(options.messages.updated)
     } catch (e: any) {
@@ -162,11 +146,6 @@ export function useFirestoreStoreState<
     }
   }
 
-  /** Añade o reemplaza un elemento en la lista local sin ir al servidor. */
-  function upsertLocal(item: T) {
-    list.value = [item, ...list.value.filter(x => x.id !== item.id)]
-  }
-
   function reset() {
     list.value = []
     sharedList.value = []
@@ -185,7 +164,6 @@ export function useFirestoreStoreState<
     // actions
     loadAll,
     loadShared,
-    upsertLocal,
     loadById,
     create,
     update,

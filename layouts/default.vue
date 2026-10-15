@@ -1,15 +1,5 @@
 <script setup lang="ts">
-// Deslizar hacia abajo para recargar, en todas las pantallas de la app. El
-// navegador tiene el suyo desactivado (overscroll-behavior en main.css) para
-// que la PWA no se cierre; sin esto, en la app instalada no había forma de
-// recargar ni de recibir una versión nueva.
-async function refreshApp() {
-  try { await (await navigator.serviceWorker?.getRegistration())?.update() }
-  catch { /* sin service worker: igual se recarga */ }
-  window.location.reload()
-}
 import { computed, ref, watch } from 'vue'
-import { APP_TABS } from '~/utils/navigation'
 
 const { currentUser } = useAuth()
 const friendsStore = useFriendsStore()
@@ -40,30 +30,37 @@ const sidebarUser = computed(() =>
 
 const sidebarSections = [
   {
-    title: 'Sorbo',
-    items: APP_TABS.map(t => ({ key: t.key, label: t.label, to: t.to })),
-  },
-  {
-    title: 'Tu colección',
+    title: 'Diario',
     items: [
-      { key: 'coffees', label: 'Mis cafés', to: '/app/coffees' },
-      { key: 'wishlist', label: 'Quiero probar', to: '/app/coffees?f=wish' },
-      { key: 'friends', label: 'Mis amigos', to: '/app/friends' },
+      { key: 'home', label: 'Inicio', to: '/app' },
+      { key: 'explore', label: 'Explora', to: '/app/explore' },
+      { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
+      { key: 'tastings', label: 'Catas', to: '/app/tastings' },
+      { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
+      { key: 'wishlist', label: 'Wishlist', to: '/app/wishlist' },
     ],
   },
   {
-    title: 'Personalizar listas',
+    title: 'Catálogo',
     items: [
       { key: 'roasters', label: 'Marcas', to: '/app/roasters' },
       { key: 'varieties', label: 'Variedades', to: '/app/varieties' },
       { key: 'methods', label: 'Métodos', to: '/app/methods' },
       { key: 'processes', label: 'Procesos', to: '/app/processes' },
-      { key: 'notes', label: 'Sabores', to: '/app/notes' },
+      { key: 'notes', label: 'Notas', to: '/app/notes' },
     ],
   },
 ]
 
-const ui = useUiStore()
+// Tab bar mobile: 5 items, el núcleo del diario. Wishlist se accede desde
+// el header de la página Cafés (ícono bookmark) — ver pages/app/coffees.
+const mobileTabs = [
+  { key: 'home', label: 'Inicio', to: '/app' },
+  { key: 'explore', label: 'Explora', to: '/app/explore' },
+  { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
+  { key: 'tastings', label: 'Catas', to: '/app/tastings' },
+  { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
+]
 
 // ─── Swipe horizontal entre tabs ────────────────────────────────────────────
 // Solo en mobile y solo en la raíz de cada tab (no en detalles/wizards).
@@ -74,7 +71,7 @@ const SWIPE_VELOCITY = 0.4
 const SWIPE_VERTICAL_DRIFT = 60
 
 const currentTabIndex = computed(() => {
-  return APP_TABS.findIndex(t => t.to === route.path)
+  return mobileTabs.findIndex(t => t.to === route.path)
 })
 
 const swipeStart = ref({ x: 0, y: 0, t: 0, active: false })
@@ -110,10 +107,10 @@ function onSwipeEnd(e: TouchEvent) {
   const dir = dx > 0 ? -1 : 1 // swipe right → tab previous, swipe left → next
   const nextIndex = currentTabIndex.value + dir
 
-  if (nextIndex < 0 || nextIndex >= APP_TABS.length) return
+  if (nextIndex < 0 || nextIndex >= mobileTabs.length) return
 
   light()
-  router.push(APP_TABS[nextIndex].to)
+  router.push(mobileTabs[nextIndex].to)
 }
 </script>
 
@@ -123,43 +120,18 @@ function onSwipeEnd(e: TouchEvent) {
       :sections="sidebarSections"
       :user="sidebarUser"
       class="hidden lg:flex"
-    >
-      <button type="button" class="sidebar-note" @click="ui.openNoteSheet()">
-        <AppIcon name="plus" :size="20" :stroke="2.25" />
-        Anotar taza
-      </button>
-    </UiSidebar>
+    />
 
     <div class="flex-1 flex flex-col min-w-0">
       <main
-        :class="['flex-1 lg:pb-0 pt-[env(safe-area-inset-top)]', route.meta.hideTabBar ? '' : 'pb-[calc(var(--tabbar-height)+env(safe-area-inset-bottom)+8px)]']"
+        class="flex-1 pb-[88px] lg:pb-0 pt-[env(safe-area-inset-top)]"
         @touchstart.passive="onSwipeStart"
         @touchend.passive="onSwipeEnd"
       >
-        <UiPullToRefresh :on-refresh="refreshApp">
-          <slot />
-        </UiPullToRefresh>
+        <slot />
       </main>
     </div>
 
-    <AppTabBar v-if="!route.meta.hideTabBar" />
-    <NoteSheet />
+    <UiTabBar :items="mobileTabs" class="lg:hidden" />
   </div>
 </template>
-
-<style scoped>
-.sidebar-note {
-  height: var(--button-height);
-  border-radius: var(--radius-md);
-  background: var(--action-bg);
-  color: var(--on-action);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font: 600 15px/20px var(--font-sans);
-}
-.sidebar-note :deep(svg) {
-  color: var(--action-fg);
-}
-</style>

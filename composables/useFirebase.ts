@@ -3,7 +3,7 @@ import {
   doc,
   getDocs,
   getDoc,
-  setDoc,
+  addDoc,
   updateDoc,
   deleteDoc,
   query,
@@ -18,15 +18,6 @@ import type { Visibility } from '~/types'
 
 export const useFirebase = () => {
   const { $db } = useNuxtApp()
-
-  // Espera la confirmación del servidor como mucho WRITE_WAIT_MS. Un rechazo
-  // rápido (reglas, datos inválidos) se propaga; pasado ese tiempo la
-  // escritura se da por encolada en la caché local.
-  const WRITE_WAIT_MS = 2500
-  async function settleOrQueue(write: Promise<void>, label: string): Promise<void> {
-    write.catch(e => console.error(`[firestore] ${label} failed:`, e))
-    await Promise.race([write, new Promise<void>(resolve => setTimeout(resolve, WRITE_WAIT_MS))])
-  }
   const { userId } = useAuth()
 
   const getAll = async <T>(
@@ -131,16 +122,12 @@ export const useFirebase = () => {
     data: Omit<T, 'id' | 'createdAt' | 'updatedAt' | 'userId'>,
   ): Promise<string> => {
     if (!userId.value) throw new Error('No authenticated user')
-    // El id se genera en el cliente y no se espera la confirmación del
-    // servidor más que un momento: sin conexión la escritura queda en la
-    // caché local y Firestore la envía al reconectar.
-    const docRef = doc(collection($db, collectionName))
-    await settleOrQueue(setDoc(docRef, {
+    const docRef = await addDoc(collection($db, collectionName), {
       ...data,
       userId: userId.value,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
-    }), `create ${collectionName}`)
+    })
     return docRef.id
   }
 
@@ -155,10 +142,10 @@ export const useFirebase = () => {
     if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
       throw new Error('Unauthorized: document not found or access denied')
     }
-    await settleOrQueue(updateDoc(docRef, {
+    await updateDoc(docRef, {
       ...data,
       updatedAt: Timestamp.now(),
-    }), `update ${collectionName}`)
+    })
   }
 
   const remove = async (collectionName: string, id: string): Promise<void> => {
@@ -168,7 +155,7 @@ export const useFirebase = () => {
     if (!docSnap.exists() || docSnap.data().userId !== userId.value) {
       throw new Error('Unauthorized: document not found or access denied')
     }
-    await settleOrQueue(deleteDoc(docRef), `delete ${collectionName}`)
+    await deleteDoc(docRef)
   }
 
   return {

@@ -1,5 +1,5 @@
-# Unitarias y reglas de Firestore en cada PR y en main.
-# Los E2E no corren aquí: usan la cuenta de pruebas contra Firebase real.
+# Reglas de Firestore en cada PR y en main.
+# (Los tests de UI de v2 quedaron en la rama backup/v2-2026-10-14.)
 name: Tests
 
 on:
@@ -15,18 +15,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  unit:
-    name: Unitarias
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-      - run: npm ci
-      - run: npm test
-
   rules:
     name: Reglas de Firestore
     runs-on: ubuntu-latest

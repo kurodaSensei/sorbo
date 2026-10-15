@@ -58,6 +58,43 @@ export const GRIND_SIZE_OPTIONS = [
   { value: 'coarse', label: 'Gruesa' },
 ] as const
 
+/**
+ * Educación sobre los atributos sensoriales de una cata. Pensado para que
+ * usuarios casuales que no son baristas puedan puntuar con criterio.
+ */
+export const TASTING_ATTRIBUTE_INFO = {
+  overall: {
+    title: 'Puntuación general',
+    body: 'El resumen de toda la experiencia. ¿Disfrutaste la taza? ¿La repetirías? Pondera todo lo demás en un solo número.',
+    howTo: 'Si tuvieras que recomendar este café a un amigo en una sola escala del 1 al 10, ¿qué dirías?',
+  },
+  aroma: {
+    title: 'Aroma',
+    body: 'La fragancia que percibes con la nariz, tanto del café recién servido como mientras lo bebes.',
+    howTo: 'Antes del primer sorbo, acerca la nariz a la taza e inhala. ¿Recuerda a flores, frutas, chocolate, especias? Cuanto más complejo y agradable, mayor puntaje.',
+  },
+  acidity: {
+    title: 'Acidez',
+    body: 'No es agrio como un limón directo: es esa sensación viva, brillante, que despierta la lengua. Es una cualidad deseada en cafés de especialidad.',
+    howTo: 'Sentirás un cosquilleo en los costados de la lengua, parecido a morder una manzana verde o sorber jugo de naranja. Si la taza se siente "plana", la acidez es baja.',
+  },
+  sweetness: {
+    title: 'Dulzura',
+    body: 'Cuán natural y persistente se siente el dulzor del café, sin necesidad de azúcar añadida. Viene del grano bien madurado y bien procesado.',
+    howTo: 'Busca sabores que recuerden a panela, miel, caramelo, fruta madura o chocolate. Si necesitas endulzarlo para que sepa bien, la dulzura natural es baja.',
+  },
+  body: {
+    title: 'Cuerpo',
+    body: 'La sensación física del café en la boca: su peso, textura y densidad. No tiene que ver con el sabor sino con cómo lo percibes al tacto.',
+    howTo: 'Compáralo con un líquido conocido. ¿Es ligero como té o agua? ¿Sedoso como leche? ¿Cremoso o denso como un jarabe? Más cuerpo = se siente más "presente" en la boca.',
+  },
+  aftertaste: {
+    title: 'Retrogusto',
+    body: 'Lo que queda en la boca después de tragar. Un buen retrogusto persiste con sabores agradables; uno malo se desvanece rápido o deja sensaciones secas o amargas.',
+    howTo: 'Traga y espera 10 segundos. ¿Sigues notando sabores? ¿Son los mismos que tenías al sorber, o cambian a algo desagradable? Cuanto más largo y limpio, mejor.',
+  },
+} as const
+
 // Kept for backwards compatibility (used only where catalog isn't available)
 export const PROCESS_OPTIONS = [
   { value: 'washed', label: 'Lavado' },
