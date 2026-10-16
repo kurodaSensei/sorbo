@@ -6,6 +6,8 @@ const friendsStore = useFriendsStore()
 const router = useRouter()
 const route = useRoute()
 const { light } = useHaptic()
+// Navegación v3 (barra lateral y barra inferior), detrás de su interruptor.
+const v3Nav = useFlag('navegacion')
 
 watch(
   () => currentUser.value?.uid,
@@ -32,12 +34,12 @@ const sidebarSections = [
   {
     title: 'Diario',
     items: [
-      { key: 'home', label: 'Inicio', to: '/app' },
-      { key: 'explore', label: 'Explora', to: '/app/explore' },
-      { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
-      { key: 'tastings', label: 'Catas', to: '/app/tastings' },
-      { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
-      { key: 'wishlist', label: 'Wishlist', to: '/app/wishlist' },
+      { key: 'home', icon: 'lucide:house', label: 'Inicio', to: '/app' },
+      { key: 'explore', icon: 'lucide:compass', label: 'Explora', to: '/app/explore' },
+      { key: 'coffees', icon: 'lucide:coffee', label: 'Cafés', to: '/app/coffees' },
+      { key: 'tastings', icon: 'lucide:file-text', label: 'Catas', to: '/app/tastings' },
+      { key: 'recipes', icon: 'lucide:book-open', label: 'Recetas', to: '/app/recipes' },
+      { key: 'wishlist', icon: 'lucide:bookmark', label: 'Wishlist', to: '/app/wishlist' },
     ],
   },
   {
@@ -55,11 +57,11 @@ const sidebarSections = [
 // Tab bar mobile: 5 items, el núcleo del diario. Wishlist se accede desde
 // el header de la página Cafés (ícono bookmark) — ver pages/app/coffees.
 const mobileTabs = [
-  { key: 'home', label: 'Inicio', to: '/app' },
-  { key: 'explore', label: 'Explora', to: '/app/explore' },
-  { key: 'coffees', label: 'Cafés', to: '/app/coffees' },
-  { key: 'tastings', label: 'Catas', to: '/app/tastings' },
-  { key: 'recipes', label: 'Recetas', to: '/app/recipes' },
+  { key: 'home', icon: 'lucide:house', label: 'Inicio', to: '/app' },
+  { key: 'explore', icon: 'lucide:compass', label: 'Explora', to: '/app/explore' },
+  { key: 'coffees', icon: 'lucide:coffee', label: 'Cafés', to: '/app/coffees' },
+  { key: 'tastings', icon: 'lucide:file-text', label: 'Catas', to: '/app/tastings' },
+  { key: 'recipes', icon: 'lucide:book-open', label: 'Recetas', to: '/app/recipes' },
 ]
 
 // ─── Swipe horizontal entre tabs ────────────────────────────────────────────
@@ -116,7 +118,14 @@ function onSwipeEnd(e: TouchEvent) {
 
 <template>
   <div class="min-h-svh bg-paper text-moss font-sans antialiased flex">
+    <V3Sidebar
+      v-if="v3Nav"
+      :items="sidebarSections[0].items"
+      :catalogs="sidebarSections[1].items"
+      :user="sidebarUser"
+    />
     <UiSidebar
+      v-else
       :sections="sidebarSections"
       :user="sidebarUser"
       class="hidden lg:flex"
@@ -132,6 +141,7 @@ function onSwipeEnd(e: TouchEvent) {
       </main>
     </div>
 
-    <UiTabBar :items="mobileTabs" class="lg:hidden" />
+    <V3TabBar v-if="v3Nav" :items="mobileTabs" />
+    <UiTabBar v-else :items="mobileTabs" class="lg:hidden" />
   </div>
 </template>

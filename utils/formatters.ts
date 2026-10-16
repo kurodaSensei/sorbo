@@ -92,3 +92,16 @@ export function getRoastLevelLabel(value: string): string {
   }
   return labels[value] || value
 }
+
+/** «Hoy», «Ayer», el día de la semana (hasta 6 días) o «12 oct». */
+export function formatRelativeDay(date: Date, now: Date = new Date()): string {
+  const startOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  const days = Math.round((startOf(now) - startOf(date)) / 86_400_000)
+  if (days <= 0) return 'Hoy'
+  if (days === 1) return 'Ayer'
+  if (days < 7) {
+    const name = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(date)
+    return name.charAt(0).toUpperCase() + name.slice(1)
+  }
+  return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short' }).format(date).replace('.', '')
+}
