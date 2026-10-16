@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { DEFAULT_VARIETIES } from '~/utils/constants'
 
 const router = useRouter()
 const { currentUser, logout, deleteAccount } = useAuth()
@@ -28,12 +29,8 @@ const roastersCount = computed(() => roastersStore.list.length)
 const variedadesActiveCount = computed(() => {
   const disabled = settings.prefs?.disabledVarieties ?? []
   const custom = settings.prefs?.customVarieties ?? []
-  return [
-    ...['Caturra', 'Geisha', 'Bourbon', 'Typica', 'Pacamara', 'SL28', 'Mundo Novo', 'Catimor'].filter(
-      v => !disabled.includes(v),
-    ),
-    ...custom.filter(v => !disabled.includes(v)),
-  ].length
+  // Misma lista que /app/varieties (antes contaba sobre 8 nombres fijos y desactualizados).
+  return [...new Set([...DEFAULT_VARIETIES, ...custom])].filter(v => !disabled.includes(v)).length
 })
 
 const metodosActiveCount = computed(() => {
