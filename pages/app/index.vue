@@ -155,10 +155,211 @@ const stats = computed(() => {
     avgScore: avg,
   }
 })
+
+// ─────────────────────────────────────────────────────────────────────────
+// Inicio v3 (interruptor «inicio»). Reutiliza los datos de arriba; la vista
+// v1 se borra en la limpieza final.
+// ─────────────────────────────────────────────────────────────────────────
+const v3 = useFlag('inicio')
+
+const homeState = computed(() => {
+  if (!tastingsReady.value) return 'loading'
+  if (lastTasting.value) return 'data'
+  return coffeesCount.value === 0 ? 'noCoffees' : 'noTastings'
+})
+
+const todayLong = computed(() => {
+  const s = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())
+  return s.charAt(0).toUpperCase() + s.slice(1).replace(',', '')
+})
+
+const tastingTime = (t: Tasting) => tsMillis(t.brewDate) || tsMillis(t.createdAt)
+const scoreText = (n: unknown) => (typeof n === 'number' ? String(Math.round(n * 10) / 10) : null)
+
+const lastCard = computed(() => {
+  const t = lastTasting.value
+  if (!t) return null
+  return {
+    id: t.id,
+    coffeeId: t.coffeeId,
+    name: t.coffeeName,
+    roaster: t.roasterName,
+    when: [formatRelativeDay(new Date(tastingTime(t))), t.brewMethod ? getBrewMethodLabel(t.brewMethod) : '']
+      .filter(Boolean).join(' · '),
+    score: scoreText(t.ratingOverall),
+    note: t.personalNotes?.trim() || '',
+  }
+})
+
+// Primer nombre para el saludo: «Alfredo Romero» parte el título en dos líneas.
+const firstName = computed(() => userName.value.split(' ')[0])
+
+// Color del puntaje: miel desde 9, salvia desde 7.5.
+const scoreTone = (n: unknown) => (typeof n !== 'number' ? 'none' : n >= 9 ? 'high' : n >= 7.5 ? 'good' : 'none')
+const recentTastings = computed(() =>
+  [...(tastingsStore.list as Tasting[])]
+    .sort((a, b) => tastingTime(b) - tastingTime(a))
+    .slice(1, 4)
+    .map(t => ({
+      id: t.id,
+      name: t.coffeeName,
+      roaster: t.roasterName,
+      day: formatRelativeDay(new Date(tastingTime(t))),
+      method: t.brewMethod ? getBrewMethodLabel(t.brewMethod) : '',
+      score: scoreText(t.ratingOverall),
+      tone: scoreTone(t.ratingOverall),
+    })),
+)
+
+const monthName = computed(() => {
+  const m = new Intl.DateTimeFormat('es', { month: 'long' }).format(new Date())
+  return m.charAt(0).toUpperCase() + m.slice(1)
+})
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
+  <div v-if="v3" class="v3 home">
+    <div class="home-main">
+      <!-- Cabecera -->
+      <header class="home-header">
+        <div class="home-hello">
+          <span class="home-date">{{ todayLong }}</span>
+          <h1 class="home-title">{{ greeting }}, <span class="v3-accent-word">{{ firstName || 'cafetero' }}</span></h1>
+        </div>
+        <div class="home-tools">
+          <UiNotificationBell size="sm" />
+          <NuxtLink to="/app/settings" class="home-avatar" aria-label="Ajustes de tu cuenta">
+            <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+          </NuxtLink>
+        </div>
+      </header>
+
+      <!-- Móvil: el mes como franja bajo el saludo -->
+      <div v-if="homeState !== 'loading'" class="month-strip mobile-only" aria-label="Este mes">
+        <span class="v3-eyebrow month-strip-label">{{ monthName }}</span>
+        <span class="month-strip-cell"><span class="month-strip-num">{{ stats.tastings }}</span><span class="v3-meta">{{ stats.tastings === 1 ? 'cata' : 'catas' }}</span></span>
+        <span class="month-strip-cell"><span class="month-strip-num">{{ stats.coffees }}</span><span class="v3-meta">{{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}</span></span>
+        <span class="month-strip-cell"><span class="month-strip-num" :class="{ muted: stats.avgScore === null }">{{ stats.avgScore ?? '—' }}</span><span class="v3-meta">promedio</span></span>
+      </div>
+
+      <!-- Cargando -->
+      <div v-if="homeState === 'loading'" class="home-skeleton" aria-hidden="true" />
+
+      <!-- Con datos: la última taza como portada -->
+      <template v-else-if="homeState === 'data' && lastCard">
+        <section class="last" aria-label="Tu última taza">
+          <span aria-hidden="true" class="last-blob" />
+          <NuxtLink :to="`/app/tastings/${lastCard.id}`" class="last-body">
+            <span class="v3-eyebrow last-eyebrow">— Tu última taza · {{ lastCard.when }}</span>
+            <span class="last-row">
+              <span class="last-names">
+                <span class="last-name">{{ lastCard.name }}</span>
+                <span class="last-roaster">de {{ lastCard.roaster }}</span>
+              </span>
+              <span v-if="lastCard.score" class="last-score">{{ lastCard.score }}</span>
+            </span>
+            <p v-if="lastCard.note" class="last-note">«{{ lastCard.note }}»</p>
+          </NuxtLink>
+          <div class="last-actions">
+            <NuxtLink :to="`/app/tastings/new?coffeeId=${lastCard.coffeeId}`" class="v3-btn v3-btn--primary">
+              <Icon name="lucide:rotate-ccw" size="18" /> Repetir
+            </NuxtLink>
+            <NuxtLink to="/app/tastings/new" class="v3-btn last-new">
+              <Icon name="lucide:plus" size="18" /> Nueva cata
+            </NuxtLink>
+          </div>
+        </section>
+
+        <section v-if="recentTastings.length" aria-label="Tus últimas catas" class="recent">
+          <div class="section-head">
+            <h2 class="v3-label m-0">Tus últimas catas</h2>
+            <NuxtLink to="/app/tastings" class="v3-link section-link">Ver todas</NuxtLink>
+          </div>
+          <div class="recent-list">
+            <NuxtLink v-for="r in recentTastings" :key="r.id" :to="`/app/tastings/${r.id}`" class="recent-row">
+              <span class="recent-score" :class="`tone-${r.tone}`">{{ r.score ?? '—' }}</span>
+              <span class="recent-text">
+                <span class="recent-name">{{ r.name }}</span>
+                <span class="v3-meta">{{ [r.roaster, r.method, r.day].filter(Boolean).join(' · ') }}</span>
+              </span>
+              <Icon name="lucide:chevron-right" size="18" class="recent-chevron" />
+            </NuxtLink>
+          </div>
+        </section>
+
+        <V3Checklist v-if="showOnboardingChecklist" class="home-card" @dismiss="dismissChecklist" />
+      </template>
+
+      <!-- Sin datos: primeros pasos como portada -->
+      <section v-else aria-label="Empieza aquí" class="home-card empty">
+        <span class="v3-eyebrow empty-eyebrow">— Empieza aquí</span>
+        <p class="empty-text">
+          <template v-if="homeState === 'noCoffees'">Todavía no tienes cafés guardados. Empieza por el que tienes en casa.</template>
+          <template v-else>Aún no has puntuado ningún café. Prueba uno y anota qué te pareció.</template>
+        </p>
+        <NuxtLink
+          :to="homeState === 'noCoffees' ? '/app/coffees/new' : '/app/tastings/new'"
+          class="v3-btn v3-btn--primary"
+        >
+          {{ homeState === 'noCoffees' ? 'Agregar mi primer café' : 'Puntuar mi primer café' }}
+        </NuxtLink>
+        <V3Checklist v-if="showOnboardingChecklist" @dismiss="dismissChecklist" />
+      </section>
+
+      <!-- Móvil: preparar y el mes -->
+      <NuxtLink to="/app/vertido" class="prepare mobile-only">
+        <span aria-hidden="true" class="prepare-icon"><Icon name="lucide:timer-reset" size="22" /></span>
+        <span class="prepare-text">
+          <span class="prepare-title">¿Preparas café?</span>
+          <span class="prepare-sub">Café, método, receta y taza, paso a paso.</span>
+        </span>
+      </NuxtLink>
+    </div>
+
+    <!-- Escritorio: columna derecha -->
+    <aside class="home-rail" aria-label="Atajos">
+      <NuxtLink to="/app/vertido" class="prepare prepare--big">
+        <span class="prepare-text">
+          <span class="v3-eyebrow prepare-eyebrow">— Hoy</span>
+          <span class="prepare-title">¿Preparas café?</span>
+          <span class="prepare-sub">Café, método, receta y taza, paso a paso.</span>
+        </span>
+        <span aria-hidden="true" class="prepare-go"><Icon name="lucide:arrow-right" size="20" /></span>
+      </NuxtLink>
+
+      <nav class="shortcuts" aria-label="Acciones rápidas">
+        <NuxtLink v-if="lastCard" :to="`/app/tastings/new?coffeeId=${lastCard.coffeeId}`" class="shortcut">
+          <Icon name="lucide:rotate-ccw" size="22" class="shortcut-icon" />
+          <span class="shortcut-text"><span class="shortcut-title">Repetir última cata</span><span class="v3-meta">Volver a probar {{ lastCard.name }}</span></span>
+          <Icon name="lucide:chevron-right" size="18" class="shortcut-chevron" />
+        </NuxtLink>
+        <NuxtLink to="/app/tastings/new" class="shortcut">
+          <Icon name="lucide:pencil-line" size="22" class="shortcut-icon" />
+          <span class="shortcut-text"><span class="shortcut-title">Nueva cata</span><span class="v3-meta">Puntúa un café que ya tienes</span></span>
+          <Icon name="lucide:chevron-right" size="18" class="shortcut-chevron" />
+        </NuxtLink>
+        <NuxtLink to="/app/coffees/new" class="shortcut">
+          <Icon name="lucide:coffee" size="22" class="shortcut-icon" />
+          <span class="shortcut-text"><span class="shortcut-title">Nuevo café</span><span class="v3-meta">Guarda origen, tueste y precio</span></span>
+          <Icon name="lucide:chevron-right" size="18" class="shortcut-chevron" />
+        </NuxtLink>
+      </nav>
+
+      <section aria-label="Este mes" class="month-tiles">
+        <h2 class="v3-label m-0">Este mes</h2>
+        <div class="tiles">
+          <div class="tile"><span class="tile-num">{{ stats.coffees }}</span><span class="v3-meta">{{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}</span></div>
+          <div class="tile"><span class="tile-num">{{ stats.tastings }}</span><span class="v3-meta">{{ stats.tastings === 1 ? 'cata' : 'catas' }}</span></div>
+          <div class="tile"><span class="tile-num tile-num--avg">{{ stats.avgScore ?? '—' }}</span><span class="v3-meta">puntaje promedio</span></div>
+        </div>
+      </section>
+    </aside>
+
+    <V3InstallToast />
+    <UiOnboardingWelcome v-model="welcomeOpen" :user-name="userName" @finish="onWelcomeFinish" />
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-[1200px] px-md pt-md pb-xl lg:px-xl xl:px-2xl lg:pt-xl lg:pb-2xl">
     <!-- Header row: date + (mobile avatar | desktop search) -->
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>
@@ -320,3 +521,136 @@ const stats = computed(() => {
     />
   </div>
 </template>
+
+<style scoped>
+/* Inicio v3 · móvil B «Diario primero» y escritorio Editorial B */
+.home { display: flex; flex-wrap: wrap; min-height: 100%; }
+.home-main {
+  flex: 999 1 560px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 20px 20px 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.home-rail { display: none; }
+
+.home-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.home-hello { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.home-date { font: 400 13px/18px var(--font-sans); color: var(--ink-soft); }
+.home-title { margin: 0; font: 400 30px/32px var(--font-display); letter-spacing: -0.01em; }
+.home-tools { display: flex; align-items: center; gap: 4px; flex: none; }
+.home-avatar { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+
+.home-skeleton { height: 220px; border-radius: 18px; background: var(--surface); }
+
+.month-strip { display: flex; align-items: stretch; margin-top: -16px; border-radius: 14px; background: var(--surface); overflow: hidden; }
+.month-strip-label { display: flex; align-items: center; padding: 0 14px; color: var(--ink-soft); }
+.month-strip-cell { flex: 1; display: flex; flex-direction: column; padding: 8px 12px; border-left: 1px solid var(--line); min-width: 0; }
+.month-strip-num { font: 400 22px/24px var(--font-display); }
+.month-strip-num.muted { color: var(--ink-soft); }
+.home-card { padding: 20px; border-radius: 18px; background: var(--surface-strong); }
+
+.last { position: relative; overflow: hidden; border-radius: 18px; background: var(--surface-strong); }
+.last-blob { position: absolute; top: -70px; right: -60px; width: 200px; height: 200px; border-radius: 9999px; background: var(--tint); opacity: 0.45; }
+.last-body { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 22px 22px 18px; color: var(--ink); text-decoration: none; }
+.last-eyebrow { color: var(--ink-soft); }
+.last-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.last-names { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.last-name { font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
+.last-roaster { font: italic 400 15px/22px var(--font-display); color: var(--ink-soft); }
+.last-score { flex: none; font: 400 38px/1 var(--font-display); }
+.last-note {
+  margin: 12px 0 0;
+  font: italic 400 17px/25px var(--font-display);
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.last-actions { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0 14px 14px; }
+.last-new { background: var(--bg); color: var(--ink); }
+.last-new:hover { background: var(--surface); }
+
+.section-head { display: flex; align-items: baseline; justify-content: space-between; }
+.section-link { font-size: 13px; line-height: 16px; padding: 14px 0; margin: -14px 0; }
+.recent { display: flex; flex-direction: column; gap: 14px; }
+.recent-list { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 16px; background: var(--surface); }
+.recent-row { display: flex; align-items: center; gap: 14px; min-height: 72px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+.recent-row:last-child { border-bottom: 0; }
+.recent-score { flex: none; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 400 20px/1 var(--font-display); background: var(--surface-strong); }
+.recent-score.tone-high { background: var(--accent); color: var(--on-accent); }
+.recent-score.tone-good { background: var(--tint); color: var(--on-tint); }
+.recent-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.recent-name { font: 400 19px/22px var(--font-display); }
+.recent-chevron { flex: none; color: var(--ink-soft); }
+
+.empty { display: flex; flex-direction: column; gap: 16px; }
+.empty-eyebrow { color: var(--ink-soft); }
+.empty-text { margin: 0; font: italic 400 22px/29px var(--font-display); }
+
+.prepare {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--brand-surface);
+  color: var(--on-brand-surface);
+  text-decoration: none;
+}
+.prepare-icon { flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: var(--on-accent); display: flex; align-items: center; justify-content: center; }
+.prepare-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.prepare-title { font: 400 22px/24px var(--font-display); }
+.prepare-sub { font: 400 13px/18px var(--font-sans); opacity: 0.75; }
+
+@media (min-width: 1024px) {
+  .mobile-only, .home-avatar { display: none; }
+  .home-main { padding: 32px 40px 48px; gap: 32px; }
+  .home-hello { gap: 12px; }
+  .home-date { font: 500 11px/14px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; }
+  .home-title { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
+  .last-body { padding: 32px; }
+  .last-actions { display: none; }
+  .last-blob { width: 280px; height: 280px; top: -120px; right: -80px; }
+  .last-name { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
+  .last-roaster { font-size: 19px; line-height: 26px; }
+  .last-score { font-size: 48px; }
+  .last-note { font-size: 26px; line-height: 35px; color: var(--ink); -webkit-line-clamp: 3; }
+  .recent-row { min-height: 76px; }
+  .recent-name { font-size: 22px; line-height: 24px; }
+
+  .home-rail {
+    flex: 1 1 320px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 32px 24px 48px;
+    border-left: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .prepare--big { justify-content: space-between; gap: 16px; padding: 20px; }
+  .prepare--big .prepare-text { gap: 6px; }
+  .prepare-eyebrow { opacity: 0.7; }
+  .prepare--big .prepare-title { font-size: 30px; line-height: 30px; }
+  .prepare--big .prepare-sub { font: italic 400 15px/22px var(--font-display); opacity: 0.8; }
+  .prepare-go { flex: none; width: 48px; height: 48px; border-radius: 9999px; background: var(--accent); color: var(--on-accent); display: flex; align-items: center; justify-content: center; }
+
+  .shortcuts { display: flex; flex-direction: column; padding: 0 16px; border-radius: 14px; background: var(--surface); }
+  .shortcut { display: flex; align-items: center; gap: 12px; min-height: 64px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+  .shortcut:last-child { border-bottom: 0; }
+  .shortcut-icon { flex: none; color: var(--primary); }
+  .shortcut-text { flex: 1; display: flex; flex-direction: column; }
+  .shortcut-title { font: 600 15px/22px var(--font-sans); }
+  .shortcut-chevron { flex: none; color: var(--ink-soft); }
+
+  .month-tiles { display: flex; flex-direction: column; gap: 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tile { display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; background: var(--surface); }
+  .tile-num { font: 400 30px/30px var(--font-display); }
+  .tile-num--avg { color: var(--primary); }
+}
+</style>
