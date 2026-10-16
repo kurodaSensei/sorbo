@@ -1,0 +1,102 @@
+/* Sorbo Design System v3 (https://claude.ai/artifact/Tbe2V6AUQYkkeN3c8LAhUV).
+   Todo vive bajo .v3 para no tocar las pantallas de v1 mientras conviven.
+   ponytail: solo tema claro; el oscuro (ya definido en el DS) entra cuando toda la app sea v3. */
+
+.v3 {
+  --bg: #f4f2eb;
+  --surface: #ebe9dc;
+  --surface-strong: #e4e3d2;
+  --line: #2f35281a;
+  --line-strong: #2f352833;
+  --track: #2f352814;
+  --ink: #2f3528;
+  --ink-soft: #5f6652;
+  --ink-faint: #8a8c7f;
+  --primary: #556b3a;
+  --primary-pressed: #46592f;
+  --on-primary: #f4f2eb;
+  --brand-surface: #141712;
+  --on-brand-surface: #f4f2eb;
+  --accent: #e5b84b;
+  --on-accent: #141712;
+  --tint: #96b36a;
+  --on-tint: #141712;
+  --danger: #b03f2f;
+  --on-danger: #f4f2eb;
+
+  --font-display: 'DM Serif Display', ui-serif, Georgia, serif;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/22px var(--font-sans);
+}
+
+.v3 :focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Tipografía */
+.v3-display-l { font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
+.v3-display-xl { font: 400 56px/52px var(--font-display); letter-spacing: -0.02em; }
+.v3-subtitle { font: italic 400 15px/22px var(--font-display); color: var(--ink-soft); }
+.v3-label { font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.v3-meta { font: 400 13px/18px var(--font-sans); color: var(--ink-soft); }
+.v3-eyebrow { font: 500 11px/14px var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; }
+.v3-accent-word { font-style: italic; color: var(--primary); }
+.v3-error { color: var(--danger); }
+
+/* Botones */
+.v3-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 14px;
+  font: 600 15px/20px var(--font-sans);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.v3-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.v3-btn--primary { background: var(--primary); color: var(--on-primary); }
+.v3-btn--primary:hover:not(:disabled) { background: var(--primary-pressed); }
+.v3-btn--secondary { background: var(--surface); color: var(--ink); }
+.v3-btn--secondary:hover:not(:disabled) { background: var(--surface-strong); }
+
+.v3-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.v3-link:hover { color: var(--primary-pressed); }
+
+.v3-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 9999px;
+  animation: v3-spin 700ms linear infinite;
+}
+@keyframes v3-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .v3-spinner { animation-duration: 2s; }
+}
+
+/* Avisos dentro de un formulario */
+.v3-alert {
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--surface);
+  font: 400 13px/18px var(--font-sans);
+  color: var(--ink);
+}
+.v3-alert--error { box-shadow: inset 0 0 0 2px var(--danger); }
+.v3-alert--ok { box-shadow: inset 0 0 0 2px var(--primary); }

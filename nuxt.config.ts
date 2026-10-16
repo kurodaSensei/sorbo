@@ -36,6 +36,9 @@ export default defineNuxtConfig({
     cssPath: '~/assets/css/main.css',
   },
 
+  // Design System v3, aislado bajo .v3 mientras convive con v1.
+  css: ['~/assets/css/v3.css'],
+
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -115,6 +118,8 @@ export default defineNuxtConfig({
       firebaseStorageBucket: '',
       firebaseMessagingSenderId: '',
       firebaseAppId: '',
+      // Interruptores de v3 encendidos para todo el despliegue (ver useFlag).
+      flags: '',
     },
   },
 
@@ -143,7 +148,7 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
           rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500&family=JetBrains+Mono:wght@400;500;700&display=swap',
+          href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap',
         },
         { rel: 'icon', type: 'image/svg+xml', href: '/sorbo.svg' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/icons/favicon-32.png' },
