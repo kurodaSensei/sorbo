@@ -428,10 +428,270 @@ const stepEyebrow = computed(
 const submitLabel = computed(() =>
   props.mode === 'edit' ? '✓ Guardar cambios' : '✓ Crear café',
 )
+// ─────────────────────────────────────────────────────────────────────────────
+// v3 (interruptor «cafes»): mismos datos y validación. En móvil sigue en 3
+// pasos; en escritorio es una sola página con vista previa.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const v3 = useFlag('cafes')
+const isDesktop = useMediaQuery('(min-width: 1024px)')
+const showStep = (n: 1 | 2 | 3) => isDesktop.value || step.value === n
+
+const v3Steps = [
+  { n: 1 as const, title: '¿Cómo se llama este', word: 'café', sub: 'Solo el nombre es obligatorio.' },
+  { n: 2 as const, title: '¿De dónde', word: 'viene', sub: 'País y región le dan contexto al sabor.' },
+  { n: 3 as const, title: '¿A qué', word: 'sabe', sub: 'Toca las notas que reconoces en la taza.' },
+]
+const currentStep = computed(() => v3Steps[step.value - 1])
+
+const altitudeText = computed(() => (altitude.value === null ? '—' : altitude.value.toLocaleString('es-CO')))
+function onAltitude(e: Event) {
+  altitude.value = Number((e.target as HTMLInputElement).value)
+}
+
+// «Guardar ya»: solo pide el nombre, como el último paso.
+function saveNow() {
+  if (!validateStep1()) {
+    step.value = 1
+    return
+  }
+  submit()
+}
+
+const previewCoffee = computed(() => ({
+  id: 'preview',
+  name: name.value.trim() || 'Tu café',
+  roasterName: roaster.value?.name,
+  process: process.value || undefined,
+  originRegion: region.value.trim(),
+  flavorNotes: flavorNotes.value,
+  scaScore: scaScore.value ?? undefined,
+  price: price.value ?? undefined,
+  weight: weight.value ?? undefined,
+}) as unknown as Coffee)
+
+const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' : 'Guardar café'))
 </script>
 
 <template>
-  <div class="min-h-svh bg-paper text-moss font-sans antialiased flex flex-col">
+  <div v-if="v3" class="v3 wiz">
+    <header class="wiz-head">
+      <div class="wiz-bar mobile-only">
+        <button type="button" class="icon-btn" :aria-label="step === 1 ? 'Cerrar' : 'Atrás'" @click="step === 1 ? close() : back()">
+          <Icon :name="step === 1 ? 'lucide:x' : 'lucide:arrow-left'" size="22" />
+        </button>
+        <span class="v3-eyebrow wiz-eb">{{ mode === 'edit' ? 'Editar café' : 'Nuevo café' }} · {{ step }} de {{ totalSteps }}</span>
+        <span class="icon-btn" aria-hidden="true" />
+      </div>
+      <div role="progressbar" class="progress mobile-only" :aria-label="`Paso ${step} de ${totalSteps}`" aria-valuemin="1" :aria-valuemax="totalSteps" :aria-valuenow="step">
+        <span v-for="n in totalSteps" :key="n" :class="['progress-seg', { 'progress-seg--on': n <= step }]" />
+      </div>
+      <div class="desktop-only desk-head">
+        <button type="button" class="back" @click="close"><Icon name="lucide:arrow-left" size="20" />{{ mode === 'edit' ? 'Volver al café' : 'Mi colección' }}</button>
+        <h1 class="desk-title">{{ mode === 'edit' ? 'Editar' : 'Nuevo' }} <span class="v3-accent-word">café</span></h1>
+        <p class="v3-subtitle desk-sub">Solo el nombre es obligatorio. Lo demás lo puedes completar después.</p>
+      </div>
+    </header>
+
+    <div class="wiz-layout">
+      <form class="wiz-form" novalidate @submit.prevent>
+        <div class="mobile-only step-title">
+          <h1 class="q">{{ currentStep.title }} <span class="v3-accent-word">{{ currentStep.word }}</span>?</h1>
+          <p class="v3-subtitle q-sub">{{ currentStep.sub }}</p>
+        </div>
+
+        <fieldset v-if="showStep(1)" class="section">
+          <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">01</span><span class="legend-q">¿Cómo se llama este <span class="v3-accent-word">café</span>?</span></legend>
+          <V3Field v-model="name" label="Nombre" placeholder="Rock natural" :error="errors.name" />
+          <div class="pair">
+            <RoasterPicker v-model="roaster" label="Marca · opcional" placeholder="Tostador, tienda, marca…" class="picker" />
+            <VarietyPicker v-model="variety" label="Variedad · opcional" placeholder="Caturra, Geisha…" class="picker" />
+          </div>
+          <div class="field">
+            <span class="v3-label">Proceso <span class="opt">· opcional</span></span>
+            <div class="chips">
+              <button
+                v-for="p in processOptions"
+                :key="p.value"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': process === p.value }]"
+                :aria-pressed="process === p.value"
+                @click="process = process === p.value ? '' : p.value"
+              >
+                {{ p.label }}
+              </button>
+            </div>
+            <p v-if="processDescription" class="v3-meta">{{ processDescription }}.</p>
+          </div>
+        </fieldset>
+
+        <fieldset v-if="showStep(2)" class="section">
+          <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">02</span><span class="legend-q">¿De dónde <span class="v3-accent-word">viene</span>?</span></legend>
+          <div class="field">
+            <span class="v3-label">País <span class="opt">· opcional</span></span>
+            <div class="chips">
+              <button
+                v-for="c in COUNTRIES"
+                :key="c"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': country === c }]"
+                :aria-pressed="country === c"
+                @click="country = country === c ? '' : c"
+              >
+                {{ c }}
+              </button>
+              <button v-if="country && !COUNTRIES.includes(country)" type="button" class="v3-chip v3-chip--on" aria-pressed="true" @click="country = ''">{{ country }}</button>
+              <button v-if="!showCustomCountryInput" type="button" class="v3-chip v3-chip--add" @click="showCustomCountryInput = true">+ Otro</button>
+              <input
+                v-else
+                v-model="customCountry"
+                type="text"
+                class="v3-input chip-input"
+                placeholder="País"
+                aria-label="Otro país"
+                autofocus
+                @keydown.enter.prevent="commitCustomCountry"
+                @blur="commitCustomCountry"
+              >
+            </div>
+          </div>
+          <div class="pair">
+            <V3Field v-model="region" label="Región · opcional" placeholder="Tarqui, Huila" />
+            <div class="field">
+              <div class="range-head">
+                <label for="v3-altitude" class="v3-label">Altitud <span class="opt">· opcional</span></label>
+                <span class="range-value">{{ altitudeText }} <span class="v3-meta">msnm</span></span>
+              </div>
+              <input
+                id="v3-altitude"
+                type="range"
+                min="600"
+                max="2400"
+                step="10"
+                class="range"
+                :value="altitude ?? 1500"
+                :aria-valuetext="altitude === null ? 'Sin altitud' : `${altitudeText} metros`"
+                @input="onAltitude"
+              >
+            </div>
+          </div>
+          <button v-if="!showMoreOrigin && !isDesktop" type="button" class="v3-link more" @click="showMoreOrigin = true">+ Finca y productor</button>
+          <div v-else class="pair">
+            <V3Field v-model="farm" label="Finca · opcional" placeholder="Nombre de la finca" />
+            <V3Field v-model="producer" label="Productor · opcional" placeholder="Nombre del productor" />
+          </div>
+        </fieldset>
+
+        <fieldset v-if="showStep(3)" class="section">
+          <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">03</span><span class="legend-q">¿A qué <span class="v3-accent-word">sabe</span>?</span></legend>
+          <div class="field">
+            <span class="v3-label">Notas de sabor <span class="opt">· toca las que reconoces</span></span>
+            <div class="chips">
+              <button
+                v-for="opt in flavorNoteOptions"
+                :key="opt"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': flavorNotes.includes(opt) }]"
+                :aria-pressed="flavorNotes.includes(opt)"
+                @click="toggleFlavor(opt)"
+              >
+                {{ opt }}
+              </button>
+              <button
+                v-for="adhoc in flavorNotes.filter(n => !flavorNoteOptions.includes(n))"
+                :key="adhoc"
+                type="button"
+                class="v3-chip v3-chip--on"
+                aria-pressed="true"
+                @click="toggleFlavor(adhoc)"
+              >
+                {{ adhoc }}
+              </button>
+              <button v-if="!showCustomNoteInput" type="button" class="v3-chip v3-chip--add" @click="showCustomNoteInput = true">+ Otra</button>
+              <input
+                v-else
+                ref="customNoteInputRef"
+                v-model="customNote"
+                type="text"
+                class="v3-input chip-input"
+                placeholder="Nota propia"
+                aria-label="Nota propia"
+                @keydown.enter.prevent="commitCustomNote"
+                @blur="commitCustomNote"
+              >
+            </div>
+          </div>
+          <div class="trio">
+            <div class="field">
+              <label for="v3-price" class="v3-label">Precio</label>
+              <input id="v3-price" v-model.number="price" type="number" inputmode="numeric" min="0" class="v3-input" placeholder="60000">
+            </div>
+            <div class="field">
+              <label for="v3-weight" class="v3-label">Peso (g)</label>
+              <input id="v3-weight" v-model.number="weight" type="number" inputmode="numeric" min="0" class="v3-input" placeholder="250">
+            </div>
+            <div class="field">
+              <label for="v3-sca" class="v3-label">SCA <span class="opt">· opcional</span></label>
+              <input id="v3-sca" v-model.number="scaScore" type="number" inputmode="decimal" min="0" max="100" step="0.1" class="v3-input" placeholder="86.5" aria-describedby="v3-sca-help">
+            </div>
+          </div>
+          <p id="v3-sca-help" class="v3-meta help">El SCA va de 0 a 100 y suele venir en la bolsa. 80 o más ya es café de especialidad.</p>
+          <div class="field">
+            <span class="v3-label">Tueste <span class="opt">· opcional</span></span>
+            <div class="chips">
+              <button
+                v-for="r in ROAST_LEVELS"
+                :key="r.value"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': roastLevel === r.value }]"
+                :aria-pressed="roastLevel === r.value"
+                @click="roastLevel = roastLevel === r.value ? '' : r.value"
+              >
+                {{ r.label }}
+              </button>
+            </div>
+          </div>
+          <button v-if="!showPurchase && !isDesktop" type="button" class="v3-link more" @click="showPurchase = true">+ Dónde lo compraste</button>
+          <div v-else class="field">
+            <span class="v3-label">Dónde lo compraste <span class="opt">· opcional</span></span>
+            <div class="chips">
+              <button
+                v-for="opt in PURCHASE_CHANNEL_OPTIONS"
+                :key="opt.value"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': purchaseChannel === opt.value }]"
+                :aria-pressed="purchaseChannel === opt.value"
+                @click="purchaseChannel = purchaseChannel === opt.value ? '' : opt.value"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+            <V3Field v-model="purchaseReference" label="Referencia" :placeholder="referencePlaceholder" :help="roasterPurchaseHint || undefined" />
+          </div>
+        </fieldset>
+      </form>
+
+      <aside class="desktop-only preview" aria-label="Vista previa">
+        <span class="v3-eyebrow preview-eb">— Así se verá</span>
+        <V3CoffeeCard :coffee="previewCoffee" preview />
+        <button type="button" class="v3-btn v3-btn--primary" :disabled="submitting" :aria-busy="submitting || undefined" @click="saveNow">
+          <span v-if="submitting" class="v3-spinner" aria-hidden="true" />{{ v3SubmitLabel }}
+        </button>
+        <button type="button" class="v3-btn cancel" @click="close">Cancelar</button>
+        <p v-if="mode === 'create'" class="v3-meta">Guardamos un borrador mientras escribes.</p>
+      </aside>
+    </div>
+
+    <div class="wiz-foot mobile-only">
+      <button v-if="step < totalSteps" type="button" class="v3-btn ghost" :disabled="submitting" @click="saveNow">Guardar ya</button>
+      <button v-if="step < totalSteps" type="button" class="v3-btn v3-btn--primary grow" @click="next">Siguiente</button>
+      <button v-else type="button" class="v3-btn v3-btn--primary grow" :disabled="submitting" :aria-busy="submitting || undefined" @click="saveNow">
+        <span v-if="submitting" class="v3-spinner" aria-hidden="true" />{{ v3SubmitLabel }}
+      </button>
+    </div>
+  </div>
+
+  <div v-else class="min-h-svh bg-paper text-moss font-sans antialiased flex flex-col">
     <header class="px-md pt-[calc(env(safe-area-inset-top)+16px)] lg:px-xl">
       <div class="mx-auto w-full max-w-[640px] flex items-center justify-between gap-md">
         <button
@@ -819,3 +1079,63 @@ const submitLabel = computed(() =>
     </div>
   </div>
 </template>
+
+<style scoped>
+.wiz { min-height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 8px) 0 120px; }
+.desktop-only { display: none !important; }
+.wiz-head { display: flex; flex-direction: column; gap: 8px; padding: 0 8px; }
+.wiz-bar { display: flex; align-items: center; justify-content: space-between; }
+.icon-btn { width: 44px; height: 44px; border: 0; background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.wiz-eb { color: var(--ink-soft); }
+.progress { display: flex; gap: 6px; padding: 0 12px; }
+.progress-seg { flex: 1; height: 4px; border-radius: 9999px; background: var(--track); }
+.progress-seg--on { background: var(--primary); }
+.wiz-layout { display: flex; flex-direction: column; }
+.wiz-form { display: flex; flex-direction: column; gap: 24px; padding: 28px 20px 0; }
+.step-title { display: flex; flex-direction: column; gap: 8px; }
+.q { margin: 0; font: 400 36px/36px var(--font-display); letter-spacing: -0.015em; }
+.q-sub { margin: 0; font-size: 16px; }
+.section { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.opt { font-weight: 400; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-input { width: 160px; min-height: 36px; padding: 6px 14px; border-radius: 9999px; font: 400 15px/20px var(--font-display); }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.help { margin: -8px 0 0; }
+.range-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.range-value { font: 400 22px/24px var(--font-display); }
+.range { width: 100%; height: 24px; accent-color: var(--primary); cursor: pointer; }
+.more { align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: transparent; font-size: 14px; cursor: pointer; }
+.wiz-foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 10px; padding: 12px 20px calc(env(safe-area-inset-bottom) + 16px); background: color-mix(in srgb, var(--bg) 95%, transparent); border-top: 1px solid var(--line); }
+.ghost, .cancel { background: transparent; color: var(--ink); }
+.ghost:hover, .cancel:hover { background: var(--surface); }
+.grow { flex: 1; }
+/* Los selectores de marca y variedad son de v1: los vestimos como V3Field. */
+.picker :deep(label) { font: 600 13px/16px var(--font-sans); color: var(--ink-soft); text-transform: none; letter-spacing: 0; }
+.picker :deep(label > span[aria-hidden]) { display: none; }
+.picker :deep(div:has(> input[role='combobox'])) { gap: 8px; padding: 0; border: 0; }
+.picker :deep(input[role='combobox']) { box-sizing: border-box; min-height: 48px; border-radius: 12px; background: var(--surface); padding: 12px 16px; font: 400 18px/24px var(--font-display); color: var(--ink); }
+.picker :deep(input[role='combobox']::placeholder) { color: var(--ink-soft); font: italic 400 18px/24px var(--font-display); }
+.picker :deep(input[role='combobox']:focus-visible) { box-shadow: inset 0 0 0 2px var(--primary); }
+
+@media (min-width: 1024px) {
+  .wiz { padding: 24px 48px 64px; max-width: 1180px; margin: 0 auto; width: 100%; }
+  .mobile-only { display: none !important; }
+  .desktop-only { display: flex !important; }
+  .wiz-head { padding: 0; }
+  .desk-head { flex-direction: column; gap: 10px; }
+  .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; border: 0; background: transparent; color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; }
+  .desk-title { margin: 0; font: 400 56px/52px var(--font-display); letter-spacing: -0.02em; }
+  .desk-sub { margin: 0; font-size: 19px; line-height: 26px; }
+  .wiz-layout { flex-direction: row; align-items: flex-start; gap: 40px; margin-top: 24px; }
+  .wiz-form { flex: 3 1 480px; padding: 0; gap: 32px; }
+  .section { padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+  .legend { align-items: baseline; gap: 12px; padding: 0 0 16px; }
+  .legend-n { color: var(--ink-soft); }
+  .legend-q { font: 400 28px/32px var(--font-display); }
+  .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .preview { flex: 2 1 300px; min-width: 0; position: sticky; top: 24px; flex-direction: column; gap: 14px; }
+  .preview-eb { color: var(--ink-soft); }
+}
+</style>
