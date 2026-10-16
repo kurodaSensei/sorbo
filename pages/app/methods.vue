@@ -52,10 +52,31 @@ async function commit() {
 async function toggle(value: string) {
   await settings.toggleDefaultBrewMethod(value)
 }
+
+// Catálogo v3 (interruptor «catalogos»). Misma lógica de arriba.
+const v3 = useFlag('catalogos')
+const isDefault = (v: string) => DEFAULT_BREW_METHOD_OPTIONS.some(o => o.value === v)
+const toItem = (m: { value: string, label: string }) => ({ ...m, custom: !isDefault(m.value) })
+const v3Active = computed(() => active.value.map(toItem))
+const v3Inactive = computed(() => inactive.value.map(toItem))
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
+  <V3CatalogPage
+    v-if="v3"
+    v-model="draft"
+    word="métodos"
+    subtitle="Cómo extraes el café."
+    add-label="Agregar un método"
+    placeholder="Kubomi, Hario Switch…"
+    empty-text="No tienes métodos activos. Toca uno inactivo para volver a usarlo."
+    :active="v3Active"
+    :inactive="v3Inactive"
+    :submitting="submitting"
+    @add="commit"
+    @toggle="toggle"
+  />
+  <div v-else class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
