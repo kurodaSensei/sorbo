@@ -82,6 +82,12 @@ export const useSettingsStore = defineStore('settings', () => {
     await save()
   }
 
+  async function restoreOnboardingChecklist() {
+    if (!prefs.value || !prefs.value.hideOnboardingChecklist) return
+    prefs.value.hideOnboardingChecklist = false
+    await save()
+  }
+
   async function dismissOnboardingChecklist() {
     if (!prefs.value) return
     if (prefs.value.hideOnboardingChecklist) return
@@ -214,5 +220,6 @@ export const useSettingsStore = defineStore('settings', () => {
     toggleDefaultFlavorNote,
     markWelcomeSeen,
     dismissOnboardingChecklist,
+    restoreOnboardingChecklist,
   }
 })
