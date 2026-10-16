@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   EmailAuthProvider,
   signOut,
+  sendPasswordResetEmail,
   updateProfile,
   type User,
 } from 'firebase/auth'
@@ -109,6 +110,8 @@ export const useAuth = () => {
     }
   }
 
+  const resetPassword = (email: string) => sendPasswordResetEmail($auth, email)
+
   const logout = async () => {
     await signOut($auth)
     currentUser.value = null
@@ -194,6 +197,7 @@ export const useAuth = () => {
     loginWithGoogle,
     linkEmailPassword,
     logout,
+    resetPassword,
     deleteAccount,
   }
 }

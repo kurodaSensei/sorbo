@@ -4,6 +4,7 @@ import { computed, ref, watchEffect } from 'vue'
 definePageMeta({ layout: 'auth', auth: false })
 
 const { register, loginWithGoogle, currentUser } = useAuth()
+const v3 = useFlag('acceso')
 const { trackEvent } = useAnalytics()
 const router = useRouter()
 const route = useRoute()
@@ -79,6 +80,12 @@ async function onGoogle() {
   }
 }
 
+const benefits = [
+  { icon: 'lucide:coffee', title: 'Colecciona tus cafés', text: 'Marca, origen, proceso y lo que pagaste.' },
+  { icon: 'lucide:file-text', title: 'Anota cada taza', text: 'Puntaje, sabores y cómo la preparaste.' },
+  { icon: 'lucide:users', title: 'Compártelo si quieres', text: 'Privado, con tus amigos o con la comunidad.' },
+]
+
 function mapAuthError(code?: string): string {
   switch (code) {
     case 'auth/invalid-email': return 'Correo no válido'
@@ -92,7 +99,83 @@ function mapAuthError(code?: string): string {
 </script>
 
 <template>
-  <main class="flex min-h-svh items-center justify-center px-md py-xl">
+  <V3AuthShell v-if="v3">
+    <template #panel>
+      <div class="flex flex-col gap-lg max-w-[520px]">
+        <span class="v3-eyebrow opacity-70">— Gratis, en tu celular y en tu compu</span>
+        <h2 class="v3-display-xl m-0">Un diario para cada <span class="italic text-[var(--accent)]">sorbo.</span></h2>
+      </div>
+      <ul class="m-0 p-0 list-none flex flex-col gap-md max-w-[460px]">
+        <li v-for="b in benefits" :key="b.title" class="flex gap-md items-start">
+          <span aria-hidden="true" class="flex-none size-10 rounded-[12px] flex items-center justify-center bg-[color-mix(in_srgb,var(--on-brand-surface)_10%,transparent)]">
+            <Icon :name="b.icon" size="20" />
+          </span>
+          <span class="flex flex-col">
+            <span class="font-semibold">{{ b.title }}</span>
+            <span class="opacity-75">{{ b.text }}</span>
+          </span>
+        </li>
+      </ul>
+    </template>
+
+    <div class="flex flex-col gap-[10px]">
+      <h1 class="v3-display-l m-0">Crea tu <span class="v3-accent-word">cuenta</span></h1>
+      <p class="v3-subtitle m-0">Colecciona, cata y recuerda cada café que pase por tu taza.</p>
+    </div>
+
+    <form class="flex flex-col gap-md" novalidate @submit="onSubmit">
+      <V3Field v-model="name" label="Nombre" autocomplete="name" placeholder="Cómo te llamas" :error="errors.name" />
+      <V3Field
+        v-model="email"
+        label="Correo"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        placeholder="tucorreo@ejemplo.com"
+        :error="errors.email"
+      />
+      <V3Field
+        v-model="password"
+        label="Contraseña"
+        type="password"
+        autocomplete="new-password"
+        placeholder="Mínimo 8 caracteres"
+        help="Usa al menos 8 caracteres."
+        :error="errors.password"
+      />
+      <div class="flex flex-col gap-[6px]">
+        <label class="flex items-start gap-sm py-xxs cursor-pointer">
+          <input
+            v-model="acceptedTerms"
+            type="checkbox"
+            class="flex-none size-5 mt-[1px] cursor-pointer accent-[var(--primary)]"
+            :aria-invalid="!!errors.terms || undefined"
+            :aria-describedby="errors.terms ? 'terms-error' : undefined"
+          >
+          <span class="v3-meta">
+            Acepto los
+            <NuxtLink to="/terms" target="_blank" class="v3-link">Términos de uso</NuxtLink>
+            y la
+            <NuxtLink to="/privacy" target="_blank" class="v3-link">Política de privacidad</NuxtLink>.
+          </span>
+        </label>
+        <p v-if="errors.terms" id="terms-error" class="v3-meta v3-error m-0">{{ errors.terms }}</p>
+      </div>
+      <p v-if="errors.general" role="alert" class="v3-alert v3-alert--error">{{ errors.general }}</p>
+      <button type="submit" class="v3-btn v3-btn--primary" :disabled="loadingGoogle || loading" :aria-busy="loading || undefined">
+        <span v-if="loading" class="v3-spinner" aria-hidden="true" />
+        Empezar mi diario
+      </button>
+    </form>
+
+    <V3GoogleButton :loading="loadingGoogle" :disabled="loading" @click="onGoogle" />
+
+    <p class="m-0 text-center text-[var(--ink-soft)]">
+      ¿Ya tienes cuenta? <NuxtLink to="/login" class="v3-link">Entra</NuxtLink>
+    </p>
+  </V3AuthShell>
+
+  <main v-else class="flex min-h-svh items-center justify-center px-md py-xl">
     <div class="w-full max-w-[390px]">
       <UiLogo variant="mark" size="md" />
 

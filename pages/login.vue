@@ -3,7 +3,8 @@ import { computed, ref, watchEffect } from 'vue'
 
 definePageMeta({ layout: 'auth', auth: false })
 
-const { login, loginWithGoogle, currentUser } = useAuth()
+const { login, loginWithGoogle, resetPassword, currentUser } = useAuth()
+const v3 = useFlag('acceso')
 const router = useRouter()
 const route = useRoute()
 
@@ -63,6 +64,24 @@ async function onGoogle() {
   }
 }
 
+// v3: recuperar la contraseña con el correo escrito en el campo.
+const resetSent = ref(false)
+async function onForgot() {
+  errors.value = {}
+  resetSent.value = false
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+    errors.value.email = 'Escribe tu correo y te enviamos el enlace para cambiarla'
+    return
+  }
+  try {
+    await resetPassword(email.value.trim())
+    resetSent.value = true
+  }
+  catch (err: any) {
+    errors.value = { general: mapAuthError(err?.code) }
+  }
+}
+
 function mapAuthError(code?: string): string {
   switch (code) {
     case 'auth/invalid-email': return 'Correo no válido'
@@ -78,7 +97,63 @@ function mapAuthError(code?: string): string {
 </script>
 
 <template>
-  <main class="flex min-h-svh items-center justify-center px-md py-2xl">
+  <V3AuthShell v-if="v3">
+    <template #panel>
+      <div class="flex flex-col gap-lg max-w-[520px]">
+        <span class="v3-eyebrow opacity-70">— Tu diario de café</span>
+        <h2 class="v3-display-xl m-0">Una taza, <span class="italic text-[var(--accent)]">una nota.</span></h2>
+        <p class="m-0 font-display italic text-[19px] leading-[28px] opacity-80">
+          Anota lo que tomas, recuerda lo que te gustó y compártelo con tu gente.
+        </p>
+      </div>
+    </template>
+
+    <div class="flex flex-col gap-[10px]">
+      <h1 class="v3-display-l m-0">Hola de <span class="v3-accent-word">nuevo</span></h1>
+      <p class="v3-subtitle m-0">Continúa donde dejaste el sorbo.</p>
+    </div>
+
+    <form class="flex flex-col gap-md" novalidate @submit="onSubmit">
+      <V3Field
+        v-model="email"
+        label="Correo"
+        type="email"
+        autocomplete="email"
+        inputmode="email"
+        placeholder="tucorreo@ejemplo.com"
+        :error="errors.email"
+      />
+      <V3Field
+        v-model="password"
+        label="Contraseña"
+        type="password"
+        autocomplete="current-password"
+        :error="errors.password"
+      >
+        <template #aside>
+          <button type="button" class="v3-link text-[13px] leading-4 bg-transparent border-0 p-0 py-[14px] -my-[14px] cursor-pointer" @click="onForgot">
+            ¿La olvidaste?
+          </button>
+        </template>
+      </V3Field>
+      <p v-if="errors.general" role="alert" class="v3-alert v3-alert--error">{{ errors.general }}</p>
+      <p v-if="resetSent" role="status" class="v3-alert v3-alert--ok">
+        Si hay una cuenta con ese correo, te llegará un enlace para cambiar la contraseña.
+      </p>
+      <button type="submit" class="v3-btn v3-btn--primary mt-xs" :disabled="loadingGoogle || loading" :aria-busy="loading || undefined">
+        <span v-if="loading" class="v3-spinner" aria-hidden="true" />
+        Entrar
+      </button>
+    </form>
+
+    <V3GoogleButton :loading="loadingGoogle" :disabled="loading" @click="onGoogle" />
+
+    <p class="m-0 text-center text-[var(--ink-soft)]">
+      ¿Primera vez? <NuxtLink to="/register" class="v3-link">Crea tu cuenta</NuxtLink>
+    </p>
+  </V3AuthShell>
+
+  <main v-else class="flex min-h-svh items-center justify-center px-md py-2xl">
     <div class="w-full max-w-[390px]">
       <UiEyebrow>Sorbo · by KurodaCafe</UiEyebrow>
 
