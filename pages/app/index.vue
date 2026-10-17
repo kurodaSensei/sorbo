@@ -128,7 +128,7 @@ const lastTastingLine = computed(() => {
   const proc = lastCoffee.value?.process ? processLabel[lastCoffee.value.process] || '' : ''
   return {
     coffeeName: t.coffeeName,
-    process: proc,
+    process: processAfterName(t.coffeeName, proc),
     roasterName: t.roasterName,
     score: typeof t.ratingOverall === 'number' ? t.ratingOverall : null,
   }

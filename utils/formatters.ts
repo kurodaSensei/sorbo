@@ -64,6 +64,17 @@ export function getProcessLabel(value: string): string {
   return labels[value] || value
 }
 
+// Devuelve el proceso para añadirlo tras el nombre del café, o '' si el nombre
+// ya lo trae («Sidra Honey» + honey). Compara palabra completa, sin tildes ni mayúsculas.
+export function processAfterName(name: string, process: string): string {
+  const norm = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim()
+  const p = norm(process)
+  if (!p) return ''
+  const escaped = p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const re = new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, 'u')
+  return re.test(norm(name)) ? '' : process
+}
+
 export function getBrewMethodLabel(value: string): string {
   const labels: Record<string, string> = {
     v60: 'V60',
