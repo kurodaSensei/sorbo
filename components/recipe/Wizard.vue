@@ -346,10 +346,235 @@ const submitLabel = computed(() =>
 )
 
 const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
+
+// ─────────────────────────────────────────────────────────────────────────────
+// v3 (interruptor «recetas»): mismos datos y validación. En móvil sigue en
+// 3 pasos; en escritorio es una sola página con los pasos en línea.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const v3 = useFlag('recetas')
+const isDesktop = useMediaQuery('(min-width: 1024px)')
+const showStep = (n: 1 | 2 | 3) => isDesktop.value || step.value === n
+
+const v3Steps = [
+  { title: '¿Cómo se llama esta', word: 'receta', end: '?', sub: 'Nombre y método son obligatorios.' },
+  { title: 'Los', word: 'números', end: '', sub: 'Dosis y agua son obligatorias. El ratio sale solo.' },
+  { title: 'Los', word: 'pasos', end: '', sub: 'Tiempos y lo que haces en cada momento.' },
+]
+const currentStep = computed(() => v3Steps[step.value - 1])
+
+// En escritorio todo se valida junto antes de guardar.
+async function v3Save() {
+  steps.value = steps.value.filter(st => st.title.trim())
+  const e: Record<string, string> = {}
+  if (!name.value.trim()) e.name = 'El nombre es obligatorio'
+  if (!brewMethod.value) e.method = 'Elige un método'
+  if (!dose.value || dose.value <= 0) e.dose = 'Escribe la dosis'
+  if (!water.value || water.value <= 0) e.water = 'Escribe el agua'
+  errors.value = e
+  if (Object.keys(e).length) {
+    if (e.name || e.method) step.value = 1
+    else step.value = 2
+    return
+  }
+  await submit()
+}
+
+function addInlineStep() {
+  const last = steps.value.reduce((m, st) => Math.max(m, st.timeSeconds), -30)
+  steps.value.push({ timeSeconds: last + 30, title: '' })
+}
+function onStepTime(i: number, value: string) {
+  steps.value[i].timeSeconds = parseClock(value)
+}
+function onSheetKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') sheetOpen.value = false
+}
+
+const previewRecipe = computed(() => ({
+  id: 'preview',
+  name: name.value.trim() || 'Tu receta',
+  brewMethod: brewMethod.value || undefined,
+  author: author.value,
+  dose: dose.value ?? 0,
+  water: water.value ?? 0,
+  ratio: ratio.value ?? undefined,
+  waterTemp: waterTemp.value ?? undefined,
+  steps: steps.value.filter(st => st.title.trim()),
+}) as unknown as Recipe)
+
+const numsError = computed(() => {
+  const { dose: d, water: w } = errors.value
+  if (d && w) return 'Faltan la dosis y el agua.'
+  return d ? 'Falta la dosis.' : w ? 'Falta el agua.' : ''
+})
+
+const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' : 'Guardar receta'))
 </script>
 
 <template>
-  <div class="min-h-svh bg-paper text-moss font-sans antialiased flex flex-col">
+  <div v-if="v3" class="v3 wiz">
+    <header class="wiz-head">
+      <div class="wiz-bar mobile-only">
+        <button type="button" class="icon-btn" :aria-label="step === 1 ? 'Cerrar' : 'Atrás'" @click="step === 1 ? close() : back()">
+          <Icon :name="step === 1 ? 'lucide:x' : 'lucide:arrow-left'" size="22" />
+        </button>
+        <span class="v3-eyebrow wiz-eb">{{ mode === 'edit' ? 'Editar receta' : 'Nueva receta' }} · {{ step }} de {{ totalSteps }}</span>
+        <span class="icon-btn" aria-hidden="true" />
+      </div>
+      <div role="progressbar" class="progress mobile-only" :aria-label="`Paso ${step} de ${totalSteps}`" aria-valuemin="1" :aria-valuemax="totalSteps" :aria-valuenow="step">
+        <span v-for="n in totalSteps" :key="n" :class="['progress-seg', { 'progress-seg--on': n <= step }]" />
+      </div>
+      <div class="desktop-only desk-head">
+        <button type="button" class="back" @click="close"><Icon name="lucide:arrow-left" size="20" />{{ mode === 'edit' ? 'Volver a la receta' : 'Tus recetas' }}</button>
+        <h1 class="desk-title">{{ mode === 'edit' ? 'Editar' : 'Nueva' }} <span class="v3-accent-word">receta</span></h1>
+        <p class="v3-subtitle desk-sub">Nombre, método, dosis y agua son obligatorios. Los pasos, opcionales.</p>
+      </div>
+    </header>
+
+    <div class="wiz-layout">
+      <form class="wiz-form" novalidate @submit.prevent>
+        <div class="mobile-only step-title">
+          <h1 class="q">{{ currentStep.title }} <span class="v3-accent-word">{{ currentStep.word }}</span>{{ currentStep.end }}</h1>
+          <p class="v3-subtitle q-sub">{{ currentStep.sub }}</p>
+        </div>
+
+        <fieldset v-if="showStep(1)" class="section">
+          <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">01</span><span class="legend-q">¿Cómo se llama esta <span class="v3-accent-word">receta</span>?</span></legend>
+          <div class="pair">
+            <V3Field v-model="name" label="Nombre" placeholder="French Press Hoffmann" :error="errors.name" />
+            <V3Field v-model="author" label="Autor o fuente · opcional" placeholder="James Hoffmann" />
+          </div>
+          <div class="field">
+            <span id="v3-method-label" class="v3-label">Método</span>
+            <div class="chips" role="group" aria-labelledby="v3-method-label">
+              <button
+                v-for="m in activeMethods"
+                :key="m.value"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': brewMethod === m.value }]"
+                :aria-pressed="brewMethod === m.value"
+                @click="brewMethod = brewMethod === m.value ? '' : (m.value as BrewMethod)"
+              >
+                {{ m.label }}
+              </button>
+            </div>
+            <p v-if="errors.method" class="v3-meta v3-error">{{ errors.method }}</p>
+            <p v-else-if="methodDescription" class="v3-meta">{{ methodDescription }}.</p>
+          </div>
+        </fieldset>
+
+        <fieldset v-if="showStep(2)" class="section">
+          <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">02</span><span class="legend-q">Los <span class="v3-accent-word">números</span></span></legend>
+          <div class="nums">
+            <label :class="['num', { 'num--err': errors.dose }]">
+              <span class="num-k">Dosis</span>
+              <span class="num-v"><input v-model.number="dose" type="number" inputmode="decimal" min="0" step="0.5" placeholder="—" class="num-input"><span class="num-u">g</span></span>
+            </label>
+            <label :class="['num', { 'num--err': errors.water }]">
+              <span class="num-k">Agua</span>
+              <span class="num-v"><input v-model.number="water" type="number" inputmode="decimal" min="0" step="10" placeholder="—" class="num-input"><span class="num-u">ml</span></span>
+            </label>
+            <div class="num num--key" aria-live="polite">
+              <span class="num-k">Ratio</span>
+              <span class="num-v"><span class="num-big">{{ ratio || '—' }}</span></span>
+              <span class="num-h">Se calcula solo</span>
+            </div>
+            <label class="num">
+              <span class="num-k">Temperatura</span>
+              <span class="num-v"><input v-model.number="waterTemp" type="number" inputmode="numeric" min="0" max="100" placeholder="—" class="num-input"><span class="num-u">°C</span></span>
+            </label>
+          </div>
+          <p v-if="numsError" class="v3-meta v3-error">{{ numsError }}</p>
+          <div class="field">
+            <span id="v3-grind-label" class="v3-label">Molienda <span class="opt">· opcional</span></span>
+            <div class="chips" role="group" aria-labelledby="v3-grind-label">
+              <button
+                v-for="g in GRIND_OPTIONS"
+                :key="g.value"
+                type="button"
+                :class="['v3-chip', { 'v3-chip--on': grindSize === g.value }]"
+                :aria-pressed="grindSize === g.value"
+                @click="grindSize = grindSize === g.value ? '' : (g.value as GrindSize)"
+              >
+                {{ g.label }}
+              </button>
+            </div>
+            <p v-if="grindDescription" class="v3-meta">{{ grindDescription }}.</p>
+          </div>
+        </fieldset>
+
+        <fieldset v-if="showStep(3)" class="section section--last">
+          <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">03</span><span class="legend-q">Los <span class="v3-accent-word">pasos</span> <span class="v3-meta">· opcionales</span></span></legend>
+
+          <template v-if="isDesktop">
+            <div v-for="(st, i) in steps" :key="i" class="inline-step">
+              <input :value="formatClock(st.timeSeconds)" class="v3-input mono" :aria-label="`Tiempo del paso ${i + 1}`" placeholder="0:00" @change="onStepTime(i, ($event.target as HTMLInputElement).value)">
+              <input v-model="st.title" class="v3-input sans" :aria-label="`Qué haces en el paso ${i + 1}`" placeholder="Vierte el agua">
+              <input v-model="st.description" class="v3-input sans" :aria-label="`Detalle del paso ${i + 1}`" placeholder="Detalle (opcional)">
+              <button type="button" class="icon-btn" :aria-label="`Quitar paso ${i + 1}`" @click="removeStep(i)"><Icon name="lucide:x" size="18" /></button>
+            </div>
+            <button type="button" class="v3-chip v3-chip--add add-step" @click="addInlineStep">+ Agregar paso</button>
+          </template>
+
+          <template v-else>
+            <ol v-if="sortedSteps.length" class="step-list">
+              <li v-for="(st, i) in sortedSteps" :key="i" class="step-row">
+                <span class="step-time">{{ formatClock(st.timeSeconds) }}</span>
+                <span class="step-text"><span class="step-title">{{ st.title }}</span><span v-if="st.description" class="v3-meta">{{ st.description }}</span></span>
+                <button type="button" class="icon-btn small" :aria-label="`Editar «${st.title}»`" @click="openStepSheet(steps.indexOf(st))"><Icon name="lucide:pencil" size="18" /></button>
+                <button type="button" class="icon-btn small" :aria-label="`Quitar «${st.title}»`" @click="removeStep(steps.indexOf(st))"><Icon name="lucide:trash-2" size="18" /></button>
+              </li>
+            </ol>
+            <button type="button" class="v3-btn add-btn" @click="openStepSheet(null)">+ Agregar paso</button>
+            <p class="v3-meta">Los pasos son opcionales. Con ellos, el detalle te guía con el timer.</p>
+          </template>
+        </fieldset>
+      </form>
+
+      <aside class="desktop-only preview" aria-label="Vista previa">
+        <span class="v3-eyebrow preview-eb">— Así se verá</span>
+        <V3RecipeCard :recipe="previewRecipe" preview />
+        <button type="button" class="v3-btn v3-btn--primary" :disabled="submitting" :aria-busy="submitting || undefined" @click="v3Save">
+          <span v-if="submitting" class="v3-spinner" aria-hidden="true" />{{ v3SubmitLabel }}
+        </button>
+        <button type="button" class="v3-btn cancel" @click="close">Cancelar</button>
+        <p v-if="mode === 'create'" class="v3-meta">Guardamos un borrador mientras escribes.</p>
+      </aside>
+    </div>
+
+    <div class="wiz-foot mobile-only">
+      <button v-if="step < totalSteps" type="button" class="v3-btn v3-btn--primary grow" @click="next">Siguiente</button>
+      <button v-else type="button" class="v3-btn v3-btn--primary grow" :disabled="submitting" :aria-busy="submitting || undefined" @click="v3Save">
+        <span v-if="submitting" class="v3-spinner" aria-hidden="true" />{{ v3SubmitLabel }}
+      </button>
+    </div>
+
+    <Teleport to="body">
+      <div v-if="sheetOpen && !isDesktop" class="v3 v3-sheet-wrap" @keydown="onSheetKey">
+        <div class="v3-sheet-veil" aria-hidden="true" @click="sheetOpen = false" />
+        <section role="dialog" aria-modal="true" aria-labelledby="step-sheet-title" class="v3-sheet step-sheet">
+          <span class="v3-sheet-handle" aria-hidden="true" />
+          <div class="v3-sheet-head">
+            <h2 id="step-sheet-title" class="v3-sheet-title">{{ sheetEditingIndex !== null ? 'Editar paso' : 'Nuevo paso' }}</h2>
+            <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="sheetOpen = false"><Icon name="lucide:x" size="20" /></button>
+          </div>
+          <div class="sheet-body">
+            <div class="sheet-pair">
+              <V3Field v-model="stepForm.time" label="Tiempo" inputmode="numeric" placeholder="4:00" />
+              <V3Field v-model="stepForm.title" label="Qué haces" placeholder="Vierte el agua" />
+            </div>
+            <V3Field v-model="stepForm.description" label="Detalle · opcional" placeholder="Saturación rápida del café molido grueso." />
+            <button type="button" class="v3-btn v3-btn--primary" :disabled="!stepForm.title.trim()" @click="commitStep">
+              {{ sheetEditingIndex !== null ? 'Guardar cambios' : 'Agregar paso' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    </Teleport>
+  </div>
+
+  <div v-else class="min-h-svh bg-paper text-moss font-sans antialiased flex flex-col">
     <header class="px-md pt-[calc(env(safe-area-inset-top)+16px)] lg:px-xl">
       <div class="mx-auto w-full max-w-[640px] flex items-center justify-between gap-md">
         <button
@@ -630,3 +855,79 @@ const nextHint = computed(() => stepTitles[(step.value + 1) as 1 | 2 | 3] || '')
     </UiBottomSheet>
   </div>
 </template>
+
+<style scoped>
+.wiz { min-height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 8px) 0 120px; }
+.desktop-only { display: none !important; }
+.wiz-head { display: flex; flex-direction: column; gap: 8px; padding: 0 8px; }
+.wiz-bar { display: flex; align-items: center; justify-content: space-between; }
+.icon-btn { flex: none; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.icon-btn.small { width: 40px; height: 40px; }
+.wiz-bar .icon-btn { color: var(--ink); }
+.wiz-eb { color: var(--ink-soft); }
+.progress { display: flex; gap: 6px; padding: 0 12px; }
+.progress-seg { flex: 1; height: 4px; border-radius: 9999px; background: var(--track); }
+.progress-seg--on { background: var(--primary); }
+.wiz-layout { display: flex; flex-direction: column; }
+.wiz-form { display: flex; flex-direction: column; gap: 24px; padding: 28px 20px 0; }
+.step-title { display: flex; flex-direction: column; gap: 8px; }
+.q { margin: 0; font: 400 36px/36px var(--font-display); letter-spacing: -0.015em; }
+.q-sub { margin: 0; font-size: 16px; }
+.section { margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.field p { margin: 0; }
+.opt { font-weight: 400; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.nums { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.num { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: 16px; background: var(--surface); color: var(--ink); cursor: text; min-width: 0; }
+.num--err { box-shadow: inset 0 0 0 2px var(--danger); }
+.num--key { background: var(--primary); color: var(--on-primary); cursor: default; }
+.num-k { font: 600 13px/16px var(--font-sans); opacity: 0.85; }
+.num-v { display: flex; align-items: baseline; gap: 4px; }
+.num-input { width: 4.2ch; min-width: 0; flex: 0 1 auto; border: 0; padding: 0; background: transparent; font: 400 34px/1 var(--font-display); color: inherit; outline: none; }
+.num-input::placeholder { color: var(--ink-faint); }
+.num:focus-within { box-shadow: inset 0 0 0 2px var(--primary); }
+.num-big { font: 400 34px/1 var(--font-display); }
+.num-u { font: 400 14px/18px var(--font-sans); opacity: 0.8; }
+.num-h { font: 400 12px/16px var(--font-sans); opacity: 0.8; }
+.step-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.step-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 4px 10px 14px; border-radius: 14px; background: var(--surface); }
+.step-time { flex: none; min-width: 44px; margin-top: 2px; padding: 2px 8px; border-radius: 8px; background: var(--bg); font: 500 13px/18px var(--font-mono); text-align: center; }
+.step-text { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; padding-top: 2px; }
+.step-title { font: 500 15px/22px var(--font-sans); }
+.add-btn { background: transparent; box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--primary); }
+.add-btn:hover { background: var(--surface); }
+.wiz-foot { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 10px; padding: 12px 20px calc(env(safe-area-inset-bottom) + 16px); background: color-mix(in srgb, var(--bg) 95%, transparent); border-top: 1px solid var(--line); }
+.grow { flex: 1; }
+.cancel { background: transparent; color: var(--ink); }
+.cancel:hover { background: var(--surface); }
+.step-sheet .sheet-body { display: flex; flex-direction: column; gap: 16px; padding: 4px 20px calc(24px + env(safe-area-inset-bottom)); }
+.sheet-pair { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; }
+
+@media (min-width: 1024px) {
+  .wiz { padding: 24px 48px 64px; max-width: 1180px; margin: 0 auto; width: 100%; }
+  .mobile-only { display: none !important; }
+  .desktop-only { display: flex !important; }
+  .wiz-head { padding: 0; }
+  .desk-head { flex-direction: column; gap: 10px; }
+  .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; border: 0; background: transparent; color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; }
+  .desk-title { margin: 0; font: 400 56px/52px var(--font-display); letter-spacing: -0.02em; }
+  .desk-sub { margin: 0; font-size: 19px; line-height: 26px; }
+  .wiz-layout { flex-direction: row; align-items: flex-start; gap: 40px; margin-top: 24px; }
+  .wiz-form { flex: 3 1 480px; padding: 0; gap: 32px; }
+  .section { padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+  .section--last { padding-bottom: 0; border-bottom: 0; gap: 10px; }
+  .legend { align-items: baseline; gap: 12px; padding: 0 0 16px; }
+  .legend-n { color: var(--ink-soft); }
+  .legend-q { font: 400 28px/32px var(--font-display); }
+  .pair { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .nums { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .inline-step { display: grid; grid-template-columns: 88px minmax(0, 1fr) minmax(0, 1.3fr) 44px; gap: 8px; align-items: center; }
+  .mono { font: 500 15px/20px var(--font-mono); text-align: center; padding: 12px 8px; }
+  .sans { font: 400 16px/22px var(--font-sans); }
+  .add-step { align-self: flex-start; margin-top: 6px; }
+  .preview { flex: 2 1 300px; min-width: 0; position: sticky; top: 24px; flex-direction: column; gap: 14px; }
+  .preview-eb { color: var(--ink-soft); }
+}
+</style>
