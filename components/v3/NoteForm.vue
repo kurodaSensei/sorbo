@@ -347,7 +347,7 @@ async function close() {
               v-for="n in 5"
               :key="n"
               type="button"
-              :class="['score-btn', { 'score-btn--on': score === n }]"
+              :class="['score-btn', { 'score-btn--on v3-pop': score === n }]"
               :aria-pressed="score === n"
               @click="score = n"
             >
@@ -389,10 +389,10 @@ async function close() {
         </div>
 
         <div class="toggles">
-          <button type="button" :class="['toggle', { 'toggle--fav': isFavorite }]" :aria-pressed="isFavorite" @click="isFavorite = !isFavorite">
+          <button type="button" :class="['toggle', { 'toggle--fav v3-pop': isFavorite }]" :aria-pressed="isFavorite" @click="isFavorite = !isFavorite">
             <Icon name="lucide:heart" size="18" :class="{ 'fill-current': isFavorite }" />Favorita
           </button>
-          <button type="button" :class="['toggle', { 'toggle--on': wouldBuyAgain }]" :aria-pressed="wouldBuyAgain" @click="wouldBuyAgain = !wouldBuyAgain">
+          <button type="button" :class="['toggle', { 'toggle--on v3-pop': wouldBuyAgain }]" :aria-pressed="wouldBuyAgain" @click="wouldBuyAgain = !wouldBuyAgain">
             <Icon name="lucide:rotate-ccw" size="18" />Repetiría
           </button>
         </div>
@@ -402,7 +402,7 @@ async function close() {
             <span class="more-text"><span class="more-title">Más detalles</span><span class="v3-meta">{{ moreSummary }}</span></span>
             <Icon name="lucide:chevron-down" size="18" :class="['more-chev', { 'more-chev--open': moreOpen }]" />
           </button>
-          <div v-if="moreOpen" id="note-more" class="more-body">
+          <div v-if="moreOpen" id="note-more" class="more-body v3-enter">
             <p v-if="fromLast" class="m0 v3-meta last">Lo llenamos como la última vez con este café.</p>
             <div class="field">
               <span id="note-method" class="v3-label">Método</span>

@@ -225,20 +225,22 @@ function runMenu(fn: () => void | Promise<void>) {
     </div>
 
     <Teleport to="body">
-      <div v-if="menuOpen" class="v3 v3-sheet-wrap" @keydown="onMenuKey">
-        <div class="v3-sheet-veil" aria-hidden="true" @click="menuOpen = false" />
-        <section role="dialog" aria-modal="true" aria-labelledby="recipe-menu-title" class="v3-sheet">
-          <span class="v3-sheet-handle" aria-hidden="true" />
-          <div class="v3-sheet-head">
-            <h2 id="recipe-menu-title" class="v3-sheet-title">{{ recipe?.name }}</h2>
-            <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="menuOpen = false"><Icon name="lucide:x" size="20" /></button>
-          </div>
-          <div class="menu">
-            <button type="button" class="menu-item" @click="runMenu(onEdit)"><Icon name="lucide:pencil" size="20" />Editar</button>
-            <button type="button" class="menu-item menu-item--danger" @click="runMenu(onDelete)"><Icon name="lucide:trash-2" size="20" />Eliminar</button>
-          </div>
-        </section>
-      </div>
+      <Transition name="v3-sheet">
+        <div v-if="menuOpen" class="v3 v3-sheet-wrap" @keydown="onMenuKey">
+          <div class="v3-sheet-veil" aria-hidden="true" @click="menuOpen = false" />
+          <section role="dialog" aria-modal="true" aria-labelledby="recipe-menu-title" class="v3-sheet">
+            <span class="v3-sheet-handle" aria-hidden="true" />
+            <div class="v3-sheet-head">
+              <h2 id="recipe-menu-title" class="v3-sheet-title">{{ recipe?.name }}</h2>
+              <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="menuOpen = false"><Icon name="lucide:x" size="20" /></button>
+            </div>
+            <div class="menu">
+              <button type="button" class="menu-item" @click="runMenu(onEdit)"><Icon name="lucide:pencil" size="20" />Editar</button>
+              <button type="button" class="menu-item menu-item--danger" @click="runMenu(onDelete)"><Icon name="lucide:trash-2" size="20" />Eliminar</button>
+            </div>
+          </section>
+        </div>
+      </Transition>
     </Teleport>
 
     <UiShareSheet

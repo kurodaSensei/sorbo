@@ -434,12 +434,12 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
 
     <div class="wiz-layout">
       <form class="wiz-form" novalidate @submit.prevent>
-        <div class="mobile-only step-title">
+        <div :key="step" class="mobile-only step-title v3-enter">
           <h1 class="q">{{ currentStep.title }} <span class="v3-accent-word">{{ currentStep.word }}</span>{{ currentStep.end }}</h1>
           <p class="v3-subtitle q-sub">{{ currentStep.sub }}</p>
         </div>
 
-        <fieldset v-if="showStep(1)" class="section">
+        <fieldset v-if="showStep(1)" class="section v3-enter">
           <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">01</span><span class="legend-q">¿Cómo se llama esta <span class="v3-accent-word">receta</span>?</span></legend>
           <div class="pair">
             <V3Field v-model="name" label="Nombre" placeholder="French Press Hoffmann" :error="errors.name" />
@@ -464,7 +464,7 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
           </div>
         </fieldset>
 
-        <fieldset v-if="showStep(2)" class="section">
+        <fieldset v-if="showStep(2)" class="section v3-enter">
           <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">02</span><span class="legend-q">Los <span class="v3-accent-word">números</span></span></legend>
           <div class="nums">
             <label :class="['num', { 'num--err': errors.dose }]">
@@ -504,7 +504,7 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
           </div>
         </fieldset>
 
-        <fieldset v-if="showStep(3)" class="section section--last">
+        <fieldset v-if="showStep(3)" class="section section--last v3-enter">
           <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">03</span><span class="legend-q">Los <span class="v3-accent-word">pasos</span> <span class="v3-meta">· opcionales</span></span></legend>
 
           <template v-if="isDesktop">
@@ -551,26 +551,28 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
     </div>
 
     <Teleport to="body">
-      <div v-if="sheetOpen && !isDesktop" class="v3 v3-sheet-wrap" @keydown="onSheetKey">
-        <div class="v3-sheet-veil" aria-hidden="true" @click="sheetOpen = false" />
-        <section role="dialog" aria-modal="true" aria-labelledby="step-sheet-title" class="v3-sheet step-sheet">
-          <span class="v3-sheet-handle" aria-hidden="true" />
-          <div class="v3-sheet-head">
-            <h2 id="step-sheet-title" class="v3-sheet-title">{{ sheetEditingIndex !== null ? 'Editar paso' : 'Nuevo paso' }}</h2>
-            <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="sheetOpen = false"><Icon name="lucide:x" size="20" /></button>
-          </div>
-          <div class="sheet-body">
-            <div class="sheet-pair">
-              <V3Field v-model="stepForm.time" label="Tiempo" inputmode="numeric" placeholder="4:00" />
-              <V3Field v-model="stepForm.title" label="Qué haces" placeholder="Vierte el agua" />
+      <Transition name="v3-sheet">
+        <div v-if="sheetOpen && !isDesktop" class="v3 v3-sheet-wrap" @keydown="onSheetKey">
+          <div class="v3-sheet-veil" aria-hidden="true" @click="sheetOpen = false" />
+          <section role="dialog" aria-modal="true" aria-labelledby="step-sheet-title" class="v3-sheet step-sheet">
+            <span class="v3-sheet-handle" aria-hidden="true" />
+            <div class="v3-sheet-head">
+              <h2 id="step-sheet-title" class="v3-sheet-title">{{ sheetEditingIndex !== null ? 'Editar paso' : 'Nuevo paso' }}</h2>
+              <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="sheetOpen = false"><Icon name="lucide:x" size="20" /></button>
             </div>
-            <V3Field v-model="stepForm.description" label="Detalle · opcional" placeholder="Saturación rápida del café molido grueso." />
-            <button type="button" class="v3-btn v3-btn--primary" :disabled="!stepForm.title.trim()" @click="commitStep">
-              {{ sheetEditingIndex !== null ? 'Guardar cambios' : 'Agregar paso' }}
-            </button>
-          </div>
-        </section>
-      </div>
+            <div class="sheet-body">
+              <div class="sheet-pair">
+                <V3Field v-model="stepForm.time" label="Tiempo" inputmode="numeric" placeholder="4:00" />
+                <V3Field v-model="stepForm.title" label="Qué haces" placeholder="Vierte el agua" />
+              </div>
+              <V3Field v-model="stepForm.description" label="Detalle · opcional" placeholder="Saturación rápida del café molido grueso." />
+              <button type="button" class="v3-btn v3-btn--primary" :disabled="!stepForm.title.trim()" @click="commitStep">
+                {{ sheetEditingIndex !== null ? 'Guardar cambios' : 'Agregar paso' }}
+              </button>
+            </div>
+          </section>
+        </div>
+      </Transition>
     </Teleport>
   </div>
 
