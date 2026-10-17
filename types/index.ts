@@ -146,6 +146,8 @@ export interface Tasting {
   ratingAftertaste?: number
   ratingBalance?: number
   personalNotes?: string
+  /** Sabores que reconociste (nota rápida v3). */
+  flavorNotes?: string[]
   wouldBuyAgain?: boolean
   isFavorite?: boolean
   photoUrl?: string
