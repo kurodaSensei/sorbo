@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scoreTone as scoreTone1to5 } from '~/utils/score'
 import { computed, onMounted, ref, watch } from 'vue'
 import type { Coffee, Tasting } from '~/types'
 
@@ -130,7 +131,7 @@ const lastTastingLine = computed(() => {
     coffeeName: t.coffeeName,
     process: proc,
     roasterName: t.roasterName,
-    score: typeof t.ratingOverall === 'number' ? t.ratingOverall : null,
+    score: typeof t.ratingOverall === 'number' ? (catas1to5.value ? ratingToScore(t.ratingOverall) : t.ratingOverall) : null,
   }
 })
 
@@ -139,13 +140,17 @@ const monthStartMs = computed(() => {
   return new Date(d.getFullYear(), d.getMonth(), 1).getTime()
 })
 
+const catas1to5 = useFlag('catas')
+
 const stats = computed(() => {
   const start = monthStartMs.value
   const monthCoffees = (coffeesStore.list as Coffee[]).filter(c => tsMillis(c.createdAt) >= start)
   const monthTastings = (tastingsStore.list as Tasting[]).filter(t =>
     (tsMillis(t.brewDate) || tsMillis(t.createdAt)) >= start,
   )
+  // Con el interruptor «catas» el puntaje se muestra de 1 a 5.
   const scores = monthTastings.map(t => t.ratingOverall).filter((s): s is number => typeof s === 'number')
+    .map(s => (catas1to5.value ? ratingToScore(s) : s)).filter(s => s > 0)
   const avg = scores.length > 0
     ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
     : null
@@ -174,7 +179,11 @@ const todayLong = computed(() => {
 })
 
 const tastingTime = (t: Tasting) => tsMillis(t.brewDate) || tsMillis(t.createdAt)
-const scoreText = (n: unknown) => (typeof n === 'number' ? String(Math.round(n * 10) / 10) : null)
+const scoreText = (n: unknown) => {
+  if (typeof n !== 'number') return null
+  if (catas1to5.value) return ratingToScore(n) ? String(ratingToScore(n)) : null
+  return String(Math.round(n * 10) / 10)
+}
 
 const lastCard = computed(() => {
   const t = lastTasting.value
@@ -195,7 +204,11 @@ const lastCard = computed(() => {
 const firstName = computed(() => userName.value.split(' ')[0])
 
 // Color del puntaje: miel desde 9, salvia desde 7.5.
-const scoreTone = (n: unknown) => (typeof n !== 'number' ? 'none' : n >= 9 ? 'high' : n >= 7.5 ? 'good' : 'none')
+const scoreTone = (n: unknown) => {
+  if (typeof n !== 'number') return 'none'
+  if (catas1to5.value) return scoreTone1to5(n)
+  return n >= 9 ? 'high' : n >= 7.5 ? 'good' : 'none'
+}
 const recentTastings = computed(() =>
   [...(tastingsStore.list as Tasting[])]
     .sort((a, b) => tastingTime(b) - tastingTime(a))
