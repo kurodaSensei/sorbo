@@ -307,23 +307,25 @@ function runAction(fn: () => void | Promise<void>) {
       <V3CoffeeFiltersSheet v-model="filtersOpen" :count="items.length" />
 
       <Teleport to="body">
-        <div v-if="actionSheetOpen && actionCoffee" class="v3 v3-sheet-wrap" @keydown="onActionsKey">
-          <div class="v3-sheet-veil" aria-hidden="true" @click="actionSheetOpen = false" />
-          <section role="dialog" aria-modal="true" aria-labelledby="cf-actions-title" class="v3-sheet">
-            <span class="v3-sheet-handle" aria-hidden="true" />
-            <div class="v3-sheet-head">
-              <h2 id="cf-actions-title" class="v3-sheet-title">{{ actionCoffee.name }}</h2>
-              <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="actionSheetOpen = false">
-                <Icon name="lucide:x" size="20" />
-              </button>
-            </div>
-            <div class="actions">
-              <button type="button" class="action" @click="runAction(onShare)"><Icon name="lucide:share-2" size="20" />Compartir</button>
-              <button type="button" class="action" @click="runAction(onEdit)"><Icon name="lucide:pencil" size="20" />Editar</button>
-              <button type="button" class="action action--danger" @click="runAction(onDelete)"><Icon name="lucide:trash-2" size="20" />Eliminar</button>
-            </div>
-          </section>
-        </div>
+        <Transition name="v3-sheet">
+          <div v-if="actionSheetOpen && actionCoffee" class="v3 v3-sheet-wrap" @keydown="onActionsKey">
+            <div class="v3-sheet-veil" aria-hidden="true" @click="actionSheetOpen = false" />
+            <section role="dialog" aria-modal="true" aria-labelledby="cf-actions-title" class="v3-sheet">
+              <span class="v3-sheet-handle" aria-hidden="true" />
+              <div class="v3-sheet-head">
+                <h2 id="cf-actions-title" class="v3-sheet-title">{{ actionCoffee.name }}</h2>
+                <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="actionSheetOpen = false">
+                  <Icon name="lucide:x" size="20" />
+                </button>
+              </div>
+              <div class="actions">
+                <button type="button" class="action" @click="runAction(onShare)"><Icon name="lucide:share-2" size="20" />Compartir</button>
+                <button type="button" class="action" @click="runAction(onEdit)"><Icon name="lucide:pencil" size="20" />Editar</button>
+                <button type="button" class="action action--danger" @click="runAction(onDelete)"><Icon name="lucide:trash-2" size="20" />Eliminar</button>
+              </div>
+            </section>
+          </div>
+        </Transition>
       </Teleport>
     </div>
 
