@@ -224,6 +224,13 @@ const recentTastings = computed(() =>
     })),
 )
 
+// En móvil la fecha vive en la franja del mes: «Domingo 18» sobre «Octubre».
+const dayShort = computed(() => {
+  const d = new Date()
+  const w = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(d)
+  return `${w.charAt(0).toUpperCase() + w.slice(1)} ${d.getDate()}`
+})
+
 const monthName = computed(() => {
   const m = new Intl.DateTimeFormat('es', { month: 'long' }).format(new Date())
   return m.charAt(0).toUpperCase() + m.slice(1)
@@ -249,7 +256,7 @@ const monthName = computed(() => {
 
       <!-- Móvil: el mes como franja bajo el saludo -->
       <div v-if="homeState !== 'loading'" class="month-strip mobile-only" aria-label="Este mes">
-        <span class="v3-eyebrow month-strip-label">{{ monthName }}</span>
+        <span class="month-strip-label"><span class="month-strip-day">{{ dayShort }}</span><span class="v3-eyebrow">{{ monthName }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num">{{ stats.tastings }}</span><span class="v3-meta">{{ stats.tastings === 1 ? 'cata' : 'catas' }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num">{{ stats.coffees }}</span><span class="v3-meta">{{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num" :class="{ muted: stats.avgScore === null }">{{ stats.avgScore ?? '—' }}</span><span class="v3-meta">promedio</span></span>
@@ -559,7 +566,9 @@ const monthName = computed(() => {
 .home-skeleton { height: 220px; border-radius: 18px; background: var(--surface); }
 
 .month-strip { display: flex; align-items: stretch; margin-top: -16px; border-radius: 14px; background: var(--surface); overflow: hidden; }
-.month-strip-label { display: flex; align-items: center; padding: 0 14px; color: var(--ink-soft); }
+.month-strip-label { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 14px; color: var(--ink-soft); }
+.month-strip-day { font: 600 13px/16px var(--font-sans); color: var(--ink); white-space: nowrap; }
+@media (max-width: 1023px) { .home-date { display: none; } }
 .month-strip-cell { flex: 1; display: flex; flex-direction: column; padding: 8px 12px; border-left: 1px solid var(--line); min-width: 0; }
 .month-strip-num { font: 400 22px/24px var(--font-display); }
 .month-strip-num.muted { color: var(--ink-soft); }
