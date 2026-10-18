@@ -161,7 +161,7 @@ function runMenu(fn: () => void | Promise<void>) {
           :aria-label="tasting.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita'"
           @click="toggleFavorite"
         >
-          <Icon name="lucide:heart" size="20" :class="{ 'fill-current': tasting.isFavorite }" />
+          <Icon name="lucide:heart" size="20" mode="svg" :class="{ 'v3-icon-fill': tasting.isFavorite }" />
           <span class="desktop-only fav-label">Favorita</span>
         </button>
         <button type="button" class="icon-btn mobile-only" aria-label="Compartir" @click="onShare"><Icon name="lucide:share-2" size="20" /></button>
@@ -197,7 +197,7 @@ function runMenu(fn: () => void | Promise<void>) {
               </div>
             </div>
             <div v-if="tasting.isFavorite || tasting.wouldBuyAgain || (tasting.flavorNotes || []).length" class="chips">
-              <span v-if="tasting.isFavorite" class="chip chip--fav"><Icon name="lucide:heart" size="14" class="fill-current" />Favorita</span>
+              <span v-if="tasting.isFavorite" class="chip chip--fav"><Icon name="lucide:heart" size="14" mode="svg" class="v3-icon-fill" />Favorita</span>
               <span v-if="tasting.wouldBuyAgain" class="chip"><Icon name="lucide:rotate-ccw" size="14" />Repetiría</span>
               <span v-for="f in tasting.flavorNotes || []" :key="f" class="chip">{{ f }}</span>
             </div>

@@ -171,3 +171,6 @@
 }
 @keyframes v3-enter { from { opacity: 0; transform: translateY(8px); } }
 @keyframes v3-pop { 50% { transform: scale(1.06); } }
+
+/* Icono relleno (favorita): los SVG de Lucide traen fill="none" también en sus trazos. */
+.v3-icon-fill, .v3-icon-fill * { fill: currentColor; }

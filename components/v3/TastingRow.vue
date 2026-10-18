@@ -21,7 +21,7 @@ const meta = computed(() => [scoreWord(props.rating), props.roaster ? `de ${prop
     <span class="text">
       <span class="top">
         <span class="name">{{ name }}</span>
-        <Icon v-if="favorite" name="lucide:heart" size="14" class="fav fill-current" aria-label="Favorita" />
+        <Icon v-if="favorite" name="lucide:heart" size="14" mode="svg" class="fav v3-icon-fill" aria-label="Favorita" />
       </span>
       <span class="v3-meta">{{ meta }}</span>
       <span v-if="note" class="note">«{{ note }}»</span>

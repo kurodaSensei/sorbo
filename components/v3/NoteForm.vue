@@ -403,7 +403,7 @@ async function close() {
 
         <div class="toggles">
           <button type="button" :class="['toggle', { 'toggle--fav v3-pop': isFavorite }]" :aria-pressed="isFavorite" @click="isFavorite = !isFavorite">
-            <Icon name="lucide:heart" size="18" :class="{ 'fill-current': isFavorite }" />Favorita
+            <Icon name="lucide:heart" size="18" mode="svg" :class="{ 'v3-icon-fill': isFavorite }" />Favorita
           </button>
           <button type="button" :class="['toggle', { 'toggle--on v3-pop': wouldBuyAgain }]" :aria-pressed="wouldBuyAgain" @click="wouldBuyAgain = !wouldBuyAgain">
             <Icon name="lucide:rotate-ccw" size="18" />Repetiría
