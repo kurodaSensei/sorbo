@@ -30,12 +30,15 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+const v3 = useFlag('catas')
 </script>
 
 <template>
   <div v-if="loading" class="flex min-h-svh items-center justify-center bg-paper">
     <span class="size-6 animate-spin rounded-full border-2 border-moss/20 border-t-moss" />
   </div>
+  <V3NoteForm v-else-if="tasting && v3" :tasting="tasting" />
   <TastingWizard
     v-else-if="tasting"
     mode="edit"

@@ -39,11 +39,71 @@ const kindFilters = computed(() => [
   { key: 'tasting', label: 'Catas', count: counts.value.tasting },
   { key: 'recipe', label: 'Recetas', count: counts.value.recipe },
 ])
+
+// Explora v3 (interruptor «social»).
+const v3 = useFlag('social')
 </script>
 
 <template>
   <UiPullToRefresh :on-refresh="refresh">
-    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+    <div v-if="v3" class="v3 explore">
+      <header class="head">
+        <div class="head-row">
+          <span class="v3-eyebrow head-eb">— Explora</span>
+          <div class="head-icons">
+            <UiNotificationBell size="sm" />
+            <NuxtLink to="/app/settings" class="icon-btn" aria-label="Ajustes de tu cuenta">
+              <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+            </NuxtLink>
+          </div>
+        </div>
+        <h1 class="title">La <span class="v3-accent-word">comunidad</span></h1>
+        <p class="v3-subtitle sub">Cafés, catas y recetas que otros comparten.</p>
+      </header>
+
+      <div v-if="!loading && !isEmpty && !error" role="tablist" aria-label="Qué ver" class="seg">
+        <button
+          v-for="k in kindFilters"
+          :key="k.key"
+          type="button"
+          role="tab"
+          :aria-selected="selectedKind === k.key"
+          :class="['seg-btn', { 'seg-btn--on': selectedKind === k.key }]"
+          @click="selectedKind = k.key as typeof selectedKind"
+        >
+          {{ k.key === 'all' ? 'Todo' : k.label }} · {{ k.count }}
+        </button>
+      </div>
+
+      <div v-if="loading" class="feed" aria-busy="true">
+        <div v-for="n in 3" :key="`skel-${n}`" class="skel">
+          <UiSkeleton class="h-8 w-32" />
+          <UiSkeleton class="h-7 w-2/3" />
+          <UiSkeleton class="h-3 w-1/2" />
+        </div>
+      </div>
+
+      <div v-else-if="error" class="empty">
+        <p class="empty-text">{{ error }}</p>
+        <button type="button" class="v3-btn v3-btn--secondary" @click="load">Reintentar</button>
+      </div>
+
+      <div v-else-if="isEmpty" class="empty">
+        <p class="empty-text">Aún no hay nada en la comunidad. Comparte un café con «Comunidad» y sé el primero.</p>
+        <NuxtLink to="/app/coffees" class="v3-btn v3-btn--primary">Ir a mis cafés</NuxtLink>
+      </div>
+
+      <div v-else-if="noResults" class="empty">
+        <p class="empty-text">Nada coincide con ese filtro todavía.</p>
+        <button type="button" class="v3-btn v3-btn--secondary" @click="selectedKind = 'all'">Ver todo</button>
+      </div>
+
+      <div v-else class="feed">
+        <V3FeedCard v-for="item in filteredItems" :key="`${item.kind}-${item.id}`" :item="item" class="feed-item" />
+      </div>
+    </div>
+
+    <div v-else class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Explora</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -147,3 +207,34 @@ const kindFilters = computed(() => [
     </div>
   </UiPullToRefresh>
 </template>
+
+<style scoped>
+.explore { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 120px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
+.head { display: flex; flex-direction: column; gap: 6px; }
+.head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.head-eb { color: var(--ink-soft); }
+.head-icons { display: flex; align-items: center; }
+.icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.title { margin: 0; font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
+.sub { margin: 0; }
+.seg { display: flex; padding: 4px; border-radius: 14px; background: var(--surface); overflow-x: auto; }
+.seg-btn { flex: 1; height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 500 13px/16px var(--font-sans); white-space: nowrap; cursor: pointer; }
+.seg-btn--on { background: var(--bg); font-weight: 600; }
+.feed { display: flex; flex-direction: column; gap: 12px; }
+.skel { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 24px; background: var(--surface); }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px 0; text-align: center; }
+.empty-text { margin: 0; max-width: 340px; font: italic 400 18px/26px var(--font-display); color: var(--ink-soft); }
+
+@media (min-width: 1024px) {
+  .explore { padding: 40px 48px 64px; gap: 24px; }
+  .head-row { display: none; }
+  .title { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
+  .sub { font-size: 19px; line-height: 26px; }
+  .seg { align-self: flex-start; }
+  .seg-btn { flex: none; padding: 0 16px; font-size: 14px; }
+  /* Columnas que se acomodan al alto de cada tarjeta. */
+  .feed { display: block; columns: 3 320px; column-gap: 16px; }
+  .feed-item { break-inside: avoid; margin-bottom: 16px; }
+  .skel { break-inside: avoid; margin-bottom: 16px; }
+}
+</style>

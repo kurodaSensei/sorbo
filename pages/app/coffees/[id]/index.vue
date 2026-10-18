@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scoreTone as scoreTone1to5 } from '~/utils/score'
 import { computed, onMounted, ref } from 'vue'
 import type { Coffee, CoffeeProcess, RoastLevel, Tasting, Visibility } from '~/types'
 
@@ -102,6 +103,9 @@ const coffeeTastings = computed<Tasting[]>(() => {
   return list.filter(t => t.coffeeId === id.value)
 })
 
+// Con el interruptor «catas» los puntajes de catas se muestran de 1 a 5.
+const catas1to5 = useFlag('catas')
+
 const tastingsCount = computed(() => coffeeTastings.value.length)
 
 const lastTastingScore = computed(() => {
@@ -112,7 +116,9 @@ const lastTastingScore = computed(() => {
     const tb = b.brewDate?.toMillis?.() ?? 0
     return tb - ta
   })
-  return sorted[0].ratingOverall ?? null
+  const r = sorted[0].ratingOverall
+  if (typeof r !== 'number') return null
+  return catas1to5.value ? ratingToScore(r) || null : r
 })
 
 const currentYear = new Date().getFullYear()
@@ -192,10 +198,207 @@ async function onDelete() {
     deleting.value = false
   }
 }
+// ─── Detalle v3 (interruptor «cafes») ─────────────────────────────────────
+const v3 = useFlag('cafes')
+const { getBrewMethodLabel } = useCatalog()
+
+const blobClass = computed(() => {
+  switch (coffee.value?.process) {
+    case 'natural': return 'blob--natural'
+    case 'washed': case 'experimental': return 'blob--washed'
+    case 'other': case undefined: return 'blob--plain'
+    default: return 'blob--soft'
+  }
+})
+
+const displayName = computed(() => {
+  const n = coffee.value?.name || ''
+  return n.endsWith('.') ? n.slice(0, -1) : n
+})
+
+const scoreParts = computed(() => {
+  const sca = coffee.value?.scaScore
+  if (typeof sca !== 'number') return null
+  const [int, dec] = (Math.round(sca * 10) / 10).toFixed(1).split('.')
+  return { int, dec: dec === '0' ? '' : `.${dec}` }
+})
+
+const facts = computed(() => {
+  const c = coffee.value
+  if (!c) return []
+  return [
+    { k: 'Proceso', v: c.process ? processLabel[c.process] : '' },
+    { k: 'Región', v: c.originRegion || '' },
+    { k: 'Variedad', v: c.variety || '' },
+  ].filter(f => f.v)
+})
+
+const specs = computed(() => {
+  const c = coffee.value
+  if (!c) return []
+  return [
+    { k: 'Origen', v: [c.originRegion, c.originCountry].filter(Boolean).join(', ') },
+    { k: 'Altitud', v: c.altitude ? `${c.altitude.toLocaleString('es-CO')} msnm` : '' },
+    { k: 'Tueste', v: c.roastLevel ? roastLabel[c.roastLevel] : '' },
+    { k: 'Finca', v: c.originFarm || '' },
+    { k: 'Productor', v: c.originProducer || '' },
+    { k: 'Precio', v: c.price ? formatPrice(c.price) : '' },
+    { k: 'Peso', v: c.weight ? `${c.weight} g` : '' },
+    { k: 'Precio por gramo', v: pricePerGram.value !== null ? `$${pricePerGram.value}` : '' },
+    { k: 'Comprado en', v: purchaseInfo.value },
+  ].filter(x => x.v)
+})
+
+function tsMillis(ts: any): number {
+  return ts?.toMillis?.() ?? (ts?.seconds ? ts.seconds * 1000 : 0)
+}
+const recentCoffeeTastings = computed(() =>
+  [...coffeeTastings.value]
+    .sort((a, b) => (tsMillis(b.brewDate) || tsMillis(b.createdAt)) - (tsMillis(a.brewDate) || tsMillis(a.createdAt)))
+    .slice(0, 3)
+    .map((t) => {
+      const n = t.ratingOverall
+      return {
+        id: t.id,
+        method: t.brewMethod ? getBrewMethodLabel(t.brewMethod) : 'Cata',
+        day: formatRelativeDay(new Date(tsMillis(t.brewDate) || tsMillis(t.createdAt))),
+        score: typeof n !== 'number' ? '—' : catas1to5.value ? String(ratingToScore(n) || '—') : String(Math.round(n * 10) / 10),
+        tone: typeof n !== 'number' ? 'none' : catas1to5.value ? scoreTone1to5(n) : n >= 9 ? 'high' : n >= 7.5 ? 'good' : 'none',
+      }
+    }),
+)
+
+const menuOpen = ref(false)
+function onMenuKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') menuOpen.value = false
+}
+function runMenu(fn: () => void | Promise<void>) {
+  menuOpen.value = false
+  fn()
+}
 </script>
 
 <template>
-  <div class="relative min-h-svh flex flex-col">
+  <div v-if="v3" class="v3 detail">
+    <nav class="topbar" aria-label="Acciones del café">
+      <button type="button" class="back" @click="router.back()">
+        <Icon name="lucide:arrow-left" size="22" /><span class="back-label">Mi colección</span>
+      </button>
+      <div v-if="coffee && isOwner" class="top-actions">
+        <button type="button" class="icon-btn mobile-only" aria-label="Compartir" @click="onShare"><Icon name="lucide:share-2" size="20" /></button>
+        <button type="button" class="icon-btn mobile-only" aria-label="Más acciones: editar o eliminar" @click="menuOpen = true"><Icon name="lucide:ellipsis" size="20" /></button>
+        <button type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="onShare">Compartir</button>
+        <button type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="onEdit">Editar</button>
+        <button type="button" class="v3-btn small danger desktop-only" :disabled="deleting" @click="onDelete">Eliminar</button>
+      </div>
+    </nav>
+
+    <div v-if="loading" class="state"><span class="v3-spinner" aria-label="Cargando" /></div>
+
+    <div v-else-if="notFound" class="state">
+      <p class="state-text">No encontramos este café.</p>
+      <NuxtLink to="/app/coffees" class="v3-btn v3-btn--primary">Volver a mi colección</NuxtLink>
+    </div>
+
+    <div v-else-if="coffee" class="layout">
+      <div class="main">
+        <article aria-labelledby="coffee-name" class="hero">
+          <span :class="['blob', blobClass]" aria-hidden="true" />
+          <div class="hero-in">
+            <div class="hero-top">
+              <div class="hero-id">
+                <h1 id="coffee-name" class="name">{{ displayName }}</h1>
+                <p v-if="coffee.roasterName" class="roaster">de {{ coffee.roasterName }}</p>
+                <p v-if="tagline" class="tagline">{{ tagline }}</p>
+              </div>
+              <div v-if="scoreParts" class="score">
+                <span class="score-num">{{ scoreParts.int }}<span class="score-dec">{{ scoreParts.dec }}</span></span>
+                <span class="score-lab">Puntaje SCA</span>
+                <span class="v3-meta score-sub">según la marca</span>
+              </div>
+            </div>
+            <div v-if="(coffee.flavorNotes || []).length" class="notes" aria-label="Notas en taza">
+              <span v-for="n in coffee.flavorNotes" :key="n" class="note">{{ n }}</span>
+            </div>
+            <dl v-if="facts.length" class="facts">
+              <div v-for="f in facts" :key="f.k" class="fact"><dt>{{ f.k }}</dt><dd>{{ f.v }}</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <div v-if="isOwner" class="cta-bar">
+          <NuxtLink :to="`/app/tastings/new?coffeeId=${coffee.id}`" class="cta">
+            <span class="cta-main"><Icon name="lucide:plus" size="20" />Cata este café</span>
+            <span class="cta-meta">
+              <template v-if="tastingsCount > 0">{{ tastingsCount }} {{ tastingsCount === 1 ? 'cata' : 'catas' }}<template v-if="lastTastingScore !== null"> · última {{ lastTastingScore }}</template></template>
+              <template v-else>Aún sin catas</template>
+            </span>
+          </NuxtLink>
+        </div>
+        <div v-else class="cta-bar cta-bar--pair">
+          <button type="button" class="v3-btn v3-btn--secondary" :disabled="savingToWishlist" @click="onSaveToWishlist">
+            <Icon :name="inWishlist ? 'lucide:bookmark-check' : 'lucide:bookmark'" size="18" />{{ inWishlist ? 'En tu wishlist' : 'A mi wishlist' }}
+          </button>
+          <button type="button" class="v3-btn v3-btn--primary" :disabled="duplicating" @click="onDuplicate">
+            <Icon name="lucide:plus" size="18" />A mi colección
+          </button>
+        </div>
+
+        <section v-if="isOwner && recentCoffeeTastings.length" aria-labelledby="coffee-tastings" class="tastings">
+          <div class="section-head">
+            <h2 id="coffee-tastings" class="section-title">Tus catas de este café</h2>
+            <NuxtLink to="/app/tastings" class="v3-link">Ver todas</NuxtLink>
+          </div>
+          <div class="tasting-list">
+            <NuxtLink v-for="t in recentCoffeeTastings" :key="t.id" :to="`/app/tastings/${t.id}`" class="tasting">
+              <span class="t-score" :class="`tone-${t.tone}`">{{ t.score }}</span>
+              <span class="t-text"><span class="t-method">{{ t.method }}</span><span class="v3-meta">{{ t.day }}</span></span>
+              <Icon name="lucide:chevron-right" size="18" class="t-chevron" />
+            </NuxtLink>
+          </div>
+        </section>
+      </div>
+
+      <aside v-if="specs.length" aria-labelledby="coffee-specs" class="specs">
+        <h2 id="coffee-specs" class="v3-eyebrow specs-title">— Ficha</h2>
+        <dl class="spec-list">
+          <div v-for="sp in specs" :key="sp.k" class="spec"><dt>{{ sp.k }}</dt><dd>{{ sp.v }}</dd></div>
+        </dl>
+      </aside>
+    </div>
+
+    <Teleport to="body">
+      <Transition name="v3-sheet">
+        <div v-if="menuOpen" class="v3 v3-sheet-wrap" @keydown="onMenuKey">
+          <div class="v3-sheet-veil" aria-hidden="true" @click="menuOpen = false" />
+          <section role="dialog" aria-modal="true" aria-labelledby="coffee-menu-title" class="v3-sheet">
+            <span class="v3-sheet-handle" aria-hidden="true" />
+            <div class="v3-sheet-head">
+              <h2 id="coffee-menu-title" class="v3-sheet-title">{{ coffee?.name }}</h2>
+              <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="menuOpen = false"><Icon name="lucide:x" size="20" /></button>
+            </div>
+            <div class="menu">
+              <button type="button" class="menu-item" @click="runMenu(onEdit)"><Icon name="lucide:pencil" size="20" />Editar</button>
+              <button type="button" class="menu-item menu-item--danger" @click="runMenu(onDelete)"><Icon name="lucide:trash-2" size="20" />Eliminar</button>
+            </div>
+          </section>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <UiShareSheet
+      v-if="coffee"
+      v-model="shareOpen"
+      :entity-name="coffee.name"
+      entity-kind="coffee"
+      :initial-visibility="coffee.visibility ?? 'private'"
+      :initial-shared-with="coffee.sharedWith ?? []"
+      :on-save="(visibility, uids) => coffeesStore.updateVisibility(coffee!.id, visibility, uids)"
+      @saved="onShareSaved"
+    />
+  </div>
+
+  <div v-else class="relative min-h-svh flex flex-col">
     <!-- Top header -->
     <header class="sticky top-0 z-10 bg-paper/95 backdrop-blur-md border-b border-moss/5">
       <div class="mx-auto w-full max-w-[1200px] flex items-center justify-between gap-md px-md py-sm lg:px-xl xl:px-2xl">
@@ -389,3 +592,96 @@ async function onDelete() {
     />
   </div>
 </template>
+
+<style scoped>
+.detail { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 180px; display: flex; flex-direction: column; gap: 16px; }
+.desktop-only { display: none !important; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; border: 0; background: transparent; color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; }
+.back-label { display: none; }
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn { width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.small { height: 40px; font-size: 14px; }
+.danger { background: transparent; color: var(--danger); }
+.danger:hover:not(:disabled) { background: var(--surface); }
+.state { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 64px 0; }
+.state-text { margin: 0; font: italic 400 18px/26px var(--font-display); color: var(--ink-soft); }
+.layout { display: flex; flex-direction: column; gap: 24px; }
+.main { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.hero { position: relative; overflow: hidden; border-radius: 28px; background: var(--surface-strong); }
+.blob { position: absolute; right: -90px; top: -110px; width: 320px; height: 320px; border-radius: 50%; pointer-events: none; }
+.blob--natural { background: var(--accent); opacity: 0.38; }
+.blob--washed { background: var(--tint); opacity: 0.42; }
+.blob--soft { background: var(--accent); opacity: 0.26; }
+.blob--plain { background: var(--surface); }
+.hero-in { position: relative; display: flex; flex-direction: column; gap: 16px; padding: 22px 20px 20px; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.hero-id { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.name { margin: 0; font: 400 44px/0.95 var(--font-display); letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.roaster { margin: 4px 0 0; font: italic 400 17px/22px var(--font-display); }
+.tagline { margin: 0; font: italic 400 15px/22px var(--font-display); color: var(--ink-soft); }
+.score { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.score-num { font: 400 56px/0.9 var(--font-display); letter-spacing: -0.02em; color: var(--primary); }
+.score-dec { font-size: 28px; }
+.score-lab { font: 600 12px/16px var(--font-sans); }
+.score-sub { font-size: 12px; line-height: 16px; }
+.notes { display: flex; flex-wrap: wrap; gap: 6px; }
+.note, .fact { background: color-mix(in srgb, var(--bg) 70%, transparent); }
+.note { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 9999px; font: 500 13px/16px var(--font-sans); }
+.facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.fact { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; min-width: 0; }
+.fact dt { font: 400 12px/16px var(--font-sans); color: var(--ink-soft); }
+.fact dd { margin: 0; font: 500 14px/20px var(--font-sans); overflow-wrap: anywhere; }
+.cta-bar { position: fixed; left: 0; right: 0; z-index: 20; bottom: calc(56px + env(safe-area-inset-bottom)); padding: 12px 20px; background: color-mix(in srgb, var(--bg) 95%, transparent); border-top: 1px solid var(--line); }
+.cta-bar--pair { display: flex; gap: 10px; }
+.cta-bar--pair .v3-btn { flex: 1; }
+.cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 20px; border-radius: 14px; background: var(--primary); color: var(--on-primary); text-decoration: none; }
+.cta:hover { background: var(--primary-pressed); }
+.cta-main { display: flex; align-items: center; gap: 10px; font: 600 16px/20px var(--font-sans); }
+.cta-meta { font: 400 13px/16px var(--font-sans); opacity: 0.85; }
+.tastings { display: flex; flex-direction: column; gap: 12px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.section-title { margin: 0; font: 400 24px/28px var(--font-display); }
+.tasting-list { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 16px; background: var(--surface); }
+.tasting { display: flex; align-items: center; gap: 14px; min-height: 68px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+.tasting:last-child { border-bottom: 0; }
+.t-score { flex: none; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 400 20px/1 var(--font-display); background: var(--surface-strong); }
+.t-score.tone-high { background: var(--accent); color: var(--on-accent); }
+.t-score.tone-good { background: var(--tint); color: var(--on-tint); }
+.t-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.t-method { font: 400 19px/22px var(--font-display); }
+.t-chevron { flex: none; color: var(--ink-soft); }
+.specs { display: flex; flex-direction: column; }
+.specs-title { margin: 0 0 6px; color: var(--ink-soft); }
+.spec-list { margin: 0; }
+.spec { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.spec dt { font: 400 15px/22px var(--font-sans); color: var(--ink-soft); }
+.spec dd { margin: 0; text-align: right; font: 500 15px/22px var(--font-sans); overflow-wrap: anywhere; }
+.menu { display: flex; flex-direction: column; padding: 4px 12px calc(20px + env(safe-area-inset-bottom)); }
+.menu-item { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font: 500 16px/22px var(--font-sans); cursor: pointer; }
+.menu-item:hover { background: var(--surface); }
+.menu-item--danger { color: var(--danger); }
+
+@media (min-width: 1024px) {
+  .detail { padding: 24px 48px 64px; gap: 24px; }
+  .mobile-only { display: none !important; }
+  .desktop-only { display: inline-flex !important; }
+  .back-label { display: inline; }
+  .layout { flex-direction: row; align-items: flex-start; gap: 40px; }
+  .main { flex: 3 1 440px; }
+  .specs { flex: 2 1 300px; min-width: 0; padding: 24px; border-radius: 18px; box-shadow: inset 0 0 0 1px var(--line); }
+  .hero { border-radius: 32px; }
+  .blob { right: -120px; top: -160px; width: 480px; height: 480px; }
+  .hero-in { padding: 32px 32px 28px; gap: 20px; }
+  .name { font-size: 80px; line-height: 0.92; }
+  .roaster { font-size: 22px; line-height: 28px; }
+  .tagline { font-size: 17px; line-height: 24px; }
+  .score-num { font-size: 96px; line-height: 0.85; }
+  .score-dec { font-size: 44px; }
+  .facts { display: flex; flex-wrap: wrap; }
+  .fact { min-width: 110px; }
+  .note { height: 34px; padding: 0 14px; font-size: 14px; }
+  .cta-bar { position: static; padding: 0; background: transparent; border: 0; }
+  .section-title { font-size: 28px; line-height: 32px; }
+}
+</style>

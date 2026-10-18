@@ -43,10 +43,30 @@ async function commit() {
 async function toggle(name: string) {
   await settings.toggleDefaultFlavorNote(name)
 }
+
+// Catálogo v3 (interruptor «catalogos»). Misma lógica de arriba.
+const v3 = useFlag('catalogos')
+const toItem = (v: string) => ({ value: v, label: v, custom: (settings.prefs?.customFlavorNotes ?? []).includes(v) && !DEFAULT_FLAVOR_NOTES.includes(v) })
+const v3Active = computed(() => active.value.map(toItem))
+const v3Inactive = computed(() => inactive.value.map(toItem))
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
+  <V3CatalogPage
+    v-if="v3"
+    v-model="draft"
+    word="notas de sabor"
+    subtitle="Lo que reconoces en taza."
+    add-label="Agregar una nota de sabor"
+    placeholder="Mandarina, panela…"
+    empty-text="No tienes notas activas. Toca una inactiva para volver a usarla."
+    :active="v3Active"
+    :inactive="v3Inactive"
+    :submitting="submitting"
+    @add="commit"
+    @toggle="toggle"
+  />
+  <div v-else class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
