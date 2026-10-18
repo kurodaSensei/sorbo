@@ -57,6 +57,10 @@ const sidebarSections = [
 // Barra lateral v3: «Notas» pasa a «Notas de sabor».
 const v3Catalogs = sidebarSections[1].items.map(i => (i.key === 'notes' ? { ...i, label: 'Notas de sabor' } : i))
 
+// Con el interruptor «social», la Wishlist se llama «Quiero probar».
+const v3Social = useFlag('social')
+const v3Items = computed(() => sidebarSections[0].items.map(i => (i.key === 'wishlist' && v3Social.value ? { ...i, label: 'Quiero probar' } : i)))
+
 // Tab bar mobile: 5 items, el núcleo del diario. Wishlist se accede desde
 // el header de la página Cafés (ícono bookmark) — ver pages/app/coffees.
 const mobileTabs = [
@@ -123,7 +127,7 @@ function onSwipeEnd(e: TouchEvent) {
   <div class="min-h-svh bg-paper text-moss font-sans antialiased flex">
     <V3Sidebar
       v-if="v3Nav"
-      :items="sidebarSections[0].items"
+      :items="v3Items"
       :catalogs="v3Catalogs"
       :user="sidebarUser"
     />

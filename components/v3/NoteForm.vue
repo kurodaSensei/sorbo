@@ -3,13 +3,15 @@
 // pantalla; método, receta, dosis y atributos van en «Más detalles».
 // Si el café no existe en tu colección, se crea al guardar.
 import { Timestamp, deleteField } from 'firebase/firestore'
-import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput } from '~/types'
+import type { BrewMethod, Coffee, CoffeeInput, Recipe, Tasting, TastingInput, WishlistItem } from '~/types'
 
 const props = defineProps<{
   /** Precarga el café («Cata este café», «Repetir esta cata»). */
   initialCoffeeId?: string | null
   /** Modo edición: la cata a editar. */
   tasting?: Tasting | null
+  /** Desde «Quiero probar»: precarga ese café y lo marca como conseguido al guardar. */
+  wishId?: string | null
 }>()
 
 const router = useRouter()
@@ -17,6 +19,8 @@ const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
 const recipesStore = useRecipesStore()
 const friendsStore = useFriendsStore()
+const wishlistStore = useWishlistStore()
+const { updateItem: updateWishlistItem } = useWishlist()
 const { brewMethodOptions, flavorNoteOptions, getBrewMethodLabel } = useCatalog()
 const { currentUser } = useAuth()
 const { trackEvent } = useAnalytics()
@@ -31,6 +35,7 @@ onMounted(() => {
   if (!tastingsStore.list.length) tastingsStore.loadAll().catch(() => {})
   if (!recipesStore.list.length) recipesStore.loadAll().catch(() => {})
   if (!friendsStore.list.length) friendsStore.load().catch(() => {})
+  if (props.wishId && !wishlistStore.list.length) wishlistStore.loadAll().catch(() => {})
 })
 
 const norm = (s?: string | null) => (s || '').trim().toLowerCase()
@@ -70,6 +75,7 @@ function pick(c: { name: string, roasterName?: string }) {
 }
 const coffeeHelp = computed(() => {
   if (match.value) return `De tu colección${match.value.roasterName ? ` · ${match.value.roasterName}` : ''}.`
+  if (wish.value && norm(wish.value.coffeeName) === norm(name.value)) return 'De Quiero probar: al guardar sale de la lista y entra a tu colección.'
   if (norm(name.value)) return 'Café nuevo: lo agregamos a tu colección al guardar.'
   return 'Escribe el nombre o elige uno reciente.'
 })
@@ -162,6 +168,11 @@ const SHARE_KEY = 'sorbo:share-with-friends'
 const share = useLocalStorage(SHARE_KEY, false)
 
 // ─── Precarga ───────────────────────────────────────────────────────────────
+const wish = computed(() => (props.wishId ? (wishlistStore.list as WishlistItem[]).find(w => w.id === props.wishId) ?? null : null))
+watch(wish, (w) => {
+  if (w && !name.value) pick({ name: w.coffeeName, roasterName: w.roasterName })
+}, { immediate: true })
+
 watch(() => [props.initialCoffeeId, coffees.value.length] as const, ([id]) => {
   if (!id || name.value) return
   const c = coffees.value.find(x => x.id === id)
@@ -269,6 +280,8 @@ async function save() {
     // Firestore no acepta undefined: se quitan los campos vacíos.
     const clean = Object.fromEntries(Object.entries(input).filter(([, v]) => v !== undefined)) as TastingInput
     const id = await tastingsStore.create(clean)
+    // Si vino de «Quiero probar», sale de la lista sin un segundo aviso.
+    if (wish.value) await updateWishlistItem(wish.value.id, { status: 'purchased' }).catch(() => {})
     trackEvent('tasting_created', {
       quick_note: true,
       score: score.value,

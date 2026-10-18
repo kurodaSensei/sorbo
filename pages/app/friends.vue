@@ -80,10 +80,87 @@ async function onRemove(id: string) {
   if (!ok) return
   await friendsStore.remove(id)
 }
+
+// ─── Amigos v3 (interruptor «social») ─────────────────────────────────────
+const v3 = useFlag('social')
+const initial = (f: any) => (getOther(f)?.displayName || getOther(f)?.email || '?').charAt(0).toUpperCase()
+async function onCancel(id: string) {
+  const ok = await confirm({ title: 'Cancelar invitación', confirmLabel: 'Cancelar invitación', cancelLabel: 'Volver', destructive: true })
+  if (!ok) return
+  await friendsStore.reject(id)
+}
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
+  <div v-if="v3" class="v3 friends">
+    <header class="head">
+      <button type="button" class="back" @click="router.back()"><Icon name="lucide:arrow-left" size="22" />Ajustes</button>
+      <h1 class="title">Tus <span class="v3-accent-word">amigos</span></h1>
+      <p class="v3-subtitle sub">Con quienes compartes cafés, catas y recetas.</p>
+    </header>
+
+    <div class="layout">
+      <div class="col">
+        <section aria-labelledby="fr-invite" class="invite">
+          <h2 id="fr-invite" class="invite-title">Invita a un amigo</h2>
+          <p class="v3-meta m0">Con el correo con el que entra a Sorbo. Verá lo que compartas con amigos.</p>
+          <form class="invite-row" novalidate @submit.prevent="sendInvite">
+            <label for="fr-email" class="sr-only">Correo de tu amigo</label>
+            <input id="fr-email" v-model="inviteEmail" type="email" inputmode="email" autocomplete="email" class="v3-input invite-input" placeholder="amigo@correo.com">
+            <button type="submit" class="v3-btn v3-btn--primary" :disabled="!inviteEmail.trim() || inviting" :aria-busy="inviting || undefined">
+              <span v-if="inviting" class="v3-spinner" aria-hidden="true" />Invitar
+            </button>
+          </form>
+          <p v-if="inviteMessage" role="status" :class="['m0', 'msg', inviteMessage.tone === 'success' ? 'msg--ok' : 'v3-error']">
+            <Icon v-if="inviteMessage.tone === 'success'" name="lucide:check" size="16" />{{ inviteMessage.text }}
+          </p>
+        </section>
+
+        <section v-if="pendingIncoming.length" aria-labelledby="fr-in" class="group">
+          <h2 id="fr-in" class="group-label">Quieren ser tus amigos · {{ pendingIncoming.length }}</h2>
+          <div v-for="f in pendingIncoming" :key="f.id" class="request">
+            <span class="person">
+              <span class="avatar avatar--accent" aria-hidden="true">{{ initial(f) }}</span>
+              <span class="person-text"><span class="person-name">{{ getOther(f)?.displayName || getOther(f)?.email }}</span><span v-if="getOther(f)?.displayName" class="v3-meta">{{ getOther(f)?.email }}</span></span>
+            </span>
+            <span class="request-actions">
+              <button type="button" class="v3-btn v3-btn--primary small" @click="onAccept(f.id)">Aceptar</button>
+              <button type="button" class="v3-btn plain small" @click="onReject(f.id)">Rechazar</button>
+            </span>
+          </div>
+        </section>
+
+        <section v-if="pendingOutgoing.length" aria-labelledby="fr-out" class="group">
+          <h2 id="fr-out" class="group-label">Invitaciones enviadas · {{ pendingOutgoing.length }}</h2>
+          <div v-for="f in pendingOutgoing" :key="f.id" class="sent">
+            <span class="person-text"><span class="person-name small-name">{{ getOther(f)?.email }}</span><span class="v3-meta">Esperando respuesta</span></span>
+            <button type="button" class="v3-btn danger small" @click="onCancel(f.id)">Cancelar</button>
+          </div>
+        </section>
+      </div>
+
+      <section aria-labelledby="fr-list" class="group col col--wide">
+        <h2 id="fr-list" class="group-label">Tus amigos · {{ friendsStore.accepted.length }}</h2>
+        <div v-if="friendsStore.accepted.length > 5" class="search">
+          <Icon name="lucide:search" size="18" class="search-icon" />
+          <label for="fr-search" class="sr-only">Buscar amigo</label>
+          <input id="fr-search" v-model="search" type="search" class="v3-input search-input" placeholder="Buscar amigo" autocomplete="off">
+        </div>
+        <div v-if="!ready" class="list"><div v-for="n in 3" :key="n" class="row"><UiSkeleton class="h-11 w-11 rounded-full" /><UiSkeleton class="h-4 w-1/2" /></div></div>
+        <p v-else-if="!friendsStore.accepted.length" class="empty">Aún no tienes amigos. Invita a alguien con su correo.</p>
+        <p v-else-if="!accepted.length" class="empty">Ningún amigo se llama así.</p>
+        <div v-else class="list">
+          <div v-for="f in accepted" :key="f.id" class="row">
+            <span class="avatar" aria-hidden="true">{{ initial(f) }}</span>
+            <span class="person-text"><span class="person-name">{{ getOther(f)?.displayName || getOther(f)?.email }}</span><span class="v3-meta ellipsis">{{ getOther(f)?.email }}</span></span>
+            <button type="button" class="v3-btn plain small quit" :aria-label="`Eliminar a ${getOther(f)?.displayName || getOther(f)?.email}`" @click="onRemove(f.id)">Eliminar</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div v-else class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
@@ -228,3 +305,56 @@ async function onRemove(id: string) {
     </section>
   </div>
 </template>
+
+<style scoped>
+.friends { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 22px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.m0 { margin: 0; }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; border: 0; background: transparent; color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; }
+.title { margin: 0; font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
+.sub { margin: 0; }
+.layout, .col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.invite { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 20px; background: var(--surface-strong); }
+.invite-title { margin: 0; font: 400 22px/26px var(--font-display); }
+.invite-row { display: flex; gap: 8px; }
+.invite-input { flex: 1; min-width: 0; background: var(--bg); }
+.msg { display: flex; align-items: center; gap: 6px; font: 500 13px/18px var(--font-sans); }
+.msg--ok { color: var(--primary); }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group-label { margin: 0; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.request { display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 16px; background: color-mix(in srgb, var(--accent) 22%, var(--bg)); }
+.request-actions { display: flex; gap: 8px; }
+.request-actions .v3-btn { flex: 1; }
+.person { display: flex; align-items: center; gap: 12px; }
+.avatar { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--tint); color: var(--on-tint); display: flex; align-items: center; justify-content: center; font: 400 19px/1 var(--font-display); }
+.avatar--accent { background: var(--accent); color: var(--on-accent); }
+.person-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.person-name { font: 400 19px/22px var(--font-display); overflow-wrap: anywhere; }
+.small-name { font-size: 17px; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.small { height: 40px; font-size: 14px; }
+.plain { background: var(--bg); color: var(--ink); }
+.plain:hover { background: var(--surface); }
+.danger { background: transparent; color: var(--danger); }
+.danger:hover { background: var(--surface); }
+.sent { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 6px 6px 6px 14px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--line-strong); }
+.search { position: relative; }
+.search-icon { position: absolute; left: 14px; top: 15px; color: var(--ink-soft); }
+.search-input { padding-left: 42px; }
+.list { display: flex; flex-direction: column; padding: 4px 6px 4px 14px; border-radius: 16px; background: var(--surface); }
+.row { display: flex; align-items: center; gap: 12px; min-height: 68px; border-bottom: 1px solid var(--line); }
+.row:last-child { border-bottom: 0; }
+.quit { flex: none; background: transparent; color: var(--ink-soft); }
+.quit:hover { color: var(--danger); background: var(--bg); }
+.empty { margin: 0; padding: 24px 0; font: italic 400 18px/26px var(--font-display); color: var(--ink-soft); }
+
+@media (min-width: 1024px) {
+  .friends { padding: 32px 48px 64px; gap: 24px; }
+  .title { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
+  .sub { font-size: 19px; line-height: 26px; }
+  .layout { flex-direction: row; align-items: flex-start; gap: 40px; }
+  .col { flex: 2 1 320px; }
+  .col--wide { flex: 3 1 420px; }
+}
+</style>
