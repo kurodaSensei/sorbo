@@ -55,7 +55,7 @@ export const useFriendsStore = defineStore('friends', () => {
     }
     const target = await findByEmail(normalizedEmail)
     if (!target) {
-      return { success: false, message: 'Usuario no encontrado. Debe tener una cuenta en Coffee Tracker.' }
+      return { success: false, message: 'No encontramos a nadie con ese correo. Tiene que tener una cuenta en Sorbo.' }
     }
     const id = friendshipId(userId.value, target.id)
     if (list.value.some(f => f.id === id)) {
