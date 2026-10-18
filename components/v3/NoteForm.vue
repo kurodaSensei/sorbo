@@ -19,6 +19,7 @@ const coffeesStore = useCoffeesStore()
 const tastingsStore = useTastingsStore()
 const recipesStore = useRecipesStore()
 const friendsStore = useFriendsStore()
+const settingsStore = useSettingsStore()
 const wishlistStore = useWishlistStore()
 const { updateItem: updateWishlistItem } = useWishlist()
 const { brewMethodOptions, flavorNoteOptions, getBrewMethodLabel } = useCatalog()
@@ -98,6 +99,8 @@ function addFlavor() {
   const f = newFlavor.value.trim()
   if (f && !flavorChips.value.includes(f)) extraFlavors.value.push(f)
   if (f && !flavors.value.includes(f)) flavors.value.push(f)
+  // Queda en tu catálogo de notas para la próxima vez (como el asistente de café).
+  if (f) settingsStore.addFlavorNote(f).catch(() => {})
   newFlavor.value = ''
   addingFlavor.value = false
 }
