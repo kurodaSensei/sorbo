@@ -103,11 +103,140 @@ const activeCoffee = computed<Coffee | null>(() => {
   if (!activeTasting.value) return null
   return (coffeesStore.list as Coffee[]).find(c => c.id === activeTasting.value!.coffeeId) ?? null
 })
+
+// ─── Catas v3 (interruptor «catas») ───────────────────────────────────────
+// Misma lógica; la lista se agrupa por día (o por amigo en compartidas) y
+// tocar una cata abre el detalle.
+const v3 = useFlag('catas')
+const tastingTime = (t: Tasting) => tsMillis(t.brewDate) || tsMillis(t.createdAt)
+
+const groups = computed(() => {
+  const out: { label: string, rows: Tasting[] }[] = []
+  for (const t of items.value) {
+    const label = tab.value === 'shared'
+      ? (t.authorName ? `De ${t.authorName}` : 'De tus amigos')
+      : dayGroup(new Date(tastingTime(t)))
+    const last = out.at(-1)
+    if (last && last.label === label) last.rows.push(t)
+    else out.push({ label, rows: [t] })
+  }
+  return out
+})
+
+const monthName = computed(() => new Intl.DateTimeFormat('es', { month: 'long' }).format(new Date()))
+const month = computed(() => {
+  const now = new Date()
+  const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+  const list = (tastingsStore.list as Tasting[]).filter(t => tastingTime(t) >= start && ratingToScore(t.ratingOverall) > 0)
+  if (!list.length) return null
+  const avg = list.reduce((sum, t) => sum + ratingToScore(t.ratingOverall), 0) / list.length
+  const best = [...list].sort((a, b) => b.ratingOverall - a.ratingOverall)[0]
+  return { count: list.length, avg: avg.toFixed(1), best }
+})
 </script>
 
 <template>
   <UiPullToRefresh :on-refresh="refresh">
-    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+    <div v-if="v3" class="v3 tastings">
+      <header class="head">
+        <div class="head-row">
+          <span class="v3-eyebrow head-eb">— Catas · {{ mineCount }}</span>
+          <div class="head-icons">
+            <UiNotificationBell size="sm" />
+            <NuxtLink to="/app/settings" class="icon-btn" aria-label="Ajustes de tu cuenta">
+              <UiAvatar :name="userName" :src="currentUser?.photoURL ?? undefined" size="sm" />
+            </NuxtLink>
+          </div>
+        </div>
+        <div class="title-row">
+          <div class="title-text">
+            <h1 class="title">Tus <span class="v3-accent-word">catas</span></h1>
+            <p class="v3-subtitle sub">
+              <template v-if="tab === 'shared'">Lo que han catado tus amigos.</template>
+              <template v-else-if="ready && mineCount">{{ mineCount }} {{ mineCount === 1 ? 'sorbo registrado' : 'sorbos registrados' }}.</template>
+              <template v-else>Tu memoria de taza.</template>
+            </p>
+          </div>
+          <NuxtLink to="/app/tastings/new" class="v3-btn v3-btn--primary new-btn">
+            <Icon name="lucide:plus" size="18" /><span class="mobile-only">Nueva</span><span class="desktop-only">Nueva cata</span>
+          </NuxtLink>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <div role="tablist" aria-label="Qué catas ver" class="seg">
+          <button
+            v-for="sgm in segments"
+            :key="sgm.key"
+            type="button"
+            role="tab"
+            :aria-selected="tab === sgm.key"
+            :class="['seg-btn', { 'seg-btn--on': tab === sgm.key }]"
+            @click="tab = sgm.key as 'mine' | 'shared'"
+          >
+            {{ sgm.key === 'shared' ? 'Compartidas conmigo' : sgm.label }} · {{ sgm.count }}
+          </button>
+        </div>
+        <div class="search">
+          <Icon name="lucide:search" size="18" class="search-icon" />
+          <label for="ct-search" class="sr-only">Buscar cata</label>
+          <input id="ct-search" v-model="search" type="search" class="v3-input search-input" placeholder="Café o marca" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="layout">
+        <div class="main">
+          <div v-if="!ready" class="group" aria-busy="true">
+            <div class="list">
+              <div v-for="n in 4" :key="`skel-${n}`" class="skel"><UiSkeleton class="h-12 w-12" /><UiSkeleton class="h-4 w-2/3" /></div>
+            </div>
+          </div>
+
+          <div v-else-if="isEmpty" class="empty">
+            <p class="empty-text">
+              <template v-if="search.trim()">Ninguna cata coincide con tu búsqueda.</template>
+              <template v-else-if="tab === 'shared'">Aún no te han compartido catas. Pídele a un amigo que comparta una.</template>
+              <template v-else>Cada sorbo es un pequeño viaje. Empieza el tuyo anotando uno.</template>
+            </p>
+            <NuxtLink v-if="tab === 'mine' && !search.trim()" to="/app/tastings/new" class="v3-btn v3-btn--primary">Anota tu primera cata</NuxtLink>
+          </div>
+
+          <template v-else>
+            <section v-for="g in groups" :key="g.label" class="group" :aria-label="g.label">
+              <h2 class="group-label">{{ g.label }}</h2>
+              <div class="list">
+                <V3TastingRow
+                  v-for="t in g.rows"
+                  :key="t.id"
+                  class="list-row"
+                  :to="`/app/tastings/${t.id}`"
+                  :rating="t.ratingOverall"
+                  :name="t.coffeeName.replace(/\.$/, '')"
+                  :roaster="t.roasterName"
+                  :method="t.brewMethod && t.brewMethod !== 'other' ? getBrewMethodLabel(t.brewMethod) : ''"
+                  :note="t.personalNotes"
+                  :favorite="t.isFavorite"
+                />
+              </div>
+            </section>
+          </template>
+        </div>
+
+        <aside v-if="tab === 'mine' && month" class="rail desktop-only" aria-labelledby="ct-month">
+          <h2 id="ct-month" class="v3-eyebrow rail-eb">— Este mes · {{ monthName }}</h2>
+          <dl class="stats">
+            <div class="stat"><dt>Catas</dt><dd>{{ month.count }}</dd></div>
+            <div class="stat"><dt>Promedio</dt><dd>{{ month.avg }}</dd></div>
+          </dl>
+          <NuxtLink :to="`/app/tastings/${month.best.id}`" class="best">
+            <span :class="['best-badge', `tone-${scoreTone(month.best.ratingOverall)}`]">{{ ratingToScore(month.best.ratingOverall) }}</span>
+            <span class="best-text"><span class="v3-meta">Tu mejor taza del mes</span><span class="best-name">{{ month.best.coffeeName }}</span></span>
+          </NuxtLink>
+        </aside>
+      </div>
+    </div>
+
+    <div v-else class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Catas · {{ mineCount }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -257,3 +386,64 @@ const activeCoffee = computed<Coffee | null>(() => {
     </div>
   </UiPullToRefresh>
 </template>
+
+<style scoped>
+.tastings { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 120px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.desktop-only { display: none !important; }
+.head { display: flex; flex-direction: column; gap: 14px; }
+.head-row { display: flex; align-items: center; justify-content: space-between; }
+.head-eb { color: var(--ink-soft); }
+.head-icons { display: flex; align-items: center; }
+.icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.title-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.title { margin: 0; font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
+.sub { margin: 0; }
+.new-btn { flex: none; height: 40px; padding: 0 14px; font-size: 13px; gap: 6px; }
+.toolbar { display: flex; flex-direction: column; gap: 12px; }
+.seg { display: flex; padding: 4px; border-radius: 14px; background: var(--surface); }
+.seg-btn { flex: 1; height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 500 13px/16px var(--font-sans); cursor: pointer; }
+.seg-btn--on { background: var(--bg); font-weight: 600; }
+.search { position: relative; flex: 1; min-width: 0; }
+.search-icon { position: absolute; left: 14px; top: 15px; color: var(--ink-soft); }
+.search-input { padding-left: 42px; }
+.layout { display: flex; flex-direction: column; gap: 24px; }
+.main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group-label { margin: 0; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.list { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 16px; background: var(--surface); }
+.list-row { border-bottom: 1px solid var(--line); }
+.list-row:last-child { border-bottom: 0; }
+.skel { display: flex; align-items: center; gap: 14px; min-height: 76px; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px 0; text-align: center; }
+.empty-text { margin: 0; max-width: 320px; font: italic 400 18px/26px var(--font-display); color: var(--ink-soft); }
+.rail { flex-direction: column; gap: 14px; padding: 24px; border-radius: 24px; background: var(--surface-strong); }
+.rail-eb { margin: 0; color: var(--ink-soft); }
+.stats { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat { display: flex; flex-direction: column; gap: 2px; padding: 14px; border-radius: 16px; background: var(--bg); }
+.stat dt { font: 400 13px/18px var(--font-sans); color: var(--ink-soft); }
+.stat dd { margin: 0; font: 400 36px/1 var(--font-display); }
+.best { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: var(--bg); color: var(--ink); text-decoration: none; }
+.best-badge { flex: none; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font: 400 20px/1 var(--font-display); background: var(--surface-strong); }
+.best-badge.tone-high { background: var(--accent); color: var(--on-accent); }
+.best-badge.tone-good { background: var(--tint); color: var(--on-tint); }
+.best-text { display: flex; flex-direction: column; min-width: 0; }
+.best-name { font: 400 19px/22px var(--font-display); }
+
+@media (min-width: 1024px) {
+  .tastings { padding: 40px 48px 64px; gap: 24px; }
+  .mobile-only, .head-row { display: none !important; }
+  .desktop-only { display: flex !important; }
+  .new-btn .desktop-only { display: inline !important; }
+  .title { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
+  .sub { font-size: 19px; line-height: 26px; }
+  .new-btn { height: 48px; padding: 0 18px; font-size: 15px; gap: 8px; }
+  .toolbar { flex-direction: row; align-items: center; }
+  .seg { flex: none; }
+  .seg-btn { flex: none; padding: 0 16px; font-size: 14px; }
+  .layout { flex-direction: row; align-items: flex-start; gap: 40px; }
+  .main { flex: 3 1 480px; }
+  .rail { flex: 2 1 280px; min-width: 0; position: sticky; top: 24px; }
+}
+</style>

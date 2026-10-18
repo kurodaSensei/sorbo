@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { scoreTone as scoreTone1to5 } from '~/utils/score'
 import { computed, onMounted, ref } from 'vue'
 import type { Coffee, CoffeeProcess, RoastLevel, Tasting, Visibility } from '~/types'
 
@@ -102,6 +103,9 @@ const coffeeTastings = computed<Tasting[]>(() => {
   return list.filter(t => t.coffeeId === id.value)
 })
 
+// Con el interruptor «catas» los puntajes de catas se muestran de 1 a 5.
+const catas1to5 = useFlag('catas')
+
 const tastingsCount = computed(() => coffeeTastings.value.length)
 
 const lastTastingScore = computed(() => {
@@ -112,7 +116,9 @@ const lastTastingScore = computed(() => {
     const tb = b.brewDate?.toMillis?.() ?? 0
     return tb - ta
   })
-  return sorted[0].ratingOverall ?? null
+  const r = sorted[0].ratingOverall
+  if (typeof r !== 'number') return null
+  return catas1to5.value ? ratingToScore(r) || null : r
 })
 
 const currentYear = new Date().getFullYear()
@@ -256,8 +262,8 @@ const recentCoffeeTastings = computed(() =>
         id: t.id,
         method: t.brewMethod ? getBrewMethodLabel(t.brewMethod) : 'Cata',
         day: formatRelativeDay(new Date(tsMillis(t.brewDate) || tsMillis(t.createdAt))),
-        score: typeof n === 'number' ? String(Math.round(n * 10) / 10) : '—',
-        tone: typeof n !== 'number' ? 'none' : n >= 9 ? 'high' : n >= 7.5 ? 'good' : 'none',
+        score: typeof n !== 'number' ? '—' : catas1to5.value ? String(ratingToScore(n) || '—') : String(Math.round(n * 10) / 10),
+        tone: typeof n !== 'number' ? 'none' : catas1to5.value ? scoreTone1to5(n) : n >= 9 ? 'high' : n >= 7.5 ? 'good' : 'none',
       }
     }),
 )
