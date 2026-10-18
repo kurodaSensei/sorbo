@@ -317,13 +317,19 @@ async function close() {
 
 <template>
   <div class="v3 note">
-    <header class="head">
-      <h1 class="title">{{ isEdit ? 'Editar' : 'Nueva' }} <span class="v3-accent-word">nota</span></h1>
-      <p class="v3-subtitle sub desktop-only">El café y qué tal estuvo. Lo demás, si quieres.</p>
-      <button type="button" class="close mobile-only" aria-label="Cerrar" @click="close"><Icon name="lucide:x" size="22" /></button>
+    <!-- Misma barra que los asistentes de café y receta. -->
+    <div class="bar mobile-only">
+      <button type="button" class="icon-btn" aria-label="Cerrar" @click="close"><Icon name="lucide:x" size="22" /></button>
+      <span class="v3-eyebrow bar-eb">{{ isEdit ? 'Editar nota' : 'Nueva nota' }}</span>
+      <span class="icon-btn" aria-hidden="true" />
+    </div>
+    <header class="head v3-enter">
+      <h1 class="title t-desk">{{ isEdit ? 'Editar' : 'Nueva' }} <span class="v3-accent-word">nota</span></h1>
+      <h1 class="title t-mob">¿Qué tal estuvo el <span class="v3-accent-word">café</span>?</h1>
+      <p class="v3-subtitle sub">El café y qué tal estuvo. Lo demás, si quieres.</p>
     </header>
 
-    <div class="layout">
+    <div class="layout v3-enter">
       <form class="form" novalidate @submit.prevent="save">
         <div class="field">
           <label for="note-coffee" class="v3-label">Café</label>
@@ -512,13 +518,16 @@ async function close() {
 </template>
 
 <style scoped>
-.note { min-height: 100svh; box-sizing: border-box; padding: calc(env(safe-area-inset-top) + 16px) 20px 200px; display: flex; flex-direction: column; gap: 20px; }
+.note { min-height: 100svh; box-sizing: border-box; padding: calc(env(safe-area-inset-top) + 8px) 20px 120px; display: flex; flex-direction: column; gap: 20px; }
+.bar { display: flex; align-items: center; justify-content: space-between; margin: 0 -12px -8px; }
+.bar-eb { color: var(--ink-soft); }
+.icon-btn { width: 44px; height: 44px; border: 0; background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.t-desk { display: none; }
 .desktop-only { display: none !important; }
 .m0 { margin: 0; }
-.head { position: relative; display: flex; flex-direction: column; gap: 8px; padding-right: 48px; }
-.title { margin: 0; font: 400 34px/36px var(--font-display); letter-spacing: -0.015em; }
+.head { display: flex; flex-direction: column; gap: 8px; }
+.title { margin: 0; font: 400 36px/36px var(--font-display); letter-spacing: -0.015em; }
 .sub { margin: 0; }
-.close { position: absolute; top: -6px; right: -10px; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .layout { display: flex; flex-direction: column; gap: 20px; }
 .form { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -590,7 +599,8 @@ async function close() {
   .note { max-width: 1180px; margin: 0 auto; width: 100%; padding: 40px 48px 64px; gap: 28px; }
   .mobile-only { display: none !important; }
   .desktop-only { display: flex !important; }
-  .head { padding-right: 0; }
+  .t-desk { display: block; }
+  .t-mob { display: none; }
   .title { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
   .sub { font-size: 19px; line-height: 26px; }
   .layout { flex-direction: row; align-items: flex-start; gap: 40px; }
