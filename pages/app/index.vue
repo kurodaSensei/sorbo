@@ -559,7 +559,7 @@ const monthName = computed(() => {
   flex: 999 1 560px;
   min-width: 0;
   box-sizing: border-box;
-  padding: 20px 20px 160px;
+  padding: 20px 20px 32px;
   display: flex;
   flex-direction: column;
   gap: 36px;

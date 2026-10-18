@@ -209,7 +209,7 @@ const v3 = useFlag('social')
 </template>
 
 <style scoped>
-.explore { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 120px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
+.explore { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 32px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
 .head { display: flex; flex-direction: column; gap: 6px; }
 .head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .head-eb { color: var(--ink-soft); }

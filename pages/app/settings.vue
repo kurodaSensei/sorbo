@@ -430,7 +430,7 @@ async function onRestoreChecklist() {
 </template>
 
 <style scoped>
-.settings { box-sizing: border-box; max-width: 1060px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 28px; }
+.settings { box-sizing: border-box; max-width: 1060px; padding: 8px 20px 32px; display: flex; flex-direction: column; gap: 28px; }
 .settings-head { display: flex; flex-direction: column; gap: 8px; }
 .back { width: 44px; height: 44px; margin-left: -12px; border: 0; background: transparent; color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .title { margin: 0; font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }

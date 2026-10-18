@@ -450,7 +450,7 @@ function onSheetKey(e: KeyboardEvent) {
 </template>
 
 <style scoped>
-.roasters { box-sizing: border-box; max-width: 1060px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 24px; }
+.roasters { box-sizing: border-box; max-width: 1060px; padding: 8px 20px 32px; display: flex; flex-direction: column; gap: 24px; }
 .head { display: flex; flex-direction: column; gap: 8px; }
 .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; border: 0; background: transparent; color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; }

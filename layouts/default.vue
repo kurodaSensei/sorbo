@@ -86,7 +86,7 @@ const mobileTabs = [
 
     <div class="flex-1 flex flex-col min-w-0">
       <main
-        class="flex-1 pb-[88px] lg:pb-0 pt-[env(safe-area-inset-top)]"
+        class="flex-1 pb-[calc(88px+env(safe-area-inset-bottom))] lg:pb-0 pt-[env(safe-area-inset-top)]"
       >
         <slot />
       </main>

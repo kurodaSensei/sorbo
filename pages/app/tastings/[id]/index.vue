@@ -356,7 +356,7 @@ function runMenu(fn: () => void | Promise<void>) {
 </template>
 
 <style scoped>
-.detail { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 16px; }
+.detail { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 32px; display: flex; flex-direction: column; gap: 16px; }
 .desktop-only { display: none !important; }
 .m0 { margin: 0; }
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }

@@ -307,7 +307,7 @@ async function onCancel(id: string) {
 </template>
 
 <style scoped>
-.friends { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 22px; }
+.friends { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 32px; display: flex; flex-direction: column; gap: 22px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .m0 { margin: 0; }
 .head { display: flex; flex-direction: column; gap: 8px; }
