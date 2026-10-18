@@ -144,3 +144,30 @@
 .v3-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 10px 4px 20px; }
 .v3-sheet-title { margin: 0; font: 400 28px/30px var(--font-display); }
 .v3-sheet-close { width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* Movimiento (DS v3): 200 ms con la curva estándar; nada si la persona pidió menos movimiento. */
+@media (prefers-reduced-motion: no-preference) {
+  /* Hojas: el fondo se funde y la hoja sube 24 px. Sirve para .v3-sheet y para hojas propias (.sheet). */
+  .v3-sheet-enter-active,
+  .v3-sheet-leave-active { transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+  .v3-sheet-enter-active :is(.v3-sheet, .sheet),
+  .v3-sheet-leave-active :is(.v3-sheet, .sheet) { transition: transform 250ms cubic-bezier(0.2, 0.9, 0.3, 1); }
+  .v3-sheet-enter-from,
+  .v3-sheet-leave-to { opacity: 0; }
+  .v3-sheet-enter-from :is(.v3-sheet, .sheet),
+  .v3-sheet-leave-to :is(.v3-sheet, .sheet) { transform: translateY(24px); }
+
+  /* Aviso flotante: sube 16 px al aparecer. */
+  .v3-toast-enter-active,
+  .v3-toast-leave-active { transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1), transform 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+  .v3-toast-enter-from,
+  .v3-toast-leave-to { opacity: 0; transform: translateY(16px); }
+
+  /* Contenido que aparece (un paso nuevo, «Más detalles»): fundido corto hacia arriba. */
+  .v3-enter { animation: v3-enter 200ms cubic-bezier(0.4, 0, 0.2, 1) backwards; }
+
+  /* Elegir algo (puntaje, favorita): un pulso leve. */
+  .v3-pop { animation: v3-pop 220ms cubic-bezier(0.2, 0.9, 0.3, 1.4); }
+}
+@keyframes v3-enter { from { opacity: 0; transform: translateY(8px); } }
+@keyframes v3-pop { 50% { transform: scale(1.06); } }

@@ -271,19 +271,21 @@ function onSheetKey(e: KeyboardEvent) {
 
     <!-- Móvil: hoja inferior -->
     <Teleport to="body">
-      <div v-if="!isDesktop && sheetOpen" class="v3 sheet-wrap" @keydown="onSheetKey">
-        <div class="sheet-veil" aria-hidden="true" @click="sheetOpen = false" />
-        <section role="dialog" aria-modal="true" aria-labelledby="roaster-sheet-title" class="sheet">
-          <span class="sheet-handle" aria-hidden="true" />
-          <div class="sheet-head">
-            <h2 id="roaster-sheet-title" class="sheet-title">{{ editingId ? 'Editar marca' : 'Nueva marca' }}</h2>
-            <button type="button" class="sheet-close" aria-label="Cerrar" @click="sheetOpen = false">
-              <Icon name="lucide:x" size="20" />
-            </button>
-          </div>
-          <V3RoasterForm v-model="form" :editing="!!editingId" :errors="formErrors" :submitting="submitting" @save="save" @remove="deleteRoaster" />
-        </section>
-      </div>
+      <Transition name="v3-sheet">
+        <div v-if="!isDesktop && sheetOpen" class="v3 sheet-wrap" @keydown="onSheetKey">
+          <div class="sheet-veil" aria-hidden="true" @click="sheetOpen = false" />
+          <section role="dialog" aria-modal="true" aria-labelledby="roaster-sheet-title" class="sheet">
+            <span class="sheet-handle" aria-hidden="true" />
+            <div class="sheet-head">
+              <h2 id="roaster-sheet-title" class="sheet-title">{{ editingId ? 'Editar marca' : 'Nueva marca' }}</h2>
+              <button type="button" class="sheet-close" aria-label="Cerrar" @click="sheetOpen = false">
+                <Icon name="lucide:x" size="20" />
+              </button>
+            </div>
+            <V3RoasterForm v-model="form" :editing="!!editingId" :errors="formErrors" :submitting="submitting" @save="save" @remove="deleteRoaster" />
+          </section>
+        </div>
+      </Transition>
     </Teleport>
   </div>
 

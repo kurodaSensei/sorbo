@@ -495,12 +495,12 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
 
     <div class="wiz-layout">
       <form class="wiz-form" novalidate @submit.prevent>
-        <div class="mobile-only step-title">
+        <div :key="step" class="mobile-only step-title v3-enter">
           <h1 class="q">{{ currentStep.title }} <span class="v3-accent-word">{{ currentStep.word }}</span>?</h1>
           <p class="v3-subtitle q-sub">{{ currentStep.sub }}</p>
         </div>
 
-        <fieldset v-if="showStep(1)" class="section">
+        <fieldset v-if="showStep(1)" class="section v3-enter">
           <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">01</span><span class="legend-q">¿Cómo se llama este <span class="v3-accent-word">café</span>?</span></legend>
           <V3Field v-model="name" label="Nombre" placeholder="Rock natural" :error="errors.name" />
           <div class="pair">
@@ -525,7 +525,7 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
           </div>
         </fieldset>
 
-        <fieldset v-if="showStep(2)" class="section">
+        <fieldset v-if="showStep(2)" class="section v3-enter">
           <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">02</span><span class="legend-q">¿De dónde <span class="v3-accent-word">viene</span>?</span></legend>
           <div class="field">
             <span class="v3-label">País <span class="opt">· opcional</span></span>
@@ -582,7 +582,7 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
           </div>
         </fieldset>
 
-        <fieldset v-if="showStep(3)" class="section">
+        <fieldset v-if="showStep(3)" class="section v3-enter">
           <legend class="desktop-only legend"><span class="v3-eyebrow legend-n">03</span><span class="legend-q">¿A qué <span class="v3-accent-word">sabe</span>?</span></legend>
           <div class="field">
             <span class="v3-label">Notas de sabor <span class="opt">· toca las que reconoces</span></span>

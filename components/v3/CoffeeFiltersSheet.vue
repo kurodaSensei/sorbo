@@ -54,73 +54,75 @@ function onKey(e: KeyboardEvent) {
 
 <template>
   <Teleport to="body">
-    <div v-if="open" class="v3 v3-sheet-wrap" @keydown="onKey">
-      <div class="v3-sheet-veil" aria-hidden="true" @click="open = false" />
-      <section role="dialog" aria-modal="true" aria-labelledby="cf-filters-title" class="v3-sheet">
-        <span class="v3-sheet-handle" aria-hidden="true" />
-        <div class="v3-sheet-head">
-          <h2 id="cf-filters-title" class="v3-sheet-title">Filtros y vista</h2>
-          <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="open = false">
-            <Icon name="lucide:x" size="20" />
-          </button>
-        </div>
+    <Transition name="v3-sheet">
+      <div v-if="open" class="v3 v3-sheet-wrap" @keydown="onKey">
+        <div class="v3-sheet-veil" aria-hidden="true" @click="open = false" />
+        <section role="dialog" aria-modal="true" aria-labelledby="cf-filters-title" class="v3-sheet">
+          <span class="v3-sheet-handle" aria-hidden="true" />
+          <div class="v3-sheet-head">
+            <h2 id="cf-filters-title" class="v3-sheet-title">Filtros y vista</h2>
+            <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="open = false">
+              <Icon name="lucide:x" size="20" />
+            </button>
+          </div>
 
-        <div class="body">
-          <fieldset class="group">
-            <legend class="legend">Ordenar por</legend>
-            <div class="chips">
-              <button
-                v-for="o in SORT_OPTIONS"
-                :key="o.value"
-                type="button"
-                :class="['v3-chip', { 'v3-chip--on': view.state.sortBy === o.value }]"
-                :aria-pressed="view.state.sortBy === o.value"
-                @click="view.state.sortBy = o.value"
-              >
-                {{ o.label }}
-              </button>
-            </div>
-          </fieldset>
-          <fieldset class="group">
-            <legend class="legend">Vista</legend>
-            <div class="chips">
-              <button
-                v-for="o in VIEW_OPTIONS"
-                :key="o.value"
-                type="button"
-                :class="['v3-chip', { 'v3-chip--on': view.state.viewMode === o.value }]"
-                :aria-pressed="view.state.viewMode === o.value"
-                @click="view.state.viewMode = o.value"
-              >
-                {{ o.label }}
-              </button>
-            </div>
-          </fieldset>
-          <fieldset v-for="g in groups" :key="g.key" class="group">
-            <legend class="legend">{{ g.title }}</legend>
-            <div class="chips">
-              <button
-                v-for="o in g.options"
-                :key="o.value"
-                type="button"
-                :class="['v3-chip', { 'v3-chip--on': view.state[g.key] === o.value }]"
-                :aria-pressed="view.state[g.key] === o.value"
-                @click="toggle(g.key, o.value)"
-              >
-                <Icon v-if="view.state[g.key] === o.value" name="lucide:check" size="14" />{{ o.label }}
-              </button>
-            </div>
-          </fieldset>
-        </div>
+          <div class="body">
+            <fieldset class="group">
+              <legend class="legend">Ordenar por</legend>
+              <div class="chips">
+                <button
+                  v-for="o in SORT_OPTIONS"
+                  :key="o.value"
+                  type="button"
+                  :class="['v3-chip', { 'v3-chip--on': view.state.sortBy === o.value }]"
+                  :aria-pressed="view.state.sortBy === o.value"
+                  @click="view.state.sortBy = o.value"
+                >
+                  {{ o.label }}
+                </button>
+              </div>
+            </fieldset>
+            <fieldset class="group">
+              <legend class="legend">Vista</legend>
+              <div class="chips">
+                <button
+                  v-for="o in VIEW_OPTIONS"
+                  :key="o.value"
+                  type="button"
+                  :class="['v3-chip', { 'v3-chip--on': view.state.viewMode === o.value }]"
+                  :aria-pressed="view.state.viewMode === o.value"
+                  @click="view.state.viewMode = o.value"
+                >
+                  {{ o.label }}
+                </button>
+              </div>
+            </fieldset>
+            <fieldset v-for="g in groups" :key="g.key" class="group">
+              <legend class="legend">{{ g.title }}</legend>
+              <div class="chips">
+                <button
+                  v-for="o in g.options"
+                  :key="o.value"
+                  type="button"
+                  :class="['v3-chip', { 'v3-chip--on': view.state[g.key] === o.value }]"
+                  :aria-pressed="view.state[g.key] === o.value"
+                  @click="toggle(g.key, o.value)"
+                >
+                  <Icon v-if="view.state[g.key] === o.value" name="lucide:check" size="14" />{{ o.label }}
+                </button>
+              </div>
+            </fieldset>
+          </div>
 
-        <div class="foot">
-          <button v-if="view.hasActiveFilters" type="button" class="v3-btn clear" @click="view.clearFilters">Limpiar</button>
-          <button type="button" class="v3-btn v3-btn--primary see" @click="open = false">
-            Ver {{ count }} {{ count === 1 ? 'café' : 'cafés' }}
-          </button>
-        </div>
-      </section>
-    </div>
+          <div class="foot">
+            <button v-if="view.hasActiveFilters" type="button" class="v3-btn clear" @click="view.clearFilters">Limpiar</button>
+            <button type="button" class="v3-btn v3-btn--primary see" @click="open = false">
+              Ver {{ count }} {{ count === 1 ? 'café' : 'cafés' }}
+            </button>
+          </div>
+        </section>
+      </div>
+    </Transition>
   </Teleport>
 </template>
 

@@ -5,6 +5,7 @@ const { canShowBanner, install, dismiss } = usePwaInstall()
 
 <template>
   <ClientOnly>
+    <Transition name="v3-toast" appear>
     <div v-if="canShowBanner" role="status" aria-label="Instalar Sorbo" class="v3 toast">
       <UiLogo variant="mark" size="sm" class="mark" />
       <span class="text">
@@ -16,6 +17,7 @@ const { canShowBanner, install, dismiss } = usePwaInstall()
         <Icon name="lucide:x" size="20" />
       </button>
     </div>
+    </Transition>
   </ClientOnly>
 </template>
 
