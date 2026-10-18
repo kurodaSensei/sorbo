@@ -104,6 +104,9 @@ export default defineNuxtConfig({
     },
     client: {
       installPrompt: true,
+      // La PWA instalada puede quedar abierta días sin navegar: busca sw.js
+      // nuevo cada hora (la recarga la hace plugins/sw-update.client.ts).
+      periodicSyncForUpdates: 3600,
     },
     devOptions: {
       enabled: false,
