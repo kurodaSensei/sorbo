@@ -52,10 +52,31 @@ async function commit() {
 async function toggle(value: string) {
   await settings.toggleDefaultProcess(value)
 }
+
+// Catálogo v3 (interruptor «catalogos»). Misma lógica de arriba.
+const v3 = useFlag('catalogos')
+const isDefault = (v: string) => DEFAULT_PROCESS_OPTIONS.some(o => o.value === v)
+const toItem = (p: { value: string, label: string }) => ({ ...p, custom: !isDefault(p.value) })
+const v3Active = computed(() => active.value.map(toItem))
+const v3Inactive = computed(() => inactive.value.map(toItem))
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
+  <V3CatalogPage
+    v-if="v3"
+    v-model="draft"
+    word="procesos"
+    subtitle="Cómo se procesa el grano."
+    add-label="Agregar un proceso"
+    placeholder="Anaeróbico, doble fermentación…"
+    empty-text="No tienes procesos activos. Toca uno inactivo para volver a usarlo."
+    :active="v3Active"
+    :inactive="v3Inactive"
+    :submitting="submitting"
+    @add="commit"
+    @toggle="toggle"
+  />
+  <div v-else class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"

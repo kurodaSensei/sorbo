@@ -43,10 +43,30 @@ async function commit() {
 async function toggle(name: string) {
   await settings.toggleDefaultVariety(name)
 }
+
+// Catálogo v3 (interruptor «catalogos»). Misma lógica de arriba.
+const v3 = useFlag('catalogos')
+const toItem = (v: string) => ({ value: v, label: v, custom: (settings.prefs?.customVarieties ?? []).includes(v) && !DEFAULT_VARIETIES.includes(v) })
+const v3Active = computed(() => active.value.map(toItem))
+const v3Inactive = computed(() => inactive.value.map(toItem))
 </script>
 
 <template>
-  <div class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
+  <V3CatalogPage
+    v-if="v3"
+    v-model="draft"
+    word="variedades"
+    subtitle="Caturra, Geisha, Bourbon…"
+    add-label="Agregar una variedad"
+    placeholder="Chiroso, Mokkita…"
+    empty-text="No tienes variedades activas. Toca una inactiva para volver a usarla."
+    :active="v3Active"
+    :inactive="v3Inactive"
+    :submitting="submitting"
+    @add="commit"
+    @toggle="toggle"
+  />
+  <div v-else class="mx-auto w-full max-w-[640px] px-md pt-md pb-2xl lg:px-xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <button
         type="button"
