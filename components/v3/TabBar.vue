@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Barra inferior v3 (móvil): icono y nombre; la activa en primary.
+// Barra inferior v3 (móvil): icono y nombre; la activa lleva una píldora detrás del icono.
 defineProps<{ items: { key: string, label: string, to: string, icon?: string }[] }>()
 
 const route = useRoute()
@@ -15,7 +15,7 @@ const isActive = (to: string) => (to === '/app' ? route.path === '/app' : route.
       :aria-current="isActive(item.to) ? 'page' : undefined"
       class="tab"
     >
-      <Icon v-if="item.icon" :name="item.icon" size="22" />
+      <span v-if="item.icon" class="tab-icon"><Icon :name="item.icon" size="22" /></span>
       <span>{{ item.label }}</span>
     </NuxtLink>
   </nav>
@@ -48,5 +48,8 @@ const isActive = (to: string) => (to === '/app' ? route.path === '/app' : route.
   font: 500 12px/16px var(--font-sans);
   text-decoration: none;
 }
-.tab[aria-current='page'] { color: var(--primary); font-weight: 600; }
+.tab-icon { display: flex; align-items: center; justify-content: center; width: 56px; height: 28px; border-radius: 9999px; transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.tab[aria-current='page'] { color: var(--ink); font-weight: 600; }
+.tab[aria-current='page'] .tab-icon { background: color-mix(in srgb, var(--tint) 55%, var(--bg)); color: var(--primary); }
+@media (prefers-reduced-motion: reduce) { .tab-icon { transition: none; } }
 </style>

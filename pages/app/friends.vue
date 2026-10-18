@@ -152,8 +152,8 @@ async function onCancel(id: string) {
         <div v-else class="list">
           <div v-for="f in accepted" :key="f.id" class="row">
             <span class="avatar" aria-hidden="true">{{ initial(f) }}</span>
-            <span class="person-text"><span class="person-name">{{ getOther(f)?.displayName || getOther(f)?.email }}</span><span class="v3-meta ellipsis">{{ getOther(f)?.email }}</span></span>
-            <button type="button" class="v3-btn plain small quit" :aria-label="`Eliminar a ${getOther(f)?.displayName || getOther(f)?.email}`" @click="onRemove(f.id)">Eliminar</button>
+            <span class="person-text"><span :class="['person-name', { 'ellipsis': !getOther(f)?.displayName }]">{{ getOther(f)?.displayName || getOther(f)?.email }}</span><span v-if="getOther(f)?.displayName" class="v3-meta ellipsis">{{ getOther(f)?.email }}</span></span>
+            <button type="button" class="quit" :aria-label="`Eliminar a ${getOther(f)?.displayName || getOther(f)?.email}`" :title="`Eliminar a ${getOther(f)?.displayName || getOther(f)?.email}`" @click="onRemove(f.id)"><Icon name="lucide:user-minus" size="20" /></button>
           </div>
         </div>
       </section>
@@ -307,7 +307,7 @@ async function onCancel(id: string) {
 </template>
 
 <style scoped>
-.friends { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 22px; }
+.friends { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 32px; display: flex; flex-direction: column; gap: 22px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .m0 { margin: 0; }
 .head { display: flex; flex-direction: column; gap: 8px; }
@@ -332,7 +332,7 @@ async function onCancel(id: string) {
 .person-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .person-name { font: 400 19px/22px var(--font-display); overflow-wrap: anywhere; }
 .small-name { font-size: 17px; }
-.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
 .small { height: 40px; font-size: 14px; }
 .plain { background: var(--bg); color: var(--ink); }
 .plain:hover { background: var(--surface); }
@@ -345,7 +345,7 @@ async function onCancel(id: string) {
 .list { display: flex; flex-direction: column; padding: 4px 6px 4px 14px; border-radius: 16px; background: var(--surface); }
 .row { display: flex; align-items: center; gap: 12px; min-height: 68px; border-bottom: 1px solid var(--line); }
 .row:last-child { border-bottom: 0; }
-.quit { flex: none; background: transparent; color: var(--ink-soft); }
+.quit { flex: none; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .quit:hover { color: var(--danger); background: var(--bg); }
 .empty { margin: 0; padding: 24px 0; font: italic 400 18px/26px var(--font-display); color: var(--ink-soft); }
 

@@ -95,7 +95,7 @@ const canAdd = computed(() => draft.value.trim().length > 0 && !props.submitting
 </template>
 
 <style scoped>
-.catalog { box-sizing: border-box; max-width: 1060px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 28px; }
+.catalog { box-sizing: border-box; max-width: 1060px; padding: 8px 20px 32px; display: flex; flex-direction: column; gap: 28px; }
 .head { display: flex; flex-direction: column; gap: 8px; }
 .back { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; border: 0; background: transparent; color: var(--ink); font: 600 15px/20px var(--font-sans); cursor: pointer; }
 .back-label { display: none; }

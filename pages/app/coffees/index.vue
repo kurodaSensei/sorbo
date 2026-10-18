@@ -490,7 +490,7 @@ function runAction(fn: () => void | Promise<void>) {
 </template>
 
 <style scoped>
-.coffees { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 120px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
+.coffees { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 32px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .desktop-only { display: none !important; }
 .head { display: flex; flex-direction: column; gap: 14px; }

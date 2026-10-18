@@ -19,7 +19,10 @@ const tasting = computed(() => props.item.kind === 'tasting' ? props.item.data a
 const recipe = computed(() => props.item.kind === 'recipe' ? props.item.data as Recipe : null)
 
 const link = computed(() => ({ coffee: '/app/coffees/', tasting: '/app/tastings/', recipe: '/app/recipes/' })[props.item.kind] + props.item.id)
-const author = computed(() => props.item.data.authorName || 'Alguien')
+// Lo que compartiste tú también sale en la comunidad: sin «Quiero probarlo» ni «A mi colección».
+const { userId } = useAuth()
+const isMine = computed(() => !!userId.value && props.item.data.userId === userId.value)
+const author = computed(() => (isMine.value ? 'Tú' : props.item.data.authorName || 'Alguien'))
 const clean = (n?: string) => (n || '').trim().replace(/\.+$/, '')
 const when = computed(() => (props.item.createdAtMs ? formatRelativeDay(new Date(props.item.createdAtMs)) : ''))
 
@@ -94,7 +97,7 @@ async function onDuplicate() {
         <UiAvatar :name="author" :src="item.data.authorPhotoURL || undefined" size="sm" />
         <span class="author-text">
           <span class="author-name">{{ author }}</span>
-          <span class="v3-meta small">{{ KIND_LABEL[item.kind] }}<template v-if="when"> · {{ when }}</template></span>
+          <span class="v3-meta small">{{ KIND_LABEL[item.kind] }}<template v-if="when"> · {{ when }}</template><template v-if="isMine"> · lo compartiste con la comunidad</template></span>
         </span>
       </header>
 
@@ -119,7 +122,7 @@ async function onDuplicate() {
         <span v-for="s in recipeSpecs" :key="s" class="chip mono">{{ s }}</span>
       </div>
 
-      <div v-if="coffee || recipe" class="actions">
+      <div v-if="(coffee || recipe) && !isMine" class="actions">
         <button
           v-if="coffee"
           type="button"

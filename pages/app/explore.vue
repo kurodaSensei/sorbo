@@ -209,7 +209,7 @@ const v3 = useFlag('social')
 </template>
 
 <style scoped>
-.explore { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 120px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
+.explore { box-sizing: border-box; max-width: 1180px; padding: 12px 20px 32px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
 .head { display: flex; flex-direction: column; gap: 6px; }
 .head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .head-eb { color: var(--ink-soft); }
@@ -217,8 +217,9 @@ const v3 = useFlag('social')
 .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink); }
 .title { margin: 0; font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
 .sub { margin: 0; }
-.seg { display: flex; padding: 4px; border-radius: 14px; background: var(--surface); overflow-x: auto; }
-.seg-btn { flex: 1; height: 40px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 500 13px/16px var(--font-sans); white-space: nowrap; cursor: pointer; }
+.seg { display: flex; padding: 4px; border-radius: 14px; background: var(--surface); overflow-x: auto; scrollbar-width: none; }
+.seg::-webkit-scrollbar { display: none; }
+.seg-btn { flex: 1 0 auto; height: 40px; padding: 0 8px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 500 13px/16px var(--font-sans); white-space: nowrap; cursor: pointer; }
 .seg-btn--on { background: var(--bg); font-weight: 600; }
 .feed { display: flex; flex-direction: column; gap: 12px; }
 .skel { display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 24px; background: var(--surface); }

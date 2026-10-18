@@ -224,6 +224,13 @@ const recentTastings = computed(() =>
     })),
 )
 
+// En móvil la fecha vive en la franja del mes: «Domingo 18» sobre «Octubre».
+const dayShort = computed(() => {
+  const d = new Date()
+  const w = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(d)
+  return `${w.charAt(0).toUpperCase() + w.slice(1)} ${d.getDate()}`
+})
+
 const monthName = computed(() => {
   const m = new Intl.DateTimeFormat('es', { month: 'long' }).format(new Date())
   return m.charAt(0).toUpperCase() + m.slice(1)
@@ -249,14 +256,24 @@ const monthName = computed(() => {
 
       <!-- Móvil: el mes como franja bajo el saludo -->
       <div v-if="homeState !== 'loading'" class="month-strip mobile-only" aria-label="Este mes">
-        <span class="v3-eyebrow month-strip-label">{{ monthName }}</span>
+        <span class="month-strip-label"><span class="month-strip-day">{{ dayShort }}</span><span class="v3-eyebrow">{{ monthName }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num">{{ stats.tastings }}</span><span class="v3-meta">{{ stats.tastings === 1 ? 'cata' : 'catas' }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num">{{ stats.coffees }}</span><span class="v3-meta">{{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num" :class="{ muted: stats.avgScore === null }">{{ stats.avgScore ?? '—' }}</span><span class="v3-meta">promedio</span></span>
       </div>
 
       <!-- Cargando -->
-      <div v-if="homeState === 'loading'" class="home-skeleton" aria-hidden="true" />
+      <div v-if="homeState === 'loading'" class="home-skeleton" role="status" aria-label="Cargando tu diario">
+        <span class="sk sk-strip mobile-only" />
+        <span class="sk-card">
+          <span class="sk sk-line sk-w40" />
+          <span class="sk sk-title" />
+          <span class="sk sk-line sk-w60" />
+          <span class="sk sk-line sk-w90" />
+          <span class="sk-actions"><span class="sk sk-btn" /><span class="sk sk-btn" /></span>
+        </span>
+        <span class="sk-list"><span v-for="n in 2" :key="n" class="sk-row"><span class="sk sk-badge" /><span class="sk-row-text"><span class="sk sk-line sk-w60" /><span class="sk sk-line sk-w40" /></span></span></span>
+      </div>
 
       <!-- Con datos: la última taza como portada -->
       <template v-else-if="homeState === 'data' && lastCard">
@@ -542,7 +559,7 @@ const monthName = computed(() => {
   flex: 999 1 560px;
   min-width: 0;
   box-sizing: border-box;
-  padding: 20px 20px 160px;
+  padding: 20px 20px 32px;
   display: flex;
   flex-direction: column;
   gap: 36px;
@@ -556,10 +573,30 @@ const monthName = computed(() => {
 .home-tools { display: flex; align-items: center; gap: 4px; flex: none; }
 .home-avatar { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
 
-.home-skeleton { height: 220px; border-radius: 18px; background: var(--surface); }
+/* Cargando: la misma forma que la franja, la tarjeta y la lista, con un brillo suave. */
+.home-skeleton { display: flex; flex-direction: column; gap: 16px; }
+.sk { display: block; border-radius: 8px; background: linear-gradient(90deg, var(--surface) 0%, var(--surface-strong) 50%, var(--surface) 100%) 0 0 / 200% 100%; animation: sk-shine 1.4s ease-in-out infinite; }
+.sk-strip { height: 56px; border-radius: 14px; }
+.sk-card { display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 24px; background: var(--surface); }
+.sk-card .sk { background-image: linear-gradient(90deg, var(--surface-strong) 0%, var(--bg) 50%, var(--surface-strong) 100%); }
+.sk-line { height: 12px; }
+.sk-title { height: 34px; width: 70%; border-radius: 10px; }
+.sk-w40 { width: 40%; } .sk-w60 { width: 60%; } .sk-w90 { width: 90%; }
+.sk-actions { display: flex; gap: 10px; margin-top: 6px; }
+.sk-btn { flex: 1; height: 48px; border-radius: 14px; }
+.sk-list { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 16px; background: var(--surface); }
+.sk-list .sk { background-image: linear-gradient(90deg, var(--surface-strong) 0%, var(--bg) 50%, var(--surface-strong) 100%); }
+.sk-row { display: flex; align-items: center; gap: 14px; min-height: 76px; }
+.sk-row + .sk-row { border-top: 1px solid var(--line); }
+.sk-badge { flex: none; width: 48px; height: 48px; border-radius: 12px; }
+.sk-row-text { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+@keyframes sk-shine { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 
 .month-strip { display: flex; align-items: stretch; margin-top: -16px; border-radius: 14px; background: var(--surface); overflow: hidden; }
-.month-strip-label { display: flex; align-items: center; padding: 0 14px; color: var(--ink-soft); }
+.month-strip-label { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 14px; color: var(--ink-soft); }
+.month-strip-day { font: 600 13px/16px var(--font-sans); color: var(--ink); white-space: nowrap; }
+@media (max-width: 1023px) { .home-date { display: none; } }
 .month-strip-cell { flex: 1; display: flex; flex-direction: column; padding: 8px 12px; border-left: 1px solid var(--line); min-width: 0; }
 .month-strip-num { font: 400 22px/24px var(--font-display); }
 .month-strip-num.muted { color: var(--ink-soft); }
