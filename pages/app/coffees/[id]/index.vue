@@ -223,20 +223,12 @@ const scoreParts = computed(() => {
   return { int, dec: dec === '0' ? '' : `.${dec}` }
 })
 
-const facts = computed(() => {
-  const c = coffee.value
-  if (!c) return []
-  return [
-    { k: 'Proceso', v: c.process ? processLabel[c.process] : '' },
-    { k: 'Región', v: c.originRegion || '' },
-    { k: 'Variedad', v: c.variety || '' },
-  ].filter(f => f.v)
-})
-
 const specs = computed(() => {
   const c = coffee.value
   if (!c) return []
   return [
+    { k: 'Proceso', v: c.process && c.process !== 'other' ? processLabel[c.process] : '' },
+    { k: 'Variedad', v: c.variety || '' },
     { k: 'Origen', v: [c.originRegion, c.originCountry].filter(Boolean).join(', ') },
     { k: 'Altitud', v: c.altitude ? `${c.altitude.toLocaleString('es-CO')} msnm` : '' },
     { k: 'Tueste', v: c.roastLevel ? roastLabel[c.roastLevel] : '' },
@@ -309,7 +301,6 @@ function runMenu(fn: () => void | Promise<void>) {
               <div class="hero-id">
                 <h1 id="coffee-name" class="name">{{ displayName }}</h1>
                 <p v-if="coffee.roasterName" class="roaster">de {{ coffee.roasterName }}</p>
-                <p v-if="tagline" class="tagline">{{ tagline }}</p>
               </div>
               <div v-if="scoreParts" class="score">
                 <span class="score-num">{{ scoreParts.int }}<span class="score-dec">{{ scoreParts.dec }}</span></span>
@@ -320,9 +311,6 @@ function runMenu(fn: () => void | Promise<void>) {
             <div v-if="(coffee.flavorNotes || []).length" class="notes" aria-label="Notas en taza">
               <span v-for="n in coffee.flavorNotes" :key="n" class="note">{{ n }}</span>
             </div>
-            <dl v-if="facts.length" class="facts">
-              <div v-for="f in facts" :key="f.k" class="fact"><dt>{{ f.k }}</dt><dd>{{ f.v }}</dd></div>
-            </dl>
           </div>
         </article>
 
@@ -619,19 +607,14 @@ function runMenu(fn: () => void | Promise<void>) {
 .hero-id { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .name { margin: 0; font: 400 44px/0.95 var(--font-display); letter-spacing: -0.02em; overflow-wrap: anywhere; }
 .roaster { margin: 4px 0 0; font: italic 400 17px/22px var(--font-display); }
-.tagline { margin: 0; font: italic 400 15px/22px var(--font-display); color: var(--ink-soft); }
 .score { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .score-num { font: 400 56px/0.9 var(--font-display); letter-spacing: -0.02em; color: var(--primary); }
 .score-dec { font-size: 28px; }
 .score-lab { font: 600 12px/16px var(--font-sans); }
 .score-sub { font-size: 12px; line-height: 16px; }
 .notes { display: flex; flex-wrap: wrap; gap: 6px; }
-.note, .fact { background: color-mix(in srgb, var(--bg) 70%, transparent); }
+.note { background: color-mix(in srgb, var(--bg) 70%, transparent); }
 .note { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 9999px; font: 500 13px/16px var(--font-sans); }
-.facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.fact { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 14px; min-width: 0; }
-.fact dt { font: 400 12px/16px var(--font-sans); color: var(--ink-soft); }
-.fact dd { margin: 0; font: 500 14px/20px var(--font-sans); overflow-wrap: anywhere; }
 .cta-bar { position: fixed; left: 0; right: 0; z-index: 20; bottom: calc(56px + env(safe-area-inset-bottom)); padding: 12px 20px; background: color-mix(in srgb, var(--bg) 95%, transparent); border-top: 1px solid var(--line); }
 .cta-bar--pair { display: flex; gap: 10px; }
 .cta-bar--pair .v3-btn { flex: 1; }
@@ -656,7 +639,7 @@ function runMenu(fn: () => void | Promise<void>) {
 .spec-list { margin: 0; }
 .spec { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .spec dt { font: 400 15px/22px var(--font-sans); color: var(--ink-soft); }
-.spec dd { margin: 0; text-align: right; font: 500 15px/22px var(--font-sans); overflow-wrap: anywhere; }
+.spec dd { margin: 0; text-align: right; font: 500 15px/22px var(--font-sans); overflow-wrap: break-word; hyphens: auto; }
 .menu { display: flex; flex-direction: column; padding: 4px 12px calc(20px + env(safe-area-inset-bottom)); }
 .menu-item { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 12px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font: 500 16px/22px var(--font-sans); cursor: pointer; }
 .menu-item:hover { background: var(--surface); }
@@ -675,11 +658,8 @@ function runMenu(fn: () => void | Promise<void>) {
   .hero-in { padding: 32px 32px 28px; gap: 20px; }
   .name { font-size: 80px; line-height: 0.92; }
   .roaster { font-size: 22px; line-height: 28px; }
-  .tagline { font-size: 17px; line-height: 24px; }
   .score-num { font-size: 96px; line-height: 0.85; }
   .score-dec { font-size: 44px; }
-  .facts { display: flex; flex-wrap: wrap; }
-  .fact { min-width: 110px; }
   .note { height: 34px; padding: 0 14px; font-size: 14px; }
   .cta-bar { position: static; padding: 0; background: transparent; border: 0; }
   .section-title { font-size: 28px; line-height: 32px; }

@@ -90,7 +90,7 @@ const params = computed(() => {
     { k: 'Agua', v: r.water ? `${r.water} ml` : '' },
     { k: 'Ratio', v: r.ratio || (r.water && r.dose ? `1:${Math.round(r.water / r.dose)}` : ''), key: true },
     { k: 'Temp', v: r.waterTemp ? `${r.waterTemp}°` : '' },
-    { k: 'Molienda', v: grindLabel(r.grindSize) || '' },
+    { k: 'Molienda', v: grindLabel(r.grindSize) || '', wide: true },
   ].filter(x => x.v)
 })
 const current = computed(() => timer.sorted.value[timer.activeIndex.value] ?? null)
@@ -148,7 +148,7 @@ function runMenu(fn: () => void | Promise<void>) {
               </div>
             </div>
             <dl v-if="params.length" class="params">
-              <div v-for="pm in params" :key="pm.k" :class="['param', { 'param--key': pm.key }]"><dt>{{ pm.k }}</dt><dd>{{ pm.v }}</dd></div>
+              <div v-for="pm in params" :key="pm.k" :class="['param', { 'param--key': pm.key, 'param--wide': pm.wide }]"><dt>{{ pm.k }}</dt><dd>{{ pm.v }}</dd></div>
             </dl>
           </div>
         </article>
@@ -364,7 +364,9 @@ function runMenu(fn: () => void | Promise<void>) {
 .params { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)); gap: 6px; }
 .param { display: flex; flex-direction: column; gap: 2px; padding: 10px; border-radius: 14px; background: color-mix(in srgb, var(--bg) 70%, transparent); min-width: 0; }
 .param dt { font: 400 11px/14px var(--font-sans); opacity: 0.8; }
-.param dd { margin: 0; font: 400 18px/24px var(--font-display); white-space: nowrap; }
+.param dd { margin: 0; font: 400 18px/24px var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* La molienda es texto («Media gruesa»): ocupa dos columnas. */
+.param--wide { grid-column: span 2; }
 .param--key { background: var(--primary); color: var(--on-primary); }
 .steps { display: flex; flex-direction: column; gap: 10px; }
 .section-title { margin: 0; font: 400 24px/28px var(--font-display); }

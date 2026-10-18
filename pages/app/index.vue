@@ -263,7 +263,17 @@ const monthName = computed(() => {
       </div>
 
       <!-- Cargando -->
-      <div v-if="homeState === 'loading'" class="home-skeleton" aria-hidden="true" />
+      <div v-if="homeState === 'loading'" class="home-skeleton" role="status" aria-label="Cargando tu diario">
+        <span class="sk sk-strip mobile-only" />
+        <span class="sk-card">
+          <span class="sk sk-line sk-w40" />
+          <span class="sk sk-title" />
+          <span class="sk sk-line sk-w60" />
+          <span class="sk sk-line sk-w90" />
+          <span class="sk-actions"><span class="sk sk-btn" /><span class="sk sk-btn" /></span>
+        </span>
+        <span class="sk-list"><span v-for="n in 2" :key="n" class="sk-row"><span class="sk sk-badge" /><span class="sk-row-text"><span class="sk sk-line sk-w60" /><span class="sk sk-line sk-w40" /></span></span></span>
+      </div>
 
       <!-- Con datos: la última taza como portada -->
       <template v-else-if="homeState === 'data' && lastCard">
@@ -563,7 +573,25 @@ const monthName = computed(() => {
 .home-tools { display: flex; align-items: center; gap: 4px; flex: none; }
 .home-avatar { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
 
-.home-skeleton { height: 220px; border-radius: 18px; background: var(--surface); }
+/* Cargando: la misma forma que la franja, la tarjeta y la lista, con un brillo suave. */
+.home-skeleton { display: flex; flex-direction: column; gap: 16px; }
+.sk { display: block; border-radius: 8px; background: linear-gradient(90deg, var(--surface) 0%, var(--surface-strong) 50%, var(--surface) 100%) 0 0 / 200% 100%; animation: sk-shine 1.4s ease-in-out infinite; }
+.sk-strip { height: 56px; border-radius: 14px; }
+.sk-card { display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 24px; background: var(--surface); }
+.sk-card .sk { background-image: linear-gradient(90deg, var(--surface-strong) 0%, var(--bg) 50%, var(--surface-strong) 100%); }
+.sk-line { height: 12px; }
+.sk-title { height: 34px; width: 70%; border-radius: 10px; }
+.sk-w40 { width: 40%; } .sk-w60 { width: 60%; } .sk-w90 { width: 90%; }
+.sk-actions { display: flex; gap: 10px; margin-top: 6px; }
+.sk-btn { flex: 1; height: 48px; border-radius: 14px; }
+.sk-list { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 16px; background: var(--surface); }
+.sk-list .sk { background-image: linear-gradient(90deg, var(--surface-strong) 0%, var(--bg) 50%, var(--surface-strong) 100%); }
+.sk-row { display: flex; align-items: center; gap: 14px; min-height: 76px; }
+.sk-row + .sk-row { border-top: 1px solid var(--line); }
+.sk-badge { flex: none; width: 48px; height: 48px; border-radius: 12px; }
+.sk-row-text { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+@keyframes sk-shine { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 
 .month-strip { display: flex; align-items: stretch; margin-top: -16px; border-radius: 14px; background: var(--surface); overflow: hidden; }
 .month-strip-label { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 8px 14px; color: var(--ink-soft); }

@@ -68,7 +68,7 @@ const v3Inactive = computed(() => inactive.value.map(toItem))
     word="métodos"
     subtitle="Cómo extraes el café."
     add-label="Agregar un método"
-    placeholder="Kubomi, Hario Switch…"
+    placeholder="Hario Switch, Clever…"
     empty-text="No tienes métodos activos. Toca uno inactivo para volver a usarlo."
     :active="v3Active"
     :inactive="v3Inactive"
