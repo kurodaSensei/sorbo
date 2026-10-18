@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { WishlistInput, WishlistItem } from '~/types'
 
 const { currentUser } = useAuth()
@@ -232,11 +232,217 @@ async function deleteItem() {
     // toast surfaced
   }
 }
+
+// ─── Quiero probar v3 (interruptor «social») ───────────────────────────────
+// Misma lógica; agrupada por prioridad, detalle al lado en escritorio y
+// «Ya lo probé» abre la nota rápida con este café.
+const v3 = useFlag('social')
+// «Ya lo probé» abre la nota rápida, que solo existe con el interruptor «catas».
+const quickNote = useFlag('catas')
+const router = useRouter()
+const isDesktop = useMediaQuery('(min-width: 1024px)')
+
+const v3Groups = computed(() => (['high', 'medium', 'low'] as PriorityBucket[])
+  .map(b => ({ bucket: b, label: `Prioridad ${PRIORITY_LABELS[b].toLowerCase()}`, items: filteredItems.value.filter(i => bucketOf(i.priority) === b) }))
+  .filter(g => g.items.length))
+
+// En escritorio el primero queda elegido para que el panel no esté vacío.
+watch([isDesktop, filteredItems], () => {
+  if (v3.value && isDesktop.value && !formOpen.value && (!activeItem.value || !filteredItems.value.some(i => i.id === activeItem.value!.id)))
+    activeItem.value = filteredItems.value[0] ?? null
+}, { immediate: true })
+
+function v3Open(i: WishlistItem) {
+  activeItem.value = i
+  formOpen.value = false
+  detailOpen.value = !isDesktop.value
+}
+function v3Tasted() {
+  if (activeItem.value) router.push(`/app/tastings/new?wish=${activeItem.value.id}`)
+}
+async function v3Delete() {
+  const item = activeItem.value
+  if (!item) return
+  const ok = await confirm({ title: 'Quitar de Quiero probar', message: `«${item.coffeeName}» saldrá de tu lista.`, confirmLabel: 'Quitar', destructive: true })
+  if (!ok) return
+  try {
+    await wishlistStore.remove(item.id)
+    detailOpen.value = false
+    activeItem.value = null
+  }
+  catch { /* el store ya avisa */ }
+}
+function v3Close() {
+  detailOpen.value = false
+  formOpen.value = false
+}
+function onSheetKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') v3Close()
+}
+const PRIORITY_DOT: Record<PriorityBucket, string> = { high: 'var(--accent)', medium: 'var(--tint)', low: 'var(--line-strong)' }
 </script>
 
 <template>
   <UiPullToRefresh :on-refresh="refresh">
-    <div class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
+    <div v-if="v3" class="v3 wish">
+      <header class="head">
+        <div class="head-row">
+          <NuxtLink to="/app/coffees" class="back"><Icon name="lucide:arrow-left" size="22" />Cafés</NuxtLink>
+          <span class="v3-eyebrow head-eb">— Quiero probar · {{ items.length }}</span>
+        </div>
+        <div class="title-row">
+          <div class="title-text">
+            <h1 class="title">Quiero <span class="v3-accent-word">probar</span></h1>
+            <p class="v3-subtitle sub">Los cafés que te quedan por conseguir.</p>
+          </div>
+          <button type="button" class="v3-btn v3-btn--primary new-btn" @click="openCreate">
+            <Icon name="lucide:plus" size="18" /><span class="mobile-only">Agregar</span><span class="desktop-only">Agregar café</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="layout">
+        <div class="list-col">
+          <div v-if="!isEmpty" class="search">
+            <Icon name="lucide:search" size="18" class="search-icon" />
+            <label for="wl-search" class="sr-only">Buscar en Quiero probar</label>
+            <input id="wl-search" v-model="search" type="search" class="v3-input search-input" placeholder="Café o marca" autocomplete="off">
+          </div>
+          <div v-if="!ready" class="list" aria-busy="true"><div v-for="n in 3" :key="n" class="row"><UiSkeleton class="h-5 w-2/3" /></div></div>
+          <div v-else-if="isEmpty" class="empty">
+            <p class="empty-text">Aún no tienes cafés por probar. Guarda los que veas en Explora o agrégalos tú.</p>
+            <button type="button" class="v3-btn v3-btn--primary" @click="openCreate">Agregar café</button>
+          </div>
+          <p v-else-if="isFilteredEmpty" class="empty-text">Ningún café coincide con tu búsqueda.</p>
+          <template v-else>
+          <section v-for="g in v3Groups" :key="g.bucket" class="group" :aria-label="g.label">
+            <h2 class="group-label"><span class="dot" :style="{ background: PRIORITY_DOT[g.bucket] }" aria-hidden="true" />{{ g.label }} · {{ g.items.length }}</h2>
+            <div class="list">
+              <button
+                v-for="i in g.items"
+                :key="i.id"
+                type="button"
+                :class="['row', { 'row--on': isDesktop && activeItem?.id === i.id && !formOpen }]"
+                :aria-current="isDesktop && activeItem?.id === i.id ? 'true' : undefined"
+                @click="v3Open(i)"
+              >
+                <span class="row-text">
+                  <span class="row-name">{{ i.coffeeName.replace(/\.+$/, '') }}</span>
+                  <span class="v3-meta">{{ [i.roasterName ? `de ${i.roasterName}` : '', relativeAge(i.createdAt)].filter(Boolean).join(' · ') }}</span>
+                  <span v-if="i.notes" class="row-note">«{{ i.notes }}»</span>
+                </span>
+                <Icon name="lucide:chevron-right" size="18" class="chev" />
+              </button>
+            </div>
+          </section>
+          </template>
+        </div>
+
+        <section v-if="isDesktop && (formOpen || activeItem)" class="panel" aria-labelledby="wl-panel-title">
+          <template v-if="formOpen">
+            <template v-for="headingId in ['wl-panel-title']" :key="headingId">
+              <h2 :id="headingId" class="f-title">{{ editingId ? 'Editar' : 'Agrega un' }} <span class="v3-accent-word">café</span></h2>
+          <form class="f" novalidate @submit.prevent="submit">
+            <V3Field v-model="form.coffeeName" label="Café" placeholder="Geisha Esmeralda" :error="formErrors.coffeeName" />
+            <V3Field v-model="form.roasterName" label="Marca u origen · opcional" placeholder="Hartmann, Panamá" />
+            <div class="f-field">
+              <label :for="`${headingId}-why`" class="v3-label">Por qué lo quieres <span class="opt">· opcional</span></label>
+              <textarea :id="`${headingId}-why`" v-model="form.notes" rows="3" class="v3-input f-why" placeholder="Escuché que es un floral brutal…" />
+            </div>
+            <fieldset class="f-prio">
+              <legend class="v3-label legend">Prioridad</legend>
+              <span class="seg">
+                <button v-for="b in (['low', 'medium', 'high'] as PriorityBucket[])" :key="b" type="button" :class="['seg-btn', { 'seg-btn--on': form.priorityBucket === b }]" :aria-pressed="form.priorityBucket === b" @click="form.priorityBucket = b">{{ PRIORITY_LABELS[b] }}</button>
+              </span>
+            </fieldset>
+            <button type="submit" class="v3-btn v3-btn--primary" :disabled="submitting" :aria-busy="submitting || undefined">
+              <span v-if="submitting" class="v3-spinner" aria-hidden="true" />{{ editingId ? 'Guardar cambios' : 'Agregar a Quiero probar' }}
+            </button>
+            <button v-if="editingId" type="button" class="v3-btn plain danger" @click="deleteItem">Quitar de la lista</button>
+          </form>
+            </template>
+          </template>
+          <template v-else-if="activeItem">
+            <template v-for="headingId in ['wl-panel-title']" :key="headingId">
+              <div class="d-head">
+            <span class="d-prio"><span class="dot" :style="{ background: PRIORITY_DOT[bucketOf(activeItem.priority)] }" aria-hidden="true" />Prioridad {{ PRIORITY_LABELS[bucketOf(activeItem.priority)].toLowerCase() }}</span>
+            <h2 :id="headingId" class="d-name">{{ activeItem.coffeeName.replace(/\.+$/, '') }}</h2>
+            <p v-if="activeItem.roasterName" class="d-sub">de {{ activeItem.roasterName }}</p>
+          </div>
+          <blockquote v-if="activeItem.notes" class="d-why">«{{ activeItem.notes }}»</blockquote>
+          <dl class="d-specs">
+            <div class="d-spec"><dt>Lo agregaste</dt><dd>{{ relativeAge(activeItem.createdAt) }}</dd></div>
+            <div v-if="activeItem.variety" class="d-spec"><dt>Variedad</dt><dd>{{ activeItem.variety }}</dd></div>
+          </dl>
+          <div class="d-actions">
+            <button type="button" class="v3-btn v3-btn--primary" @click="markPurchased"><Icon name="lucide:check" size="18" />Lo conseguí</button>
+            <button v-if="quickNote" type="button" class="v3-btn v3-btn--secondary tasted" @click="v3Tasted">Ya lo probé: anotar una cata</button>
+            <span class="d-row"><button type="button" class="v3-btn plain" @click="openEdit">Editar</button><button type="button" class="v3-btn plain danger" @click="v3Delete">Quitar</button></span>
+          </div>
+            </template>
+          </template>
+        </section>
+      </div>
+
+      <Teleport to="body">
+        <Transition name="v3-sheet">
+          <div v-if="!isDesktop && ((detailOpen && activeItem) || formOpen)" class="v3 v3-sheet-wrap" @keydown="onSheetKey">
+            <div class="v3-sheet-veil" aria-hidden="true" @click="v3Close" />
+            <section role="dialog" aria-modal="true" aria-labelledby="wl-sheet-title" class="v3-sheet wl-sheet">
+              <span class="v3-sheet-handle" aria-hidden="true" />
+              <div class="sheet-top">
+                <span class="v3-eyebrow head-eb">— {{ formOpen ? (editingId ? 'Editar' : 'Nuevo deseo') : 'Quiero probar' }}</span>
+                <button type="button" class="v3-sheet-close" aria-label="Cerrar" @click="v3Close"><Icon name="lucide:x" size="20" /></button>
+              </div>
+              <div class="sheet-body">
+                <template v-for="headingId in ['wl-sheet-title']" :key="headingId">
+                  <template v-if="formOpen">
+                    <h2 :id="headingId" class="f-title">{{ editingId ? 'Editar' : 'Agrega un' }} <span class="v3-accent-word">café</span></h2>
+          <form class="f" novalidate @submit.prevent="submit">
+            <V3Field v-model="form.coffeeName" label="Café" placeholder="Geisha Esmeralda" :error="formErrors.coffeeName" />
+            <V3Field v-model="form.roasterName" label="Marca u origen · opcional" placeholder="Hartmann, Panamá" />
+            <div class="f-field">
+              <label :for="`${headingId}-why`" class="v3-label">Por qué lo quieres <span class="opt">· opcional</span></label>
+              <textarea :id="`${headingId}-why`" v-model="form.notes" rows="3" class="v3-input f-why" placeholder="Escuché que es un floral brutal…" />
+            </div>
+            <fieldset class="f-prio">
+              <legend class="v3-label legend">Prioridad</legend>
+              <span class="seg">
+                <button v-for="b in (['low', 'medium', 'high'] as PriorityBucket[])" :key="b" type="button" :class="['seg-btn', { 'seg-btn--on': form.priorityBucket === b }]" :aria-pressed="form.priorityBucket === b" @click="form.priorityBucket = b">{{ PRIORITY_LABELS[b] }}</button>
+              </span>
+            </fieldset>
+            <button type="submit" class="v3-btn v3-btn--primary" :disabled="submitting" :aria-busy="submitting || undefined">
+              <span v-if="submitting" class="v3-spinner" aria-hidden="true" />{{ editingId ? 'Guardar cambios' : 'Agregar a Quiero probar' }}
+            </button>
+            <button v-if="editingId" type="button" class="v3-btn plain danger" @click="deleteItem">Quitar de la lista</button>
+          </form>
+                  </template>
+                  <template v-else-if="activeItem">
+                    <div class="d-head">
+            <span class="d-prio"><span class="dot" :style="{ background: PRIORITY_DOT[bucketOf(activeItem.priority)] }" aria-hidden="true" />Prioridad {{ PRIORITY_LABELS[bucketOf(activeItem.priority)].toLowerCase() }}</span>
+            <h2 :id="headingId" class="d-name">{{ activeItem.coffeeName.replace(/\.+$/, '') }}</h2>
+            <p v-if="activeItem.roasterName" class="d-sub">de {{ activeItem.roasterName }}</p>
+          </div>
+          <blockquote v-if="activeItem.notes" class="d-why">«{{ activeItem.notes }}»</blockquote>
+          <dl class="d-specs">
+            <div class="d-spec"><dt>Lo agregaste</dt><dd>{{ relativeAge(activeItem.createdAt) }}</dd></div>
+            <div v-if="activeItem.variety" class="d-spec"><dt>Variedad</dt><dd>{{ activeItem.variety }}</dd></div>
+          </dl>
+          <div class="d-actions">
+            <button type="button" class="v3-btn v3-btn--primary" @click="markPurchased"><Icon name="lucide:check" size="18" />Lo conseguí</button>
+            <button v-if="quickNote" type="button" class="v3-btn v3-btn--secondary tasted" @click="v3Tasted">Ya lo probé: anotar una cata</button>
+            <span class="d-row"><button type="button" class="v3-btn plain" @click="openEdit">Editar</button><button type="button" class="v3-btn plain danger" @click="v3Delete">Quitar</button></span>
+          </div>
+                  </template>
+                </template>
+              </div>
+            </section>
+          </div>
+        </Transition>
+      </Teleport>
+    </div>
+
+    <div v-else class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
     <header class="flex items-center justify-between gap-md">
       <UiEyebrow>Wishlist · {{ items.length }}</UiEyebrow>
       <div class="lg:hidden inline-flex items-center gap-sm">
@@ -482,3 +688,78 @@ async function deleteItem() {
     </div>
   </UiPullToRefresh>
 </template>
+
+<style scoped>
+.wish { box-sizing: border-box; max-width: 1180px; padding: 8px 20px 120px; display: flex; flex-direction: column; gap: 20px; background: transparent; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.desktop-only { display: none !important; }
+.head { display: flex; flex-direction: column; gap: 14px; }
+.head-row { display: flex; align-items: center; justify-content: space-between; }
+.head-eb { color: var(--ink-soft); }
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -12px; padding: 0 12px; color: var(--ink); text-decoration: none; font: 600 15px/20px var(--font-sans); }
+.title-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.title-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.title { margin: 0; font: 400 38px/35px var(--font-display); letter-spacing: -0.01em; }
+.sub { margin: 0; }
+.new-btn { flex: none; height: 40px; padding: 0 14px; font-size: 13px; gap: 6px; }
+.layout, .list-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.search { position: relative; }
+.search-icon { position: absolute; left: 14px; top: 15px; color: var(--ink-soft); }
+.search-input { padding-left: 42px; }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group-label { margin: 0; display: flex; align-items: center; gap: 8px; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.dot { flex: none; width: 10px; height: 10px; border-radius: 50%; }
+.list { display: flex; flex-direction: column; padding: 4px 14px; border-radius: 16px; background: var(--surface); }
+.row { display: flex; align-items: center; gap: 12px; min-height: 72px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.row:last-child { border-bottom: 0; }
+.row--on { box-shadow: -14px 0 0 var(--surface-strong), 14px 0 0 var(--surface-strong); background: var(--surface-strong); }
+.row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.row-name { font: 400 20px/24px var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-note { font: italic 400 14px/20px var(--font-display); color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chev { flex: none; color: var(--ink-soft); }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 40px 0; text-align: center; }
+.empty-text { margin: 0; max-width: 340px; font: italic 400 18px/26px var(--font-display); color: var(--ink-soft); }
+.wl-sheet { gap: 0; }
+.sheet-top { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px 0 20px; }
+.sheet-body { overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding: 4px 20px calc(24px + env(safe-area-inset-bottom)); }
+.d-head { display: flex; flex-direction: column; gap: 6px; }
+.d-prio { display: flex; align-items: center; gap: 8px; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
+.d-name { margin: 0; font: 400 40px/0.98 var(--font-display); letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.d-sub { margin: 0; font: italic 400 17px/22px var(--font-display); }
+.d-why { margin: 0; padding: 14px 16px; border-radius: 16px; background: var(--surface); font: italic 400 18px/26px var(--font-display); }
+.d-specs { margin: 0; display: flex; flex-direction: column; }
+.d-spec { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.d-spec:last-child { border-bottom: 0; }
+.d-spec dt { font: 400 15px/22px var(--font-sans); color: var(--ink-soft); }
+.d-spec dd { margin: 0; font: 500 15px/22px var(--font-sans); }
+.d-actions { display: flex; flex-direction: column; gap: 8px; }
+.d-row { display: flex; gap: 8px; }
+.d-row .v3-btn { flex: 1; }
+.plain { background: transparent; color: var(--ink); }
+.plain:hover { background: var(--surface); }
+.danger { color: var(--danger); }
+.f-title { margin: 0; font: 400 30px/32px var(--font-display); }
+.f { display: flex; flex-direction: column; gap: 16px; }
+.f-field { display: flex; flex-direction: column; gap: 8px; }
+.opt { font-weight: 400; }
+.f-why { min-height: 96px; resize: vertical; font-style: italic; }
+.f-prio { margin: 0; padding: 0; border: 0; }
+.legend { padding: 0 0 8px; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface); }
+.seg-btn { height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font: 500 14px/18px var(--font-sans); cursor: pointer; }
+.seg-btn--on { background: var(--bg); font-weight: 600; }
+
+@media (min-width: 1024px) {
+  .wish { padding: 32px 48px 64px; gap: 24px; }
+  .mobile-only { display: none !important; }
+  .desktop-only { display: inline !important; }
+  .head-row .head-eb { display: none; }
+  .title { font-size: 56px; line-height: 52px; letter-spacing: -0.02em; }
+  .sub { font-size: 19px; line-height: 26px; }
+  .new-btn { height: 48px; padding: 0 18px; font-size: 15px; gap: 8px; }
+  .layout { flex-direction: row; align-items: flex-start; gap: 40px; }
+  .list-col { flex: 1 1 380px; }
+  .panel { flex: 1 1 380px; min-width: 0; position: sticky; top: 24px; display: flex; flex-direction: column; gap: 16px; padding: 28px; border-radius: 24px; background: var(--surface-strong); }
+  .panel .d-why, .panel .seg, .panel :deep(.input), .panel .v3-input { background: var(--bg); }
+}
+</style>
