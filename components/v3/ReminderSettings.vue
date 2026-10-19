@@ -125,7 +125,7 @@ async function sendTest() {
 .row { position: relative; display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; box-sizing: border-box; }
 .row:last-child { border-bottom: 0; }
 .row:disabled { cursor: default; }
-.row--static { justify-content: space-between; cursor: default; }
+.row--static { flex-wrap: wrap; justify-content: space-between; gap: 10px 14px; cursor: default; }
 .row--locked { cursor: default; }
 .row-icon { flex: none; color: var(--primary); }
 .row-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
@@ -139,8 +139,9 @@ async function sendTest() {
 .switch-input:checked + .switch::after { transform: translateX(20px); }
 .switch-input:disabled + .switch { opacity: 0.5; }
 .switch-input:focus-visible + .switch { outline: 2px solid var(--primary); outline-offset: 2px; }
-.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--bg); }
-.seg-btn { height: 36px; padding: 0 12px; border: 0; border-radius: 9px; background: transparent; color: var(--ink); font: 500 14px/18px var(--font-sans); white-space: nowrap; cursor: pointer; }
+.seg { flex: 1 1 236px; max-width: 300px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--bg); }
+.row--static > .seg { margin-left: auto; }
+.seg-btn { min-width: 0; height: 36px; padding: 0 8px; border: 0; border-radius: 9px; background: transparent; color: var(--ink); font: 500 14px/18px var(--font-sans); white-space: nowrap; cursor: pointer; }
 .seg-btn--on { background: var(--primary); color: var(--on-primary); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }
 </style>
