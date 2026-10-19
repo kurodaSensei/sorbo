@@ -91,6 +91,8 @@ export const useFirebase = () => {
       sharedWith: payload.visibility === 'friends' ? payload.sharedWith : [],
       updatedAt: Timestamp.now(),
     }
+    // Cuándo se compartió (Avisos de amigos): editar algo ya compartido no vuelve a avisar.
+    if (payload.visibility !== 'private') data.sharedAt = Timestamp.now()
     if (payload.visibility === 'community') {
       data.authorName = payload.authorName ?? null
       data.authorPhotoURL = payload.authorPhotoURL ?? null

@@ -21,6 +21,24 @@ onMounted(() => {
 // Recordatorio diario (interruptor «recordatorios»).
 const remindersOn = useFlag('recordatorios')
 
+// Avisos de amigos (interruptor «avisos»): encendidos salvo que la persona los apague.
+const avisosOn = useFlag('avisos')
+const { enabled: noticesEnabled, setEnabled: setNotices } = useNotices()
+const noticesBusy = ref(false)
+async function toggleNotices() {
+  if (noticesBusy.value) return
+  noticesBusy.value = true
+  try {
+    await setNotices(!noticesEnabled.value)
+  }
+  catch (e) {
+    toast.error('No se pudo cambiar los avisos', e)
+  }
+  finally {
+    noticesBusy.value = false
+  }
+}
+
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
@@ -188,6 +206,15 @@ async function onRestoreChecklist() {
               <span v-if="pendingFriends" class="badge" :aria-label="`${pendingFriends} solicitudes nuevas`">{{ pendingFriends }}</span>
               <Icon name="lucide:chevron-right" size="18" class="chev" />
             </NuxtLink>
+            <label v-if="avisosOn" class="row row--switch">
+              <Icon name="lucide:bell" size="20" class="row-icon" />
+              <span class="row-text">
+                <span id="notices-switch" class="row-title">Avisos de amigos</span>
+                <span class="v3-meta">Cuando comparten un café, una cata o una receta. Solo dentro de la app.</span>
+              </span>
+              <input type="checkbox" role="switch" class="switch-input" :checked="noticesEnabled" :disabled="noticesBusy" aria-labelledby="notices-switch" @change="toggleNotices">
+              <span class="switch" aria-hidden="true" />
+            </label>
           </div>
         </section>
 
@@ -471,6 +498,15 @@ async function onRestoreChecklist() {
   cursor: pointer;
 }
 .row:last-child { border-bottom: 0; }
+.row--switch { position: relative; min-height: 64px; padding: 10px 0; }
+.switch-input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch { flex: none; position: relative; width: 50px; height: 30px; border-radius: 9999px; background: var(--ink-faint); transition: background-color 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg); transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+.switch-input:checked + .switch { background: var(--primary); }
+.switch-input:checked + .switch::after { transform: translateX(20px); }
+.switch-input:disabled + .switch { opacity: 0.5; }
+.switch-input:focus-visible + .switch { outline: 2px solid var(--primary); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }
 .row:disabled { opacity: 0.5; cursor: not-allowed; }
 .row-icon { flex: none; color: var(--primary); }
 .row-icon--soft { color: var(--ink-soft); }
