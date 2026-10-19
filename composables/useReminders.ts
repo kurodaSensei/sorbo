@@ -74,7 +74,7 @@ export function useReminders() {
       registration.showNotification(n.title, {
         body: n.body,
         icon: n.icon || '/icons/icon-192.png',
-        badge: '/icons/icon-192.png',
+        badge: '/icons/badge-96.png',
         data: { link: payload.fcmOptions?.link || '/app/tastings/new' },
       })
     })

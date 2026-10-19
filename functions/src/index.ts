@@ -30,7 +30,8 @@ async function push(tokens: string[], title: string, body: string) {
   const res = await getMessaging().sendEachForMulticast({
     tokens,
     webpush: {
-      notification: { title, body, icon: '/icons/icon-192.png', badge: '/icons/icon-192.png' },
+      // badge: la «S.» de una sola tinta; Android lo pinta como silueta.
+      notification: { title, body, icon: '/icons/icon-192.png', badge: '/icons/badge-96.png' },
       fcmOptions: { link: APP_URL },
     },
   })
