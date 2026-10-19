@@ -95,6 +95,8 @@ export interface Coffee {
   roasterId?: string
   roasterName?: string
   variety: string
+  /** Varias variedades (blends). Si falta, se lee `variety`; `variety` guarda la primera. */
+  varieties?: string[]
   process: CoffeeProcess
   originRegion: string
   originCountry: string

@@ -45,3 +45,13 @@ describe('processAfterName', () => {
     expect(processAfterName('Sidra', '')).toBe('')
   })
 })
+
+describe('coffeeVarieties', () => {
+  it('lee la lista nueva o, en cafés viejos, la única variedad', async () => {
+    const { coffeeVarieties } = await import('../../utils/formatters')
+    expect(coffeeVarieties({ varieties: ['Caturra', ' Castillo '], variety: 'Caturra' })).toEqual(['Caturra', 'Castillo'])
+    expect(coffeeVarieties({ variety: 'Sidra' })).toEqual(['Sidra'])
+    expect(coffeeVarieties({ varieties: [], variety: '' })).toEqual([])
+    expect(coffeeVarieties(null)).toEqual([])
+  })
+})

@@ -1,6 +1,6 @@
 // Contenido de la imagen para compartir (café, cata o receta). Solo los datos que existan.
 import type { Coffee, Recipe, Tasting } from '~/types'
-import { formatAltitude, getRoastLevelLabel } from './formatters'
+import { coffeeVarieties, formatAltitude, getRoastLevelLabel } from './formatters'
 import { formatClock, grindLabel } from './recipes'
 import { ratingToScore, scoreWord } from './score'
 
@@ -47,7 +47,7 @@ export function shareContent(
       by: clean(c.roasterName),
       chips: (c.flavorNotes || []).slice(0, 4),
       rows: ([
-        ['Variedad', c.variety],
+        [coffeeVarieties(c).length > 1 ? 'Variedades' : 'Variedad', coffeeVarieties(c).join(' · ')],
         ['Altura', c.altitude ? formatAltitude(c.altitude) : ''],
         ['Tueste', c.roastLevel ? getRoastLevelLabel(c.roastLevel) : ''],
         ['Puntaje SCA', c.scaScore ? String(c.scaScore) : ''],

@@ -78,7 +78,7 @@ const eyebrow = computed(() => {
   const parts = [
     coffee.value.process ? processLabel[coffee.value.process] : '',
     coffee.value.originRegion,
-    coffee.value.variety,
+    coffeeVarieties(coffee.value).join(' · '),
   ].filter(Boolean)
   return parts.join(' · ')
 })
@@ -231,7 +231,7 @@ const specs = computed(() => {
   if (!c) return []
   return [
     { k: 'Proceso', v: c.process && c.process !== 'other' ? processLabel[c.process] : '' },
-    { k: 'Variedad', v: c.variety || '' },
+    { k: coffeeVarieties(c).length > 1 ? 'Variedades' : 'Variedad', v: coffeeVarieties(c).join(' · ') },
     { k: 'Origen', v: [c.originRegion, c.originCountry].filter(Boolean).join(', ') },
     { k: 'Altitud', v: c.altitude ? `${c.altitude.toLocaleString('es-CO')} msnm` : '' },
     { k: 'Tueste', v: c.roastLevel ? roastLabel[c.roastLevel] : '' },

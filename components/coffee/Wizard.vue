@@ -53,7 +53,12 @@ const totalSteps = 3
 // Step 1 — IDENTIDAD
 const name = ref('')
 const roaster = ref<RoasterValue | null>(null)
-const variety = ref('')
+// Varias variedades (blends). `variety` queda para el formulario v1, que edita solo la primera.
+const varieties = ref<string[]>([])
+const variety = computed({
+  get: () => varieties.value[0] ?? '',
+  set: (v: string) => { varieties.value = v.trim() ? [v] : [] },
+})
 // Process puede ser un valor del enum CoffeeProcess o un id custom (`custom_xxx`)
 // proveniente del catálogo del usuario.
 const process = ref<string>('')
@@ -94,9 +99,9 @@ watch(
     roaster.value = c.roasterName
       ? { id: c.roasterId, name: c.roasterName }
       : null
-    variety.value = c.variety || ''
+    varieties.value = coffeeVarieties(c)
     process.value = c.process || ''
-    if (c.variety || c.process) showMoreIdentity.value = true
+    if (varieties.value.length || c.process) showMoreIdentity.value = true
 
     country.value = c.originCountry || ''
     region.value = c.originRegion || ''
@@ -171,7 +176,7 @@ function snapshot() {
   return {
     name: name.value,
     roaster: roaster.value,
-    variety: variety.value,
+    varieties: varieties.value.slice(),
     process: process.value,
     country: country.value,
     region: region.value,
@@ -198,7 +203,7 @@ const isDirty = computed(() =>
   !!(
     name.value.trim()
     || roaster.value?.name
-    || variety.value.trim()
+    || varieties.value.length
     || process.value
     || country.value
     || region.value.trim()
@@ -230,7 +235,7 @@ onMounted(async () => {
     if (!d || Date.now() - d.savedAt > 24 * 60 * 60 * 1000) return
     name.value = d.name || ''
     roaster.value = d.roaster || null
-    variety.value = d.variety || ''
+    varieties.value = Array.isArray(d.varieties) ? d.varieties : (d.variety ? [d.variety] : [])
     process.value = d.process || ''
     country.value = d.country || ''
     region.value = d.region || ''
@@ -254,7 +259,7 @@ onMounted(async () => {
 })
 
 watch(
-  [name, roaster, variety, process, country, region, altitude, farm, producer,
+  [name, roaster, varieties, process, country, region, altitude, farm, producer,
     flavorNotes, roastLevel, price, weight, scaScore, purchaseChannel,
     purchaseReference, showMoreIdentity, showMoreOrigin, showSca, showPurchase, step],
   () => {
@@ -372,7 +377,9 @@ async function submit() {
       name: name.value.trim(),
       roasterId: roaster.value?.id,
       roasterName: roaster.value?.name?.trim() || undefined,
-      variety: variety.value.trim() || '',
+      // variety guarda la primera: lo que aún lee variety (y la v1) sigue funcionando.
+      variety: varieties.value[0]?.trim() || '',
+      varieties: varieties.value.map(v => v.trim()).filter(Boolean),
       process: (process.value || 'other') as CoffeeProcess,
       originRegion: region.value.trim() || '',
       originCountry: country.value || '',
@@ -505,7 +512,7 @@ const v3SubmitLabel = computed(() => (props.mode === 'edit' ? 'Guardar cambios' 
           <V3Field v-model="name" label="Nombre" placeholder="Rock natural" :error="errors.name" />
           <div class="pair">
             <RoasterPicker v-model="roaster" label="Marca · opcional" placeholder="Tostador, tienda, marca…" class="picker" />
-            <VarietyPicker v-model="variety" label="Variedad · opcional" placeholder="Caturra, Geisha…" class="picker" />
+            <V3VarietiesField v-model="varieties" />
           </div>
           <div class="field">
             <span class="v3-label">Proceso <span class="opt">· opcional</span></span>
