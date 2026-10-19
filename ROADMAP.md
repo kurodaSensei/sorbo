@@ -1,6 +1,6 @@
 # Sorbo — Roadmap
 
-> Documento vivo. Última actualización: 25 jun 2026.
+> Documento vivo. Última actualización: 19 oct 2026.
 > Producto en producción: [sorbo.app](https://sorbo.app)
 
 ---
@@ -9,14 +9,32 @@
 
 | | |
 |---|---|
-| **Etapa** | Producción · post-soft-launch |
+| **Etapa** | Producción · **v3 en pruebas** (19 al 26 oct 2026) |
 | **Branch principal** | `main` (deploy continuo a Vercel) |
 | **Branch archivada** | `el-vertido` (rediseño completo, ver [`design/el-vertido-STATUS.md`](design/el-vertido-STATUS.md)) |
-| **Stack** | Nuxt 3 · Vue 3 · TypeScript · Tailwind · Firebase Spark · Vercel free |
-| **Costo de infra** | $0/mes |
+| **Stack** | Nuxt 3 · Vue 3 · TypeScript · Firebase Blaze (Firestore, Auth, Cloud Functions, FCM) · Vercel |
+| **Costo de infra** | ~$0/mes, con presupuesto de $10/mes y alertas en Blaze |
 | **Equipo** | Solo developer (KurodaCafe) |
 | **Métodos soportados** | 12 métodos de extracción |
 | **Idioma** | Español (es-ES) |
+
+---
+
+## v3 (octubre 2026)
+
+v3 está en producción desde el 18 de octubre, pantalla por pantalla detrás de interruptores (`NUXT_PUBLIC_FLAGS`) con la v1 de respaldo. Diseño en el canvas «Sorbo v3 · Pantallas», tokens en `assets/css/v3.css`, componentes en `components/v3/`.
+
+**Encendido en producción**: acceso, inicio, navegacion, cuenta, catalogos, cafes, recetas, catas, social, compartir, recordatorios, avisos. **El Vertido sigue en v1.**
+
+- [x] Todas las pantallas en v3 menos El Vertido (#16 a #28)
+- [x] Puntaje de catas 1–5 con palabras y nota rápida en una pantalla
+- [x] Ajustes móviles tras probar en producción (#30, #33, #37)
+- [x] **Compartir como imagen**: café, cata o receta en historia 9:16 o publicación 4:5, con texto para WhatsApp que lleva a sorbo.app (#31, #40)
+- [x] **Recordatorio diario** con aviso de prueba: Cloud Functions `dailyReminder` y `sendTestReminder` (#32, #34 a #36)
+- [x] **Avisos de amigos** dentro de la app: solicitudes y lo que comparten tus amigos, con punto de no leído (#38)
+- [x] **Varias variedades** por café (blends) (#39)
+
+Plan de la semana de pruebas: bitácora en Obsidian, «Sorbo v3 — Plan de pruebas».
 
 ---
 
@@ -104,7 +122,7 @@
 
 ---
 
-## En qué vamos
+## Ronda de UX / a11y (junio 2026)
 
 Acabamos de cerrar una **ronda completa de UX / a11y** para atacar el
 feedback recurrente "es complicada". Estado por tier del
@@ -142,7 +160,21 @@ image corregida, hamburger mobile.
 
 ## Lo que sigue
 
-### Próximos 7 días — quick wins
+### Después de la semana de pruebas (desde el 26 oct 2026)
+
+1. [ ] Corregir lo que salga de las pruebas, por severidad, en PR pequeños
+2. [ ] Etiquetar `v3.0.0` cuando esté estable
+3. [ ] Retirar el código v1 de cada pantalla tras 1–2 semanas estables, y quitar sus interruptores (incluye la campana v1 y los asistentes v1)
+4. [ ] **El Vertido en v3** (diseño en el canvas primero) y lo pendiente de su rama (ver abajo)
+5. [ ] **Página pública** de café, cata o receta para enlazar desde WhatsApp, solo para lo compartido con la comunidad (diseño primero)
+6. [ ] Blends con **varios orígenes**
+7. [ ] **Tema oscuro** (definido en el DS v3; falta en `v3.css`)
+8. [ ] Pasar «Marca y redes» del DS v2 al v3
+9. [ ] Recordatorio: soltar el dispositivo al cerrar sesión (`deleteToken` + quitarlo de `reminders.tokens`)
+10. [ ] Escala: «compartido conmigo» con `where(sharedAt)` e índice; paginar listas antes de ~300 notas
+11. [ ] Conector MCP: `registrar_nota` y `mis_cafes`
+
+### Pendientes de junio — quick wins
 
 - [x] **Detalle pages (tier 2)** — `tastings/[id]` y `recipes/[id]` con sección "Siguiente" (repetir cata / cata con receta / ver café). Coffee detail ya tenía "Cata este café".
 - [x] **Landing con imagen real** — `<img>` con OG image + alt descriptivo en la sección Voices. Ataca el hallazgo del audit SEO sobre CSS mockups.
@@ -227,7 +259,7 @@ La rama `el-vertido` quedó archivada al ~70% del scope. Para retomarla, el orde
 
 ### Decisiones arquitectónicas vigentes
 
-- **No Cloud Functions** — todo el cómputo es cliente o queries. Forzó denormalización agresiva.
+- **Cloud Functions solo para lo que no puede vivir en el cliente** — hoy, el recordatorio diario (`dailyReminder`) y su aviso de prueba (`sendTestReminder`). Lo demás sigue siendo cliente o queries, con denormalización.
 - **No backend custom** — Firestore Security Rules son el único enforcer.
 - **Mobile-first** — desktop es responsive del mobile centrado, excepto Home y Cafés Lista que tienen layout dedicado.
 - **PWA, no nativa** — install via browser, sin tiendas de apps.
@@ -239,10 +271,10 @@ La rama `el-vertido` quedó archivada al ~70% del scope. Para retomarla, el orde
 
 ### Pendientes técnicos identificados
 
-- ⚠️ Sin tests automatizados — riesgo creciente conforme se agregan features
-- ⚠️ Sin CI/CD validation pre-merge
+- ✅ Tests: Vitest (`npm test`), reglas de Firestore con emulador (`npm run test:rules`) y E2E con Playwright
+- ✅ CI en GitHub Actions antes de cada merge (tests y reglas)
 - ⚠️ Sentry cuota gratuita podría llenarse si se escala
-- ⚠️ Firestore Spark tier tiene límite de 50k reads/día — habrá que monitorear conforme crezca la base de usuarios
+- ⚠️ Firestore en Blaze: vigilar lecturas (Avisos lee lo compartido contigo al abrir la app, con caché de 5 minutos)
 
 ---
 
