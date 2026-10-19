@@ -125,6 +125,8 @@ useHead({
 // era contradictorio. Mantenemos el diseño de la sección, cambia el flujo.
 // ─────────────────────────────────────────────────────────────────────────────
 
+const v3 = useFlag('landing')
+
 const { register, loginWithGoogle, currentUser } = useAuth()
 const { trackEvent } = useAnalytics()
 const router = useRouter()
@@ -218,7 +220,8 @@ function mobileScrollAndClose(id: string) {
 </script>
 
 <template>
-  <div class="landing">
+  <V3Landing v-if="v3" />
+  <div v-else class="landing">
     <!-- ============ NAV ============ -->
     <nav class="nav">
       <NuxtLink to="/" class="brand" aria-label="Sorbo · Inicio">
