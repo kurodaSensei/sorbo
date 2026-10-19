@@ -128,3 +128,9 @@ export function dayGroup(date: Date, now: Date = new Date()): string {
   const label = month.charAt(0).toUpperCase() + month.slice(1)
   return date.getFullYear() === now.getFullYear() ? label : `${label} ${date.getFullYear()}`
 }
+
+/** Variedades de un café: la lista nueva o, en cafés viejos, la única que tenían. */
+export function coffeeVarieties(c: { varieties?: string[], variety?: string } | null | undefined): string[] {
+  const list = c?.varieties?.length ? c.varieties : (c?.variety ? [c.variety] : [])
+  return list.map(v => v.trim()).filter(Boolean)
+}

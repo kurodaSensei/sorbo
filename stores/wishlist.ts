@@ -74,7 +74,7 @@ export const useWishlistStore = defineStore('wishlist', () => {
       coffeeName: coffee.name,
       roasterId: coffee.roasterId || undefined,
       roasterName: coffee.roasterName || undefined,
-      variety: coffee.variety || undefined,
+      variety: coffeeVarieties(coffee).join(' · ') || undefined,
       priority: 3,
       status: 'pending',
     }

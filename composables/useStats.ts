@@ -13,7 +13,7 @@ export const useStats = () => {
 
     // Varieties breakdown
     const varietyCounts = coffees.reduce((acc, c) => {
-      acc[c.variety] = (acc[c.variety] || 0) + 1
+      for (const v of coffeeVarieties(c)) acc[v] = (acc[v] || 0) + 1
       return acc
     }, {} as Record<string, number>)
 

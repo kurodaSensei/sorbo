@@ -55,7 +55,7 @@ const items = computed<Coffee[]>(() => {
   const filtered = tab.value === 'mine'
     ? searched.filter((c) => {
         if (f.process && c.process !== f.process) return false
-        if (f.variety && c.variety !== f.variety) return false
+        if (f.variety && !coffeeVarieties(c).includes(f.variety)) return false
         if (f.roasterId && c.roasterId !== f.roasterId) return false
         if (f.country && c.originCountry !== f.country) return false
         return true

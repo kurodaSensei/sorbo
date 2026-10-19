@@ -13,7 +13,7 @@ export const useCoffees = () => {
     let result = all
     if (filters?.roasterId) result = result.filter(c => c.roasterId === filters.roasterId)
     if (filters?.process) result = result.filter(c => c.process === filters.process)
-    if (filters?.variety) result = result.filter(c => c.variety === filters.variety)
+    if (filters?.variety) result = result.filter(c => coffeeVarieties(c).includes(filters.variety!))
     return result.sort((a, b) => {
       const ta = a.createdAt?.toMillis?.() ?? 0
       const tb = b.createdAt?.toMillis?.() ?? 0

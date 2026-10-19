@@ -98,6 +98,7 @@ export const useCoffeesStore = defineStore('coffees', () => {
         roasterId: source.roasterId,
         roasterName: source.roasterName,
         variety: source.variety,
+        varieties: source.varieties,
         process: source.process,
         originRegion: source.originRegion,
         originCountry: source.originCountry,
