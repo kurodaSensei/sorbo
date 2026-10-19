@@ -43,14 +43,18 @@ export function useReminders() {
     return isSupported()
   }
 
-  /** Registra (o actualiza) el service worker de FCM. Scope propio: convive con el de la PWA. */
-  function register() {
+  /** Registra el service worker de FCM y busca su versión nueva. Scope propio: convive con el de la PWA. */
+  async function register() {
     const c = config.public
     const params = new URLSearchParams({
       apiKey: c.firebaseApiKey, projectId: c.firebaseProjectId,
       messagingSenderId: c.firebaseMessagingSenderId, appId: c.firebaseAppId,
     })
-    return navigator.serviceWorker.register(`/firebase-messaging-sw.js?${params}`, { scope: PUSH_SCOPE })
+    const registration = await navigator.serviceWorker.register(`/firebase-messaging-sw.js?${params}`, { scope: PUSH_SCOPE })
+    // Registrar con la misma URL no actualiza: devuelve el que ya está. Sin esto, un teléfono
+    // se queda con el service worker viejo hasta 24 h (y el toque en el aviso no abría nada).
+    registration.update().catch(() => {})
+    return registration
   }
 
   async function token(): Promise<string> {
