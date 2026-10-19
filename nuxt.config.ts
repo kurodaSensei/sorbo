@@ -80,7 +80,8 @@ export default defineNuxtConfig({
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
           handler: 'CacheFirst',
           options: {
-            cacheName: 'google-fonts-cache',
+            // v2: la hoja ahora se pide con crossorigin; la copia vieja (opaca) ya no sirve.
+            cacheName: 'google-fonts-cache-v2',
             expiration: {
               maxEntries: 10,
               maxAgeSeconds: 60 * 60 * 24 * 365,
@@ -150,7 +151,9 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
+          // crossorigin: la imagen para compartir lee estas reglas para incrustar las fuentes.
           rel: 'stylesheet',
+          crossorigin: 'anonymous',
           href: 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap',
         },
         { rel: 'icon', type: 'image/svg+xml', href: '/sorbo.svg' },
