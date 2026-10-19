@@ -15,6 +15,8 @@ withDefaults(
 
 const friendsStore = useFriendsStore()
 const toast = useToast()
+// Avisos v3 (interruptor «avisos»): reemplaza esta campana en todas las pantallas.
+const v3Avisos = useFlag('avisos')
 
 onMounted(() => {
   if (friendsStore.list.length === 0) {
@@ -139,7 +141,8 @@ async function reject(f: Friendship) {
 </script>
 
 <template>
-  <div ref="containerRef" :class="cn('relative inline-flex', $props.class)">
+  <V3NoticeBell v-if="v3Avisos" :class="$props.class" />
+  <div v-else ref="containerRef" :class="cn('relative inline-flex', $props.class)">
     <button
       ref="buttonRef"
       type="button"

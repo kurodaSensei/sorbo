@@ -115,6 +115,8 @@ export interface Coffee {
   sharedWith?: string[]
   /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
   visibility?: Visibility
+  /** Cuándo se compartió con amigos o la comunidad (Avisos). Lo anterior usa createdAt. */
+  sharedAt?: Timestamp
   /** Denormalizado al compartir a comunidad — evita un lookup por item en el feed. */
   authorName?: string
   authorPhotoURL?: string
@@ -154,6 +156,8 @@ export interface Tasting {
   sharedWith?: string[]
   /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
   visibility?: Visibility
+  /** Cuándo se compartió con amigos o la comunidad (Avisos). Lo anterior usa createdAt. */
+  sharedAt?: Timestamp
   /** Denormalizado al compartir a comunidad — evita un lookup por item en el feed. */
   authorName?: string
   authorPhotoURL?: string
@@ -181,6 +185,8 @@ export interface Recipe {
   sharedWith?: string[]
   /** Nivel de visibilidad. Ausente = 'private' (documentos antiguos). */
   visibility?: Visibility
+  /** Cuándo se compartió con amigos o la comunidad (Avisos). Lo anterior usa createdAt. */
+  sharedAt?: Timestamp
   /** Denormalizado al compartir a comunidad — evita un lookup por item en el feed. */
   authorName?: string
   authorPhotoURL?: string
@@ -286,6 +292,8 @@ export interface UserPreferences {
     lastSentAt?: Timestamp
     sentStreak?: number
   }
+  /** Avisos de amigos dentro de la app: encendidos salvo que friends sea false; seenAt = visto hasta. */
+  notifications?: { friends?: boolean, seenAt?: Timestamp }
   /** Actividad desnormalizada (no hace falta leer todas las notas). */
   activity?: { lastNoteAt?: Timestamp }
   createdAt?: Timestamp
