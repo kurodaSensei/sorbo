@@ -12,6 +12,19 @@ initializeApp()
 const APP_URL = 'https://www.sorbo.app/app/tastings/new'
 const DEAD_TOKEN = new Set(['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'])
 
+// userPreferences lo escribe la persona: se valida aquí lo que llega de ahí.
+const MAX_TOKENS = 10
+function validTokens(raw: unknown): string[] {
+  return Array.isArray(raw) ? raw.filter((t): t is string => typeof t === 'string' && t.length > 0 && t.length < 4096).slice(-MAX_TOKENS) : []
+}
+function validTz(raw: unknown): string {
+  try {
+    if (typeof raw === 'string' && raw) return new Intl.DateTimeFormat('en-CA', { timeZone: raw }).resolvedOptions().timeZone
+  }
+  catch { /* zona inválida: la por defecto */ }
+  return 'America/Bogota'
+}
+
 /** Envía un aviso a todos los dispositivos y devuelve cuántos llegaron y cuáles ya no existen. */
 async function push(tokens: string[], title: string, body: string) {
   const res = await getMessaging().sendEachForMulticast({
@@ -47,31 +60,37 @@ export const dailyReminder = onSchedule(
       .get()
 
     let sent = 0
+    let failed = 0
     for (const docSnap of snap.docs) {
-      const r = docSnap.get('reminders') ?? {}
-      const tokens: string[] = r.tokens ?? []
-      if (!tokens.length) continue
+      // Un documento raro no corta los avisos de las demás personas de esta hora.
+      try {
+        const r = docSnap.get('reminders') ?? {}
+        const tokens = validTokens(r.tokens)
+        if (!tokens.length) continue
 
-      const lastActivity: Timestamp | undefined = docSnap.get('activity.lastNoteAt') ?? r.enabledAt
-      const d = decide({
-        lastActivityAt: lastActivity?.toDate() ?? now,
-        lastSentAt: r.lastSentAt?.toDate() ?? null,
-        sentStreak: r.sentStreak ?? 0,
-        tz: r.tz || 'America/Bogota',
-      }, now)
-      if (!d.send) continue
+        const lastActivity = docSnap.get('activity.lastNoteAt') ?? r.enabledAt
+        const d = decide({
+          lastActivityAt: lastActivity instanceof Timestamp ? lastActivity.toDate() : now,
+          lastSentAt: r.lastSentAt instanceof Timestamp ? r.lastSentAt.toDate() : null,
+          sentStreak: typeof r.sentStreak === 'number' ? r.sentStreak : 0,
+          tz: validTz(r.tz),
+        }, now)
+        if (!d.send) continue
 
-      const res = await push(tokens, d.title!, d.body!)
-      const dead = res.dead
-
-      await docSnap.ref.update({
-        'reminders.lastSentAt': Timestamp.fromDate(now),
-        'reminders.sentStreak': d.streak,
-        ...(dead.length ? { 'reminders.tokens': FieldValue.arrayRemove(...dead) } : {}),
-      })
-      sent += res.sent
+        const res = await push(tokens, d.title!, d.body!)
+        await docSnap.ref.update({
+          'reminders.lastSentAt': Timestamp.fromDate(now),
+          'reminders.sentStreak': d.streak,
+          ...(res.dead.length ? { 'reminders.tokens': FieldValue.arrayRemove(...res.dead) } : {}),
+        })
+        sent += res.sent
+      }
+      catch (e) {
+        failed++
+        logger.warn('dailyReminder: falló una persona', { uid: docSnap.id, error: String(e) })
+      }
     }
-    logger.info('dailyReminder', { hourUtc: now.getUTCHours(), candidates: snap.size, sent })
+    logger.info('dailyReminder', { hourUtc: now.getUTCHours(), candidates: snap.size, sent, failed })
   },
 )
 
@@ -81,18 +100,24 @@ export const sendTestReminder = onCall(
   async (req) => {
     const uid = req.auth?.uid
     if (!uid) throw new HttpsError('unauthenticated', 'Inicia sesión para probar el aviso.')
-    const ref = getFirestore().collection('userPreferences').doc(uid)
+    const db = getFirestore()
+    const ref = db.collection('userPreferences').doc(uid)
     const r = (await ref.get()).get('reminders') ?? {}
-    const tokens: string[] = r.tokens ?? []
-    if (!r.enabled || !tokens.length) throw new HttpsError('failed-precondition', 'Activa el recordatorio primero.')
-    const last: number = r.lastTestAt?.toMillis?.() ?? 0
-    if (Date.now() - last < 60_000) throw new HttpsError('resource-exhausted', 'Espera un minuto para enviar otro.')
+    const tokens = validTokens(r.tokens)
+    if (r.enabled !== true || !tokens.length) throw new HttpsError('failed-precondition', 'Activa el recordatorio primero.')
+
+    // El límite vive en reminderTests, que las reglas no dejan tocar desde la app.
+    const limitRef = db.collection('reminderTests').doc(uid)
+    const allowed = await db.runTransaction(async (tx) => {
+      const last = (await tx.get(limitRef)).get('at')
+      if (last instanceof Timestamp && Date.now() - last.toMillis() < 60_000) return false
+      tx.set(limitRef, { at: Timestamp.now() })
+      return true
+    })
+    if (!allowed) throw new HttpsError('resource-exhausted', 'Espera un minuto para enviar otro.')
 
     const res = await push(tokens, 'Así se verán tus recordatorios', 'Este es de prueba. Tócalo para anotar una taza.')
-    await ref.update({
-      'reminders.lastTestAt': Timestamp.now(),
-      ...(res.dead.length ? { 'reminders.tokens': FieldValue.arrayRemove(...res.dead) } : {}),
-    })
+    if (res.dead.length) await ref.update({ 'reminders.tokens': FieldValue.arrayRemove(...res.dead) })
     logger.info('sendTestReminder', { sent: res.sent, dead: res.dead.length })
     return { sent: res.sent }
   },

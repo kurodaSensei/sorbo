@@ -73,7 +73,8 @@ export function useReminders() {
 
   async function disable() {
     if (!userId.value) return
-    await setDoc(prefsRef(), { reminders: { enabled: false } }, { merge: true })
+    // Desactivar también suelta los dispositivos: activarlo de nuevo vuelve a registrar este.
+    await setDoc(prefsRef(), { reminders: { enabled: false, tokens: [] } }, { merge: true })
   }
 
   async function setWindow(window: ReminderWindow) {

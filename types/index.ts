@@ -285,8 +285,6 @@ export interface UserPreferences {
     enabledAt?: Timestamp
     lastSentAt?: Timestamp
     sentStreak?: number
-    /** Último «Enviar uno de prueba» (lo escribe la función, para limitar a uno por minuto). */
-    lastTestAt?: Timestamp
   }
   /** Actividad desnormalizada (no hace falta leer todas las notas). */
   activity?: { lastNoteAt?: Timestamp }
