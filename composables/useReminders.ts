@@ -6,6 +6,8 @@ import { sendHourUtc } from '~/functions/src/decide'
 // `dailyReminder` decide cada hora a quién avisar.
 
 export type ReminderWindow = 'morning' | 'afternoon'
+const PUSH_SCOPE = '/firebase-cloud-messaging-push-scope'
+let listening = false
 const WINDOW_HOUR: Record<ReminderWindow, number> = { morning: 8, afternoon: 14 }
 
 /** Ventana habitual según la hora de las notas: de 12 en adelante, tarde. */
@@ -41,16 +43,41 @@ export function useReminders() {
     return isSupported()
   }
 
-  async function token(): Promise<string> {
-    const { getMessaging, getToken } = await import('firebase/messaging')
+  /** Registra (o actualiza) el service worker de FCM. Scope propio: convive con el de la PWA. */
+  function register() {
     const c = config.public
     const params = new URLSearchParams({
       apiKey: c.firebaseApiKey, projectId: c.firebaseProjectId,
       messagingSenderId: c.firebaseMessagingSenderId, appId: c.firebaseAppId,
     })
-    // Scope propio: convive con el service worker de la PWA.
-    const registration = await navigator.serviceWorker.register(`/firebase-messaging-sw.js?${params}`, { scope: '/firebase-cloud-messaging-push-scope' })
-    return getToken(getMessaging($firebase), { vapidKey: c.firebaseVapidKey, serviceWorkerRegistration: registration })
+    return navigator.serviceWorker.register(`/firebase-messaging-sw.js?${params}`, { scope: PUSH_SCOPE })
+  }
+
+  async function token(): Promise<string> {
+    const { getMessaging, getToken } = await import('firebase/messaging')
+    return getToken(getMessaging($firebase), { vapidKey: config.public.firebaseVapidKey, serviceWorkerRegistration: await register() })
+  }
+
+  /**
+   * Con Sorbo abierta, FCM no muestra el aviso: se lo pasa a la página. Aquí se muestra
+   * igual, como notificación del sistema, para que el recordatorio (y el de prueba) se vea.
+   */
+  async function listen() {
+    if (listening || typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return
+    if (!(await supported())) return
+    listening = true
+    const { getMessaging, onMessage } = await import('firebase/messaging')
+    const registration = await register()
+    onMessage(getMessaging($firebase), (payload) => {
+      const n = payload.notification
+      if (!n?.title) return
+      registration.showNotification(n.title, {
+        body: n.body,
+        icon: n.icon || '/icons/icon-192.png',
+        badge: '/icons/icon-192.png',
+        data: { link: payload.fcmOptions?.link || '/app/tastings/new' },
+      })
+    })
   }
 
   /** Pide permiso y activa el recordatorio. Devuelve false si la persona no lo permite. */
@@ -68,6 +95,7 @@ export function useReminders() {
         enabledAt: Timestamp.now(),
       },
     }, { merge: true })
+    listen().catch(() => {})
     return true
   }
 
@@ -101,5 +129,5 @@ export function useReminders() {
     return (await call()).data.sent
   }
 
-  return { supported, blocked, needsInstall, enable, disable, setWindow, recordNote, sendTest }
+  return { supported, blocked, needsInstall, enable, disable, setWindow, recordNote, sendTest, listen }
 }

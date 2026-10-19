@@ -56,6 +56,13 @@ const v3Catalogs = sidebarSections[1].items.map(i => (i.key === 'notes' ? { ...i
 
 // Con el interruptor «social», la Wishlist se llama «Quiero probar».
 const v3Social = useFlag('social')
+
+// Recordatorio: con la app abierta, el aviso se muestra igual (FCM no lo hace solo).
+const remindersOn = useFlag('recordatorios')
+const reminders = useReminders()
+onMounted(() => {
+  if (remindersOn.value) reminders.listen().catch(() => {})
+})
 const v3Items = computed(() => sidebarSections[0].items.map(i => (i.key === 'wishlist' && v3Social.value ? { ...i, label: 'Quiero probar' } : i)))
 
 // Tab bar mobile: 5 items, el núcleo del diario. Wishlist se accede desde
