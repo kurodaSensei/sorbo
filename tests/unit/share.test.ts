@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { shareContent } from '../../utils/share'
+import { shareContent, shareMessage } from '../../utils/share'
 
 const labels = { process: (v: string) => ({ natural: 'Natural' } as Record<string, string>)[v] || v, method: (v: string) => ({ v60: 'V60' } as Record<string, string>)[v] || v }
 const ts = (iso: string) => ({ toMillis: () => new Date(iso).getTime() })
@@ -29,5 +29,15 @@ describe('imagen para compartir', () => {
     expect(story.steps[0]).toEqual(['0:00', 'A'])
     const post = shareContent('receta', r as never, { format: 'publicacion', includeNote: true, labels })
     expect([post.tiles.length, post.steps.length]).toEqual([4, 0])
+  })
+})
+
+describe('texto al compartir', () => {
+  const m = (v: string) => ({ v60: 'V60' } as Record<string, string>)[v] || v
+  it('café, cata y receta llevan a sorbo.app', () => {
+    expect(shareMessage('cafe', { name: 'Red Honey.', roasterName: 'Rayo Café' } as never, m)).toBe('Encontré este café en Sorbo: Red Honey, de Rayo Café. Anota los tuyos en sorbo.app')
+    expect(shareMessage('cata', { coffeeName: 'Lomaverde', ratingOverall: 8 } as never, m)).toBe('Mi nota de Lomaverde en Sorbo: Muy rico, 4 de 5. Anota la tuya en sorbo.app')
+    expect(shareMessage('cata', { coffeeName: 'Lomaverde', ratingOverall: 0 } as never, m)).toBe('Mi nota de Lomaverde en Sorbo. Anota la tuya en sorbo.app')
+    expect(shareMessage('receta', { name: 'La V60 de siempre', brewMethod: 'v60' } as never, m)).toBe('Mi receta para V60 en Sorbo: La V60 de siempre. Repítela en sorbo.app')
   })
 })
