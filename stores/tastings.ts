@@ -16,12 +16,18 @@ interface TastingFilters {
 export const useTastingsStore = defineStore('tastings', () => {
   const { fetchAll, fetchRecent, fetchById, createTasting, updateTasting, deleteTasting } = useTastings()
   const { getSharedWithMe, updateVisibility: updateVisibilityDoc } = useFirebase()
+  const { recordNote } = useReminders()
 
   const base = useFirestoreStoreState<Tasting, TastingInput, TastingFilters>({
     api: {
       fetchAll,
       fetchById,
-      create: createTasting,
+      // Cada nota nueva avisa al recordatorio diario que ya anotaste. Si falla, la nota ya está guardada.
+      create: async (input) => {
+        const id = await createTasting(input)
+        recordNote(new Date()).catch(() => {})
+        return id
+      },
       update: updateTasting,
       remove: deleteTasting,
       fetchShared: () => getSharedWithMe<Tasting>('tastings'),

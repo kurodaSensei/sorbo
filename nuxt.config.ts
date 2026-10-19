@@ -122,6 +122,8 @@ export default defineNuxtConfig({
       firebaseStorageBucket: '',
       firebaseMessagingSenderId: '',
       firebaseAppId: '',
+      // Clave pública Web Push (Cloud Messaging → Certificados web push).
+      firebaseVapidKey: '',
       // Interruptores de v3 encendidos para todo el despliegue (ver useFlag).
       flags: '',
     },

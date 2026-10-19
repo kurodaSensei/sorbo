@@ -275,6 +275,19 @@ export interface UserPreferences {
   hasSeenWelcome?: boolean
   /** True once the user has explicitly hidden the onboarding checklist (or completed all steps). */
   hideOnboardingChecklist?: boolean
+  /** Recordatorio diario (FCM). La Cloud Function `dailyReminder` escribe lastSentAt/sentStreak. */
+  reminders?: {
+    enabled?: boolean
+    window?: 'morning' | 'afternoon'
+    tz?: string
+    sendHourUtc?: number
+    tokens?: string[]
+    enabledAt?: Timestamp
+    lastSentAt?: Timestamp
+    sentStreak?: number
+  }
+  /** Actividad desnormalizada (no hace falta leer todas las notas). */
+  activity?: { lastNoteAt?: Timestamp }
   createdAt?: Timestamp
   updatedAt?: Timestamp
 }

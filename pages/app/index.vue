@@ -166,6 +166,12 @@ const stats = computed(() => {
 // v1 se borra en la limpieza final.
 // ─────────────────────────────────────────────────────────────────────────
 const v3 = useFlag('inicio')
+// Recordatorio diario (interruptor «recordatorios»).
+const remindersOn = useFlag('recordatorios')
+
+// Los avisos viejos abrían /app?nueva=1: ahora la nota rápida vive en su propia página.
+const route = useRoute()
+if (route.query.nueva) navigateTo('/app/tastings/new', { replace: true })
 
 const homeState = computed(() => {
   if (!tastingsReady.value) return 'loading'
@@ -299,6 +305,8 @@ const monthName = computed(() => {
             </NuxtLink>
           </div>
         </section>
+
+        <V3ReminderCard v-if="remindersOn" />
 
         <section v-if="recentTastings.length" aria-label="Tus últimas catas" class="recent">
           <div class="section-head">
