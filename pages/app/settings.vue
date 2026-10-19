@@ -18,6 +18,9 @@ onMounted(() => {
   if (!settings.prefs) settings.load().catch(() => {})
 })
 
+// Recordatorio diario (interruptor «recordatorios»).
+const remindersOn = useFlag('recordatorios')
+
 const userName = computed(() =>
   currentUser.value?.displayName || currentUser.value?.email?.split('@')[0] || '',
 )
@@ -187,6 +190,8 @@ async function onRestoreChecklist() {
             </NuxtLink>
           </div>
         </section>
+
+        <V3ReminderSettings v-if="remindersOn" />
 
         <section v-if="(pwaCanShow && !pwaIsStandalone) || checklistHidden" aria-labelledby="g-app" class="group">
           <h2 id="g-app" class="v3-label group-title">App</h2>
