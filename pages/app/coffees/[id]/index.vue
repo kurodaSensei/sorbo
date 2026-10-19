@@ -200,6 +200,9 @@ async function onDelete() {
 }
 // ─── Detalle v3 (interruptor «cafes») ─────────────────────────────────────
 const v3 = useFlag('cafes')
+// Compartir como imagen (interruptor «compartir»).
+const shareImageOn = useFlag('compartir')
+const imageOpen = ref(false)
 const { getBrewMethodLabel } = useCatalog()
 
 const blobClass = computed(() => {
@@ -277,9 +280,11 @@ function runMenu(fn: () => void | Promise<void>) {
         <Icon name="lucide:arrow-left" size="22" /><span class="back-label">Mi colección</span>
       </button>
       <div v-if="coffee && isOwner" class="top-actions">
+        <button v-if="shareImageOn" type="button" class="icon-btn mobile-only" aria-label="Compartir como imagen" @click="imageOpen = true"><Icon name="lucide:image" size="20" /></button>
         <button type="button" class="icon-btn mobile-only" aria-label="Compartir" @click="onShare"><Icon name="lucide:share-2" size="20" /></button>
         <button type="button" class="icon-btn mobile-only" aria-label="Más acciones: editar o eliminar" @click="menuOpen = true"><Icon name="lucide:ellipsis" size="20" /></button>
         <button type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="onShare">Compartir</button>
+        <button v-if="shareImageOn" type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="imageOpen = true">Imagen</button>
         <button type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="onEdit">Editar</button>
         <button type="button" class="v3-btn small danger desktop-only" :disabled="deleting" @click="onDelete">Eliminar</button>
       </div>
@@ -384,6 +389,7 @@ function runMenu(fn: () => void | Promise<void>) {
       :on-save="(visibility, uids) => coffeesStore.updateVisibility(coffee!.id, visibility, uids)"
       @saved="onShareSaved"
     />
+    <V3ShareImageSheet v-if="coffee && shareImageOn" v-model="imageOpen" kind="cafe" :item="coffee" />
   </div>
 
   <div v-else class="relative min-h-svh flex flex-col">

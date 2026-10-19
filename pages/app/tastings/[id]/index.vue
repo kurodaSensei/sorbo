@@ -93,6 +93,9 @@ async function toggleFavorite() {
 
 // ─── Detalle v3 (interruptor «catas») ─────────────────────────────────────
 const v3 = useFlag('catas')
+// Compartir como imagen (interruptor «compartir»).
+const shareImageOn = useFlag('compartir')
+const imageOpen = ref(false)
 const { getBrewMethodLabel, getProcessLabel } = useCatalog()
 
 const blobClass = computed(() => {
@@ -164,9 +167,11 @@ function runMenu(fn: () => void | Promise<void>) {
           <Icon name="lucide:heart" size="20" mode="svg" :class="{ 'v3-icon-fill': tasting.isFavorite }" />
           <span class="desktop-only fav-label">Favorita</span>
         </button>
+        <button v-if="shareImageOn" type="button" class="icon-btn mobile-only" aria-label="Compartir como imagen" @click="imageOpen = true"><Icon name="lucide:image" size="20" /></button>
         <button type="button" class="icon-btn mobile-only" aria-label="Compartir" @click="onShare"><Icon name="lucide:share-2" size="20" /></button>
         <button type="button" class="icon-btn mobile-only" aria-label="Más acciones: editar o eliminar" @click="menuOpen = true"><Icon name="lucide:ellipsis" size="20" /></button>
         <button type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="onShare">Compartir</button>
+        <button v-if="shareImageOn" type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="imageOpen = true">Imagen</button>
         <button type="button" class="v3-btn v3-btn--secondary small desktop-only" @click="onEdit">Editar</button>
         <button type="button" class="v3-btn small danger desktop-only" :disabled="deleting" @click="onDelete">Eliminar</button>
       </div>
@@ -269,6 +274,7 @@ function runMenu(fn: () => void | Promise<void>) {
       :on-save="(visibility, uids) => tastingsStore.updateVisibility(tasting!.id, visibility, uids)"
       @saved="onShareSaved"
     />
+    <V3ShareImageSheet v-if="tasting && shareImageOn" v-model="imageOpen" kind="cata" :item="tasting" />
   </div>
 
   <div v-else class="mx-auto w-full max-w-[1200px] px-md pt-md pb-2xl lg:px-xl xl:px-2xl lg:pt-xl">
