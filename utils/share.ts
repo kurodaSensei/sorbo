@@ -95,3 +95,24 @@ export function shareContent(
     foot: 'Repítela en sorbo.app',
   }
 }
+
+/**
+ * Texto que acompaña la imagen al compartir (WhatsApp lo usa como pie de foto; Instagram no).
+ * Siempre lleva a sorbo.app: funciona para cualquiera, tenga o no cuenta.
+ */
+export function shareMessage(kind: ShareKind, item: Coffee | Tasting | Recipe, method: (v: string) => string): string {
+  if (kind === 'cafe') {
+    const c = item as Coffee
+    const by = clean(c.roasterName)
+    return `Encontré este café en Sorbo: ${clean(c.name) || 'sin nombre'}${by ? `, de ${by}` : ''}. Anota los tuyos en sorbo.app`
+  }
+  if (kind === 'cata') {
+    const t = item as Tasting
+    const score = ratingToScore(t.ratingOverall)
+    const verdict = score ? `: ${scoreWord(t.ratingOverall)}, ${score} de 5` : ''
+    return `Mi nota de ${clean(t.coffeeName) || 'este café'} en Sorbo${verdict}. Anota la tuya en sorbo.app`
+  }
+  const r = item as Recipe
+  const m = r.brewMethod && r.brewMethod !== 'other' ? method(r.brewMethod) : ''
+  return `Mi receta${m ? ` para ${m}` : ''} en Sorbo: ${clean(r.name) || 'sin nombre'}. Repítela en sorbo.app`
+}

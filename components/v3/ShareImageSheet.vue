@@ -4,7 +4,7 @@
 // del teléfono sin perder el gesto (Safari lo exige). No se sube nada.
 import { domToBlob } from 'modern-screenshot'
 import type { Coffee, Recipe, Tasting } from '~/types'
-import { shareContent, type ShareFormat, type ShareKind } from '~/utils/share'
+import { shareContent, shareMessage, type ShareFormat, type ShareKind } from '~/utils/share'
 
 const props = defineProps<{ kind: ShareKind, item: Coffee | Tasting | Recipe }>()
 const open = defineModel<boolean>({ required: true })
@@ -62,6 +62,9 @@ watch([open, format, fondo, includeNote], () => {
   if (open.value) render()
 }, { immediate: true })
 
+// Pie de foto para WhatsApp (Instagram lo ignora).
+const message = computed(() => shareMessage(props.kind, props.item, getBrewMethodLabel))
+
 const canShareFiles = computed(() => {
   if (import.meta.server || !blob.value || typeof navigator.canShare !== 'function') return false
   return navigator.canShare({ files: [new File([blob.value], fileName.value, { type: 'image/png' })] })
@@ -87,7 +90,7 @@ async function onShare() {
   if (!blob.value) return
   if (!canShareFiles.value) return onSave()
   try {
-    await navigator.share({ files: [new File([blob.value], fileName.value, { type: 'image/png' })] })
+    await navigator.share({ files: [new File([blob.value], fileName.value, { type: 'image/png' })], text: message.value })
     trackEvent('share_image', { kind: props.kind, format: format.value, action: 'share' })
   }
   catch {
