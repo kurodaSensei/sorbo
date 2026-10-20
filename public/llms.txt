@@ -45,4 +45,4 @@ Sorbo usa el estándar SCA (Specialty Coffee Association) para puntuación de ca
 
 ## Tecnología
 
-Construido con Nuxt 3 (Vue 3 + TypeScript), Tailwind CSS con sistema de tokens propio, Firebase (Firestore + Auth + Storage) en tier gratuito, y desplegado en Vercel. PWA installable con @vite-pwa/nuxt. Observabilidad con Sentry y Google Analytics 4.
+Construido con Nuxt 3 (Vue 3 + TypeScript), Tailwind CSS con sistema de tokens propio, Firebase (Firestore + Auth + Storage + Cloud Functions), y desplegado en Vercel. PWA installable con @vite-pwa/nuxt. Observabilidad con Sentry y Google Analytics 4.
