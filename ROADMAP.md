@@ -207,11 +207,13 @@ La rama `el-vertido` quedó archivada al ~70% del scope. Para retomarla, el orde
 
 ## Posibles mejoras (backlog blue-sky)
 
+> `Posible ganancia de dinero` marca lo que podría ir en un plan pago (**Sorbo+**, idea: ~$2–3/mes o ~$20/año, cobro web con Stripe por ser PWA). Antes de cobrar: lanzar gratis con límite y medir uso.
+
 ### Producto
 
 - [ ] **Búsqueda global** estilo cmd+K (especialmente útil cuando una colección crece a 100+ cafés)
-- [ ] **Stats / insights** mensuales y anuales (cafés del mes, score promedio, método más usado, etc.)
-- [ ] **Backup / export** de datos del usuario (JSON descargable)
+- [ ] **Stats / insights** mensuales y anuales (cafés del mes, score promedio, método más usado, etc.) · `Posible ganancia de dinero`
+- [ ] **Backup / export** de datos del usuario (JSON descargable) · `Posible ganancia de dinero`
 - [ ] **Notificaciones push** opcionales — recordatorios suaves ("hace 7 días que no registras una cata")
 - [ ] **Recipe public sharing** con OG card por receta individual
 - [ ] **Modo claro / oscuro** explícito (hoy es claro forzado)
@@ -221,8 +223,9 @@ La rama `el-vertido` quedó archivada al ~70% del scope. Para retomarla, el orde
 
 ### Inteligencia
 
+- [ ] **Escanear el empaque** — 1 o 2 fotos (frente y reverso) → Gemini Flash vía Firebase AI Logic → llena el formulario del café. La foto no se guarda (solo en memoria). ~$0,0004–0,002 por escaneo. Requiere App Check y límite por persona en Firestore. Gratis 3–5 al mes, ilimitado en Sorbo+ · `Posible ganancia de dinero`
 - [ ] **Affinity Score collaborative** — capa colaborativa real entre usuarios
-- [ ] **Recomendación de cafés** según historial
+- [ ] **Recomendación de cafés** según historial · `Posible ganancia de dinero`
 - [ ] **Detección de "favoritos"** automática (cafés con score >9 + repetidos)
 
 ### Distribución
