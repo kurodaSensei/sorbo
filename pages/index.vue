@@ -655,9 +655,8 @@ function mobileScrollAndClose(id: string) {
           <article class="faq-item">
             <h3>¿Cuánto cuesta?</h3>
             <p>
-              Sorbo es gratuito y sin tarjeta. No hay versión "Pro" ni paywall escondido. El
-              proyecto vive en el tier gratuito de Firebase y Vercel, lo cual nos permite
-              ofrecer todas las funciones sin cobrar.
+              Nada. Sorbo es gratis y sin tarjeta. Todo lo que anotas hoy sigue siendo tuyo y
+              gratis.
             </p>
           </article>
 
