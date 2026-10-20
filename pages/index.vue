@@ -8,7 +8,7 @@ const SITE_URL = 'https://sorbo.app'
 // como source of truth para regenerar; render via Chrome headless con las
 // webfonts cargadas vía CSS, sin necesidad de tener las TTF locales.
 const OG_IMAGE = `${SITE_URL}/og-image.png`
-const DESCRIPTION = 'Tu diario para cada café de especialidad. Registra catas, guarda recetas, descubre lo que otros cafeteros toman. Sin Excel, sin red social, sin ruido.'
+const DESCRIPTION = 'Un diario para café de especialidad. Anota cada taza en segundos y vuelve a ella cuando quieras prepararla otra vez. Gratis, sin tarjeta.'
 
 useHead({
   title: 'Sorbo · Un diario para cada sorbo',
@@ -57,7 +57,7 @@ useHead({
             'name': 'Sorbo',
             'alternateName': 'Sorbo App',
             'description': DESCRIPTION,
-            'disambiguatingDescription': 'Aplicación web progresiva (PWA) para registro de cafés de especialidad, catas SCA y recetas de extracción. No confundir con la palabra común "sorbo" (sip).',
+            'disambiguatingDescription': 'Aplicación web instalable (PWA) para anotar cafés de especialidad con un puntaje de 1 a 5 y guardar recetas de preparación. No confundir con la palabra común "sorbo" (sip).',
             'url': `${SITE_URL}/`,
             'applicationCategory': 'LifestyleApplication',
             'operatingSystem': 'Web, iOS, Android',
@@ -65,13 +65,14 @@ useHead({
             'datePublished': '2026-06-15',
             'dateModified': new Date().toISOString().split('T')[0],
             'featureList': [
-              'Registro de cafés de especialidad con detalle (origen, variedad, proceso, SCA score)',
-              'Catas guiadas con scoring estándar SCA',
-              'Recetas con temporizador integrado para 12 métodos de extracción',
-              'Wishlist de cafés que aún no compras',
-              'Feed comunitario con visibilidad granular (privado, amigos, comunidad)',
-              'Catálogo de marcas y tostadores',
-              'PWA instalable en iOS, Android, macOS y Windows',
+              'Nota rápida con puntaje de 1 a 5 en palabras: Meh, Bien, Rico, Muy rico, Wow',
+              'Tus cafés con marca, origen, proceso y varias variedades (blends); puntaje SCA opcional',
+              'Recetas con cronómetro para 12 métodos de preparación',
+              'Quiero probar: guarda los cafés que te recomiendan',
+              'Explora y amigos, sin likes ni seguidores; todo nace privado',
+              'Comparte tu nota como imagen para Instagram o WhatsApp',
+              'Recordatorio para anotar a la hora que elijas',
+              'Se instala en iPhone, Android y computador',
             ],
             'offers': {
               '@type': 'Offer',
@@ -97,7 +98,7 @@ useHead({
           {
             '@type': 'Organization',
             '@id': `${SITE_URL}/#organization`,
-            'name': 'KurodaCafe',
+            'name': 'Sorbo',
             'url': `${SITE_URL}/`,
             'email': 'info@sorbo.app',
             'logo': {
@@ -107,8 +108,9 @@ useHead({
               'height': 512,
             },
             'sameAs': [
-              'https://instagram.com/kurodacafe',
+              'https://instagram.com/sorbo.app',
             ],
+            'founder': { '@type': 'Organization', 'name': 'KurodaCafe' },
           },
         ],
       }),
