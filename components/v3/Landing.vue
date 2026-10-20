@@ -28,7 +28,7 @@ const levels = [
 
 const faq = [
   { q: '¿Qué es Sorbo?', a: 'Un diario para café de especialidad. Guardas tus cafés, anotas cada taza y tienes tus recetas a mano. Funciona en el navegador y se instala en el teléfono como una app.' },
-  { q: '¿Cuánto cuesta?', a: 'Nada. Sorbo es gratis, sin tarjeta y sin versión de pago.' },
+  { q: '¿Cuánto cuesta?', a: 'Nada. Sorbo es gratis y sin tarjeta. Todo lo que anotas hoy sigue siendo tuyo y gratis.' },
   { q: '¿Cómo se puntúa una taza?', a: 'De 1 a 5, con palabras. Si quieres más detalle, puntúas aroma, acidez, dulzura, cuerpo y retrogusto. Si la bolsa trae puntaje SCA, lo guardas en el café.' },
   { q: '¿Qué métodos de preparación hay?', a: 'V60, Kalita, Chemex, AeroPress, prensa francesa, Origami, Suiren, espresso, moka, phin, cold brew y otro, cada uno con su receta base.' },
   { q: '¿Quién ve mis notas?', a: 'Solo tú, hasta que decidas otra cosa: tus amigos o la comunidad en Explora, nota por nota.' },
