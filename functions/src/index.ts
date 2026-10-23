@@ -3,6 +3,7 @@ import { getAuth } from 'firebase-admin/auth'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { getMessaging } from 'firebase-admin/messaging'
 import { logger } from 'firebase-functions'
+import { defineString } from 'firebase-functions/params'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { decide } from './decide.js'
@@ -126,13 +127,20 @@ export const sendTestReminder = onCall(
   },
 )
 
-// Panel admin «Pulso»: solo para la cuenta con el claim admin (scripts/set-admin.mjs).
+// Correos admin, separados por coma. Viven en functions/.env (no va a git).
+const ADMIN_EMAILS = defineString('ADMIN_EMAILS')
+
+// Panel admin «Pulso»: solo para las cuentas de ADMIN_EMAILS, con el correo verificado.
 // Devuelve conteos y fechas; nunca el contenido de una nota, café o receta.
 // ponytail: lee userId y createdAt de cada documento en cada llamada; con decenas de miles, pasar a contadores.
 export const adminPulse = onCall(
   { maxInstances: 1, timeoutSeconds: 60, memory: '256MiB' },
   async (req) => {
-    if (req.auth?.token.admin !== true) throw new HttpsError('permission-denied', 'Solo para admin.')
+    const email = req.auth?.token.email?.toLowerCase()
+    const admins = ADMIN_EMAILS.value().toLowerCase().split(',').map(e => e.trim()).filter(Boolean)
+    if (!email || req.auth?.token.email_verified !== true || !admins.includes(email)) {
+      throw new HttpsError('permission-denied', 'Solo para admin.')
+    }
     const db = getFirestore()
 
     const rows = async (name: string): Promise<Row[]> =>

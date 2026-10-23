@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import type { Pulse } from '~/functions/src/pulse'
 
-definePageMeta({ layout: 'admin', middleware: 'admin' })
+definePageMeta({ layout: 'admin' })
 
 const { $firebase } = useNuxtApp()
 const data = ref<Pulse | null>(null)
@@ -17,6 +17,8 @@ async function load() {
     data.value = (await call()).data
   }
   catch (e) {
+    // La función decide quién es admin (ADMIN_EMAILS); a los demás los devuelve a la app.
+    if ((e as { code?: string }).code === 'functions/permission-denied') return navigateTo('/app', { replace: true })
     error.value = e instanceof Error ? e.message : String(e)
   }
 }
