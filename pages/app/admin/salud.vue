@@ -36,7 +36,8 @@ const weekAgo = Date.now() - 7 * 1440 * MIN
 const waitlistNew = computed(() => (data.value?.waitlist ?? []).filter(w => w.createdAt && new Date(w.createdAt).getTime() >= weekAgo).length)
 
 function downloadCsv() {
-  const quote = (v: string) => `"${v.replaceAll('"', '""')}"`
+  // La lista la llena cualquiera desde la landing: un valor que empiece con = + - @ se vuelve texto, no fórmula de Excel.
+  const quote = (v: string) => `"${(/^[=+\-@\t\r]/.test(v) ? `'${v}` : v).replaceAll('"', '""')}"`
   const lines = ['correo,origen,fecha', ...(data.value?.waitlist ?? []).map(w => [w.email, w.source, w.createdAt ?? ''].map(quote).join(','))]
   const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' }))
   const a = Object.assign(document.createElement('a'), { href: url, download: `sorbo-lista-de-espera-${dayKey.format(new Date())}.csv` })
