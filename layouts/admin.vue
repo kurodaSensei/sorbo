@@ -3,6 +3,7 @@
 const items = [
   { key: 'pulso', icon: 'lucide:activity', label: 'Pulso', to: '/app/admin' },
   { key: 'usuarios', icon: 'lucide:users', label: 'Usuarios', to: '/app/admin/usuarios' },
+  { key: 'catalogos', icon: 'lucide:book', label: 'Catálogos', to: '/app/admin/catalogos' },
   { key: 'salud', icon: 'lucide:heart-pulse', label: 'Salud', to: '/app/admin/salud' },
 ]
 const route = useRoute()
@@ -78,7 +79,7 @@ useHead({ title: 'Admin · Sorbo', meta: [{ name: 'robots', content: 'noindex' }
 </style>
 
 <style>
-/* Piezas comunes de las páginas del panel (Pulso, Usuarios, Salud). */
+/* Piezas comunes de las páginas del panel (Pulso, Usuarios, Catálogos, Salud). */
 .admin .page { max-width: 1120px; display: flex; flex-direction: column; gap: 32px; }
 .admin .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .admin .titles { display: flex; flex-direction: column; gap: 10px; }
