@@ -16,11 +16,15 @@ describe('admin · pulso', () => {
   const p = pulse({
     now,
     users,
-    coffees: [row('a', 1), row('b', 9), row('c', 40)],
+    coffees: [{ ...row('a', 1), visibility: 'community' }, row('b', 9), row('c', 40), { ...row('x', 2), visibility: 'community' }],
     tastings: [row('b', 2), row('b', 8), row('b', 20), row('c', 40), { userId: null, createdAt: null }],
-    recipes: [row('c', 3)],
+    recipes: [{ ...row('c', 3), visibility: 'friends' }],
     friendships: 2,
     waitlist: 7,
+  })
+
+  it('quién comparte, sobre quienes anotaron algo y sin cuentas que ya no existen', () => {
+    expect(p.sharing).toEqual({ base: 3, community: 1, friends: 1 })
   })
 
   it('ventanas de 7 y 30 días', () => {

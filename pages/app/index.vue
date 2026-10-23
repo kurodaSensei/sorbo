@@ -168,6 +168,8 @@ const stats = computed(() => {
 const v3 = useFlag('inicio')
 // Recordatorio diario (interruptor «recordatorios»).
 const remindersOn = useFlag('recordatorios')
+// Tarjeta «Lo nuevo» (interruptor «novedades»).
+const newsOn = useFlag('novedades')
 
 // Los avisos viejos abrían /app?nueva=1: ahora la nota rápida vive en su propia página.
 const route = useRoute()
@@ -267,6 +269,8 @@ const monthName = computed(() => {
         <span class="month-strip-cell"><span class="month-strip-num">{{ stats.coffees }}</span><span class="v3-meta">{{ stats.coffees === 1 ? 'café nuevo' : 'cafés nuevos' }}</span></span>
         <span class="month-strip-cell"><span class="month-strip-num" :class="{ muted: stats.avgScore === null }">{{ stats.avgScore ?? '—' }}</span><span class="v3-meta">promedio</span></span>
       </div>
+
+      <V3NewsCard v-if="newsOn" />
 
       <!-- Cargando -->
       <div v-if="homeState === 'loading'" class="home-skeleton" role="status" aria-label="Cargando tu diario">

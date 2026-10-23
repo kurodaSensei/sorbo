@@ -55,6 +55,13 @@ const ago = (iso: string) => {
   return days <= 0 ? 'Hoy' : days === 1 ? 'Ayer' : `Hace ${days} días`
 }
 
+const sharing = computed(() => {
+  const s = data.value?.sharing
+  if (!s) return []
+  return [['Con la comunidad', s.community], ['Con amigos', s.friends]]
+    .map(([label, n]) => ({ label: label as string, count: num.format(n as number), pct: pct(n as number, s.base) }))
+})
+
 const totals = computed(() => {
   const t = data.value?.totals
   if (!t) return []
@@ -123,6 +130,19 @@ const totals = computed(() => {
             </li>
           </ol>
           <p class="v3-meta hint"><span class="honey" aria-hidden="true" />Activación: llegar a 3 notas.</p>
+          <div v-if="sharing.length" class="sharing">
+            <div class="card-head card-head--stack">
+              <h3 class="v3-label m-0">Comparten algo</h3>
+              <span class="v3-meta">De quienes anotaron al menos una vez</span>
+            </div>
+            <div v-for="f in sharing" :key="f.label">
+              <div class="funnel-line">
+                <span class="funnel-label">{{ f.label }}</span>
+                <span class="funnel-num">{{ f.pct }} %<span class="funnel-count"> · {{ f.count }}</span></span>
+              </div>
+              <div class="track"><div class="fill fill--tint" :style="{ width: `${f.pct}%` }" /></div>
+            </div>
+          </div>
         </section>
       </div>
 
@@ -191,6 +211,8 @@ const totals = computed(() => {
 .track { height: 10px; border-radius: 9999px; background: var(--track); }
 .fill { height: 100%; border-radius: 9999px; background: var(--primary); }
 .hint { margin: 0; display: flex; align-items: center; gap: 8px; }
+.sharing { display: flex; flex-direction: column; gap: 14px; padding-top: 18px; border-top: 1px solid var(--line); }
+.fill--tint { background: var(--tint); }
 .honey { width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); }
 
 .step { display: inline-block; width: 12px; height: 12px; border-radius: 9999px; box-shadow: inset 0 0 0 1.5px var(--primary); }

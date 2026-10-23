@@ -295,7 +295,7 @@ export interface UserPreferences {
     sentStreak?: number
   }
   /** Avisos de amigos dentro de la app: encendidos salvo que friends sea false; seenAt = visto hasta. */
-  notifications?: { friends?: boolean, seenAt?: Timestamp }
+  notifications?: { friends?: boolean, seenAt?: Timestamp, /** Última tarjeta «Lo nuevo» cerrada (utils/news.ts). */ newsSeen?: string }
   /** Actividad desnormalizada (no hace falta leer todas las notas). */
   activity?: { lastNoteAt?: Timestamp }
   createdAt?: Timestamp

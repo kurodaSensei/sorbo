@@ -153,10 +153,11 @@ const ADMIN_OPTS = { maxInstances: 1, timeoutSeconds: 60, memory: '256MiB' } as 
 
 // ponytail: lee userId y createdAt de cada documento en cada llamada; con decenas de miles, pasar a contadores.
 async function rows(name: string): Promise<Row[]> {
-  return (await getFirestore().collection(name).select('userId', 'createdAt').get()).docs.map((d) => {
+  return (await getFirestore().collection(name).select('userId', 'createdAt', 'visibility').get()).docs.map((d) => {
     const at = d.get('createdAt')
     const uid = d.get('userId')
-    return { userId: typeof uid === 'string' ? uid : null, createdAt: at instanceof Timestamp ? at.toDate() : null }
+    const vis = d.get('visibility')
+    return { userId: typeof uid === 'string' ? uid : null, createdAt: at instanceof Timestamp ? at.toDate() : null, visibility: typeof vis === 'string' ? vis : null }
   })
 }
 
