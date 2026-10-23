@@ -50,7 +50,7 @@ function close() {
 
 <style scoped>
 /* Móvil: lista. Escritorio (≥1024 px): título a la izquierda y las novedades como mini tarjetas. */
-.news { position: relative; display: flex; flex-direction: column; gap: 16px; padding: 20px 18px 18px; border-radius: 18px; background: var(--brand-surface); color: var(--on-brand-surface); }
+.news { position: relative; container: news / inline-size; display: flex; flex-direction: column; gap: 16px; padding: 20px 18px 18px; border-radius: 18px; background: var(--brand-surface); color: var(--on-brand-surface); }
 .news-x { position: absolute; top: 10px; right: 10px; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--on-brand-surface); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .news-head { display: flex; flex-direction: column; gap: 6px; padding-right: 40px; }
 .news-eyebrow { opacity: 0.75; }
@@ -69,13 +69,20 @@ function close() {
 
 @media (min-width: 1024px) {
   .news { flex-direction: row; flex-wrap: wrap; gap: 24px 32px; padding: 28px 32px; }
-  .news-head { flex: 1 1 240px; gap: 10px; padding-right: 0; }
+  .news-head { flex: 1 1 240px; gap: 10px; }
   .news-t { font: 400 38px/36px var(--font-display); }
   .news-ok--wide { display: block; align-self: flex-start; margin-top: 8px; padding: 0 18px; }
   .news-ok--narrow { display: none; }
-  .news-items { flex: 2 1 420px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; padding-right: 32px; }
+  .news-items { flex: 2 1 420px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
   .news-item { flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px; border-radius: 14px; background: color-mix(in srgb, var(--on-brand-surface) 8%, transparent); }
   .news-icon { width: 40px; height: 40px; }
   .news-chevron { display: none; }
+}
+/* Título y novedades lado a lado (240 + 32 + 420 px de contenido): el título ya no está bajo la X, las novedades sí. */
+@media (min-width: 1024px) {
+  @container news (min-width: 692px) {
+    .news-head { padding-right: 0; }
+    .news-items { padding-right: 32px; }
+  }
 }
 </style>
