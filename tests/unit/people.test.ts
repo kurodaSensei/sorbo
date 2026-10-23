@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { maskEmail, people } from '../../functions/src/people'
+import { maskEmail, people, withoutHidden } from '../../functions/src/people'
 
 const at = (day: number) => new Date(Date.UTC(2026, 9, day, 15))
 
@@ -32,5 +32,24 @@ describe('admin · usuarios', () => {
   it('busca por correo completo aunque se muestre enmascarado', () => {
     expect(list.find(p => p.uid === 'c')!.search).toContain('mateo@icloud.com')
     expect(maskEmail('x')).toBe('Sin correo')
+  })
+})
+
+describe('admin · cuentas de prueba', () => {
+  it('desaparecen con todo lo suyo', () => {
+    const d = withoutHidden({
+      users: [
+        { uid: 'a', name: 'Ana', email: 'ana@gmail.com', createdAt: at(1) },
+        { uid: 't', name: 'Prueba', email: 'Prueba@Gmail.com', createdAt: at(2) },
+      ],
+      coffees: [{ userId: 'a', createdAt: at(3) }, { userId: 't', createdAt: at(3) }],
+      tastings: [{ userId: 't', createdAt: at(4) }],
+      recipes: [],
+      friendships: [['a', 't'], ['a', 'b']],
+    }, ['prueba@gmail.com'])
+    expect(d.users.map(u => u.uid)).toEqual(['a'])
+    expect(d.coffees).toHaveLength(1)
+    expect(d.tastings).toHaveLength(0)
+    expect(d.friendships).toEqual([['a', 'b']])
   })
 })
