@@ -152,7 +152,10 @@ async function copyId(uid: string) {
 .search { flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .search .v3-input { font: 400 16px/24px var(--font-sans); }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.list { padding: 8px 20px 12px; }
+/* La tabla necesita ~760 px: si no caben tabla y ficha, la ficha baja. */
+.row .list { flex: 3 1 760px; padding: 8px 20px 12px; }
+.row .ficha { flex: 1 1 300px; max-width: 520px; }
+.list td.soft { white-space: nowrap; }
 .list .table { min-width: 640px; }
 .list .num { text-align: right; }
 .list .table td { padding-top: 6px; padding-bottom: 6px; }
