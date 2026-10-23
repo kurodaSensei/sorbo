@@ -30,6 +30,7 @@ export function normalize(text: string): string {
 export function groupNames(entries: Entry[]): Group[] {
   const groups = new Map<string, { forms: Map<string, Set<string>>, people: Set<string>, uses: number }>()
   for (const e of entries) {
+    if (typeof e.text !== 'string') continue
     const text = e.text.trim().replace(/\s+/g, ' ')
     const key = normalize(text)
     if (!key) continue

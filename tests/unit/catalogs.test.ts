@@ -12,6 +12,7 @@ describe('admin · catálogos', () => {
       { userId: 'e', text: 'El Cafe de Andres.', uses: 1 },
       { userId: 'd', text: 'Tostador B', uses: 1 },
       { userId: 'd', text: '   ', uses: 1 },
+      { userId: 'd', text: (() => {}) as unknown as string, uses: 1 },
     ])
     expect(g).toMatchObject({ name: 'El Café de Andrés', people: 4, uses: 4 })
     expect(g.forms[0]).toEqual({ text: 'El Café de Andrés', people: 2 })

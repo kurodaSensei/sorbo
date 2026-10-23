@@ -246,7 +246,8 @@ export const adminCatalogs = onCall(ADMIN_OPTS, async (req) => {
   const customProcess = custom('customProcesses')
   const customMethod = custom('customBrewMethods')
   const label = (defaults: Record<string, string>, mine: Map<string, Map<string, string>>, uid: string, value: string) =>
-    defaults[value] ?? mine.get(uid)?.get(value) ?? value
+    // hasOwn: un valor como «constructor» no debe leer propiedades del objeto.
+    (Object.hasOwn(defaults, value) ? defaults[value] : undefined) ?? mine.get(uid)?.get(value) ?? value
 
   const roasterName = new Map<string, string>()
   const brands: Entry[] = []
