@@ -4,9 +4,10 @@ import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { getMessaging } from 'firebase-admin/messaging'
 import { logger } from 'firebase-functions'
 import { defineString } from 'firebase-functions/params'
-import { HttpsError, onCall } from 'firebase-functions/v2/https'
+import { type CallableRequest, HttpsError, onCall } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { decide } from './decide.js'
+import { people, type ReminderWindow } from './people.js'
 import { pulse, type Person, type Row } from './pulse.js'
 
 initializeApp()
@@ -65,6 +66,7 @@ export const dailyReminder = onSchedule(
 
     let sent = 0
     let failed = 0
+    let pruned = 0
     for (const docSnap of snap.docs) {
       // Un documento raro no corta los avisos de las demás personas de esta hora.
       try {
@@ -88,13 +90,17 @@ export const dailyReminder = onSchedule(
           ...(res.dead.length ? { 'reminders.tokens': FieldValue.arrayRemove(...res.dead) } : {}),
         })
         sent += res.sent
+        pruned += res.dead.length
       }
       catch (e) {
         failed++
         logger.warn('dailyReminder: falló una persona', { uid: docSnap.id, error: String(e) })
       }
     }
-    logger.info('dailyReminder', { hourUtc: now.getUTCHours(), candidates: snap.size, sent, failed })
+    logger.info('dailyReminder', { hourUtc: now.getUTCHours(), candidates: snap.size, sent, failed, pruned })
+    // Para la pantalla Salud del admin. ponytail: 24 documentos al día sin borrar; poner un TTL si algún día pesa.
+    await db.collection('adminRuns').add({ at: Timestamp.fromDate(now), candidates: snap.size, sent, failed, pruned })
+      .catch(e => logger.warn('dailyReminder: no se guardó la corrida', { error: String(e) }))
   },
 )
 
@@ -130,53 +136,102 @@ export const sendTestReminder = onCall(
 // Correos admin, separados por coma. Viven en functions/.env (no va a git).
 const ADMIN_EMAILS = defineString('ADMIN_EMAILS')
 
-// Panel admin «Pulso»: solo para las cuentas de ADMIN_EMAILS, con el correo verificado.
+// Panel admin (/app/admin): solo las cuentas de ADMIN_EMAILS, con el correo verificado.
 // Devuelve conteos y fechas; nunca el contenido de una nota, café o receta.
+function requireAdmin(auth: CallableRequest['auth']) {
+  const email = auth?.token.email?.toLowerCase()
+  const admins = ADMIN_EMAILS.value().toLowerCase().split(',').map(e => e.trim()).filter(Boolean)
+  if (!email || auth?.token.email_verified !== true || !admins.includes(email)) {
+    throw new HttpsError('permission-denied', 'Solo para admin.')
+  }
+}
+const ADMIN_OPTS = { maxInstances: 1, timeoutSeconds: 60, memory: '256MiB' } as const
+
 // ponytail: lee userId y createdAt de cada documento en cada llamada; con decenas de miles, pasar a contadores.
-export const adminPulse = onCall(
-  { maxInstances: 1, timeoutSeconds: 60, memory: '256MiB' },
-  async (req) => {
-    const email = req.auth?.token.email?.toLowerCase()
-    const admins = ADMIN_EMAILS.value().toLowerCase().split(',').map(e => e.trim()).filter(Boolean)
-    if (!email || req.auth?.token.email_verified !== true || !admins.includes(email)) {
-      throw new HttpsError('permission-denied', 'Solo para admin.')
-    }
-    const db = getFirestore()
+async function rows(name: string): Promise<Row[]> {
+  return (await getFirestore().collection(name).select('userId', 'createdAt').get()).docs.map((d) => {
+    const at = d.get('createdAt')
+    const uid = d.get('userId')
+    return { userId: typeof uid === 'string' ? uid : null, createdAt: at instanceof Timestamp ? at.toDate() : null }
+  })
+}
 
-    const rows = async (name: string): Promise<Row[]> =>
-      (await db.collection(name).select('userId', 'createdAt').get()).docs.map((d) => {
-        const at = d.get('createdAt')
-        const uid = d.get('userId')
-        return { userId: typeof uid === 'string' ? uid : null, createdAt: at instanceof Timestamp ? at.toDate() : null }
-      })
+async function accounts() {
+  const out: (Person & { email: string | null })[] = []
+  let page: string | undefined
+  do {
+    const res = await getAuth().listUsers(1000, page)
+    for (const u of res.users) out.push({ uid: u.uid, name: u.displayName ?? null, email: u.email ?? null, createdAt: new Date(u.metadata.creationTime) })
+    page = res.pageToken
+  } while (page)
+  return out
+}
 
-    const people = async (): Promise<Person[]> => {
-      const out: Person[] = []
-      let page: string | undefined
-      do {
-        const res = await getAuth().listUsers(1000, page)
-        for (const u of res.users) out.push({ uid: u.uid, name: u.displayName ?? null, createdAt: new Date(u.metadata.creationTime) })
-        page = res.pageToken
-      } while (page)
-      return out
-    }
+const accepted = () => getFirestore().collection('friendships').where('status', '==', 'accepted')
 
-    const [users, coffees, tastings, recipes, friendships, waitlist] = await Promise.all([
-      people(),
-      rows('coffees'),
-      rows('tastings'),
-      rows('recipes'),
-      db.collection('friendships').where('status', '==', 'accepted').count().get(),
-      db.collection('waitlist').count().get(),
-    ])
-    return pulse({
-      now: new Date(),
-      users,
-      coffees,
-      tastings,
-      recipes,
-      friendships: friendships.data().count,
-      waitlist: waitlist.data().count,
-    })
-  },
-)
+export const adminPulse = onCall(ADMIN_OPTS, async (req) => {
+  requireAdmin(req.auth)
+  const [users, coffees, tastings, recipes, friendships, waitlist] = await Promise.all([
+    accounts(),
+    rows('coffees'),
+    rows('tastings'),
+    rows('recipes'),
+    accepted().count().get(),
+    getFirestore().collection('waitlist').count().get(),
+  ])
+  return pulse({
+    now: new Date(),
+    users,
+    coffees,
+    tastings,
+    recipes,
+    friendships: friendships.data().count,
+    waitlist: waitlist.data().count,
+  })
+})
+
+export const adminUsers = onCall(ADMIN_OPTS, async (req) => {
+  requireAdmin(req.auth)
+  const db = getFirestore()
+  const [users, coffees, tastings, recipes, friendships, prefs] = await Promise.all([
+    accounts(),
+    rows('coffees'),
+    rows('tastings'),
+    rows('recipes'),
+    accepted().select('uids').get(),
+    db.collection('userPreferences').where('reminders.enabled', '==', true).select('reminders.window').get(),
+  ])
+  const reminders = new Map<string, ReminderWindow>()
+  for (const d of prefs.docs) reminders.set(d.id, d.get('reminders.window') === 'afternoon' ? 'afternoon' : 'morning')
+  return people({
+    users,
+    coffees,
+    tastings,
+    recipes,
+    friendships: friendships.docs.map(d => d.get('uids')).filter((u): u is string[] => Array.isArray(u)),
+    reminders,
+  })
+})
+
+// Salud: corridas del recordatorio (las escribe dailyReminder) y la lista de espera completa, para el CSV.
+export const adminHealth = onCall(ADMIN_OPTS, async (req) => {
+  requireAdmin(req.auth)
+  const db = getFirestore()
+  const iso = (v: unknown) => (v instanceof Timestamp ? v.toDate().toISOString() : null)
+  const [runs, waitlist] = await Promise.all([
+    db.collection('adminRuns').orderBy('at', 'desc').limit(12).get(),
+    db.collection('waitlist').get(),
+  ])
+  return {
+    runs: runs.docs.map(d => ({
+      at: iso(d.get('at')),
+      candidates: d.get('candidates') ?? 0,
+      sent: d.get('sent') ?? 0,
+      failed: d.get('failed') ?? 0,
+      pruned: d.get('pruned') ?? 0,
+    })),
+    waitlist: waitlist.docs
+      .map(d => ({ email: d.id, source: String(d.get('source') ?? ''), createdAt: iso(d.get('createdAt')) }))
+      .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '')),
+  }
+})

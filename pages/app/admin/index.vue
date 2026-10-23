@@ -1,28 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { Pulse } from '~/functions/src/pulse'
 
 definePageMeta({ layout: 'admin' })
 
-const { $firebase } = useNuxtApp()
-const data = ref<Pulse | null>(null)
-const error = ref('')
+const { data, error, load } = useAdminCall<Pulse>('adminPulse')
 const range = ref<'week' | 'month'>('week')
-
-async function load() {
-  error.value = ''
-  try {
-    const { getFunctions, httpsCallable } = await import('firebase/functions')
-    const call = httpsCallable<void, Pulse>(getFunctions($firebase, 'us-central1'), 'adminPulse')
-    data.value = (await call()).data
-  }
-  catch (e) {
-    // La función decide quién es admin (ADMIN_EMAILS); a los demás los devuelve a la app.
-    if ((e as { code?: string }).code === 'functions/permission-denied') return navigateTo('/app', { replace: true })
-    error.value = e instanceof Error ? e.message : String(e)
-  }
-}
-onMounted(load)
 
 const num = new Intl.NumberFormat('es-CO')
 const pct = (part: number, total: number) => (total ? Math.round(part / total * 100) : 0)
@@ -185,27 +168,10 @@ const totals = computed(() => {
 </template>
 
 <style scoped>
-.page { max-width: 1120px; display: flex; flex-direction: column; gap: 32px; }
-.head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px; }
-.titles { display: flex; flex-direction: column; gap: 10px; }
-.titles h1 { margin: 0; }
-.subtitle { margin: 0; font: italic 400 19px/26px var(--font-display); color: var(--ink-soft); }
-.seg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface); }
-.seg button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-soft); font: 600 14px/20px var(--font-sans); cursor: pointer; }
-.seg button[aria-pressed='true'] { background: var(--bg); color: var(--ink); }
-.loading { display: flex; align-items: center; gap: 10px; margin: 0; }
-.retry { margin-left: 8px; border: 0; background: none; padding: 0; font: inherit; font-weight: 600; cursor: pointer; }
 
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
-.card { display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; min-width: 0; padding: 24px; border-radius: 18px; background: var(--surface); }
 .kpi { gap: 8px; padding: 20px 22px; }
 .kpi-value { font: 400 48px/48px var(--font-display); letter-spacing: -0.01em; }
-.row { display: flex; flex-wrap: wrap; gap: 16px; align-items: stretch; }
-.wide { flex: 3 1 520px; }
-.narrow { flex: 2 1 360px; }
-.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.card-head--stack { flex-direction: column; align-items: flex-start; gap: 4px; }
-.card-title { margin: 0; font: 400 24px/28px var(--font-display); }
 
 .bars { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding-top: 24px; border-bottom: 1px solid var(--line-strong); }
 .bar-col { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; }
@@ -226,21 +192,12 @@ const totals = computed(() => {
 .hint { margin: 0; display: flex; align-items: center; gap: 8px; }
 .honey { width: 6px; height: 6px; border-radius: 9999px; background: var(--accent); }
 
-.table-box { overflow-x: auto; }
-.table { width: 100%; min-width: 480px; border-collapse: collapse; font: 400 14px/20px var(--font-sans); }
-.table th { padding: 8px; text-align: left; font: 600 13px/16px var(--font-sans); color: var(--ink-soft); }
-.table td { padding: 12px 8px; border-top: 1px solid var(--line); }
-.table :is(th, td):first-child { padding-left: 0; }
-.name { font-weight: 500; }
-.soft { color: var(--ink-soft); }
 .step { display: inline-block; width: 12px; height: 12px; border-radius: 9999px; box-shadow: inset 0 0 0 1.5px var(--primary); }
 .step--on { background: var(--primary); }
 
-.dark { background: var(--brand-surface); color: var(--on-brand-surface); }
 .totals { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 16px; }
 .totals div { display: flex; flex-direction: column; gap: 2px; }
 .totals dt { font: 500 13px/16px var(--font-sans); opacity: 0.8; }
 .totals dd { margin: 0; font: 400 36px/40px var(--font-display); }
 .dark-meta { margin: 0; font: 400 13px/18px var(--font-sans); opacity: 0.8; }
-.dot { color: var(--accent); }
 </style>
