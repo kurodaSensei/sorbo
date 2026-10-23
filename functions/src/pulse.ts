@@ -20,25 +20,24 @@ export interface Pulse {
   registered: number
   week: Window
   month: Window
-  /** Notas por semana (lunes a domingo, hora de Bogotá), la más vieja primero. */
-  weekly: { start: string, notes: number }[]
+  /** Notas por mes (hora de Bogotá), desde el primer mes con notas y como mucho 12, el más viejo primero. */
+  monthly: { start: string, notes: number }[]
   funnel: { registered: number, firstCoffee: number, firstNote: number, threeNotes: number }
   recent: { name: string, createdAt: string, coffee: boolean, note: boolean, three: boolean }[]
   totals: { coffees: number, notes: number, recipes: number, friendships: number, waitlist: number }
 }
 
 const DAY = 86_400_000
-export const WEEKS = 12
+export const MONTHS = 12
 // Activación: llegar a 3 notas.
 export const ACTIVATED = 3
 // ponytail: Bogotá no tiene horario de verano, así que un desfase fijo basta.
 const BOGOTA = -5 * 3_600_000
 
-/** Lunes 00:00 (Bogotá) de la semana de `d`, en UTC. */
-export function weekStart(d: Date): Date {
+/** Día 1 a las 00:00 (Bogotá) del mes de `d`, `add` meses después, en UTC. */
+export function monthStart(d: Date, add = 0): Date {
   const local = new Date(d.getTime() + BOGOTA)
-  const monday = Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate()) - ((local.getUTCDay() + 6) % 7) * DAY
-  return new Date(monday - BOGOTA)
+  return new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth() + add, 1) - BOGOTA)
 }
 
 /** «Laura Martínez» → «Laura M.» */
@@ -71,12 +70,14 @@ export function pulse(i: PulseInput): Pulse {
     }
   }
 
-  const first = weekStart(i.now).getTime() - (WEEKS - 1) * 7 * DAY
-  const buckets = Array.from({ length: WEEKS }, () => 0)
-  for (const r of i.tastings) {
-    if (!r.createdAt) continue
-    const k = Math.floor((r.createdAt.getTime() - first) / (7 * DAY))
-    if (k >= 0 && k < WEEKS) buckets[k]++
+  const dates = i.tastings.flatMap(r => (r.createdAt ? [r.createdAt.getTime()] : []))
+  const oldest = monthStart(i.now, -(MONTHS - 1)).getTime()
+  const from = monthStart(new Date(Math.max(oldest, Math.min(now, ...dates))))
+  const months: { start: string, notes: number }[] = []
+  for (let k = 0; monthStart(from, k).getTime() <= now; k++) {
+    const start = monthStart(from, k).getTime()
+    const end = monthStart(from, k + 1).getTime()
+    months.push({ start: new Date(start).toISOString(), notes: dates.filter(t => t >= start && t < end).length })
   }
 
   const steps = (uid: string) => {
@@ -90,7 +91,7 @@ export function pulse(i: PulseInput): Pulse {
     registered: i.users.length,
     week: window(7),
     month: window(30),
-    weekly: buckets.map((notes, k) => ({ start: new Date(first + k * 7 * DAY).toISOString(), notes })),
+    monthly: months,
     funnel: {
       registered: i.users.length,
       firstCoffee: all.filter(s => s.coffee).length,

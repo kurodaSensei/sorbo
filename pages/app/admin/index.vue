@@ -10,9 +10,9 @@ const range = ref<'week' | 'month'>('week')
 const num = new Intl.NumberFormat('es-CO')
 const pct = (part: number, total: number) => (total ? Math.round(part / total * 100) : 0)
 const tz = 'America/Bogota'
-const dayMonth = new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', timeZone: tz })
-const dayOnly = new Intl.DateTimeFormat('es-CO', { day: 'numeric', timeZone: tz })
-const monthOf = new Intl.DateTimeFormat('es-CO', { month: 'numeric', timeZone: tz })
+const monthOnly = new Intl.DateTimeFormat('es-CO', { month: 'short', timeZone: tz })
+const monthYear = new Intl.DateTimeFormat('es-CO', { month: 'short', year: '2-digit', timeZone: tz })
+const monthNum = new Intl.DateTimeFormat('es-CO', { month: 'numeric', timeZone: tz })
 
 const kpis = computed(() => {
   const d = data.value
@@ -28,15 +28,16 @@ const kpis = computed(() => {
 })
 
 const bars = computed(() => {
-  const weeks = data.value?.weekly ?? []
-  const max = Math.max(1, ...weeks.map(w => w.notes))
-  return weeks.map((w, i) => {
-    const start = new Date(w.start)
-    const newMonth = i === 0 || monthOf.format(start) !== monthOf.format(new Date(weeks[i - 1].start))
-    return { ...w, label: (newMonth ? dayMonth : dayOnly).format(start).replace('.', ''), h: `${Math.round(w.notes / max * 100)}%`, last: i === weeks.length - 1 }
+  const months = data.value?.monthly ?? []
+  const max = Math.max(1, ...months.map(m => m.notes))
+  return months.map((m, i) => {
+    const start = new Date(m.start)
+    // El año solo al empezar y en enero.
+    const label = (i === 0 || monthNum.format(start) === '1' ? monthYear : monthOnly).format(start).replace('.', '')
+    return { ...m, label, h: `${Math.round(m.notes / max * 100)}%`, last: i === months.length - 1 }
   })
 })
-const barsLabel = computed(() => `Notas por semana, de la más vieja a la actual: ${bars.value.map(b => b.notes).join(', ')}`)
+const barsLabel = computed(() => `Notas por mes: ${bars.value.map(b => `${b.label}, ${b.notes}`).join('; ')}`)
 
 const funnel = computed(() => {
   const f = data.value?.funnel
@@ -93,12 +94,12 @@ const totals = computed(() => {
       <div class="row">
         <section aria-labelledby="ap-notas" class="card wide">
           <div class="card-head">
-            <h2 id="ap-notas" class="card-title">Notas por semana</h2>
-            <span class="v3-meta">Últimas 12 semanas</span>
+            <h2 id="ap-notas" class="card-title">Notas por mes</h2>
+            <span class="v3-meta">Desde la primera nota · hasta 12 meses</span>
           </div>
           <div role="img" :aria-label="barsLabel" class="bars">
             <div v-for="b in bars" :key="b.start" class="bar-col">
-              <span class="bar-num" :class="{ 'bar-num--last': b.last }">{{ b.notes }}</span>
+              <span v-if="b.notes" class="bar-num" :class="{ 'bar-num--last': b.last }">{{ b.notes }}</span>
               <div class="bar" :class="{ 'bar--last': b.last }" :style="{ height: b.h }" />
             </div>
           </div>
