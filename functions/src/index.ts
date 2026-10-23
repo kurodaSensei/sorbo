@@ -1,10 +1,13 @@
 import { initializeApp } from 'firebase-admin/app'
+import { getAuth } from 'firebase-admin/auth'
 import { FieldValue, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { getMessaging } from 'firebase-admin/messaging'
 import { logger } from 'firebase-functions'
+import { defineString } from 'firebase-functions/params'
 import { HttpsError, onCall } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { decide } from './decide.js'
+import { pulse, type Person, type Row } from './pulse.js'
 
 initializeApp()
 
@@ -121,5 +124,59 @@ export const sendTestReminder = onCall(
     if (res.dead.length) await ref.update({ 'reminders.tokens': FieldValue.arrayRemove(...res.dead) })
     logger.info('sendTestReminder', { sent: res.sent, dead: res.dead.length })
     return { sent: res.sent }
+  },
+)
+
+// Correos admin, separados por coma. Viven en functions/.env (no va a git).
+const ADMIN_EMAILS = defineString('ADMIN_EMAILS')
+
+// Panel admin «Pulso»: solo para las cuentas de ADMIN_EMAILS, con el correo verificado.
+// Devuelve conteos y fechas; nunca el contenido de una nota, café o receta.
+// ponytail: lee userId y createdAt de cada documento en cada llamada; con decenas de miles, pasar a contadores.
+export const adminPulse = onCall(
+  { maxInstances: 1, timeoutSeconds: 60, memory: '256MiB' },
+  async (req) => {
+    const email = req.auth?.token.email?.toLowerCase()
+    const admins = ADMIN_EMAILS.value().toLowerCase().split(',').map(e => e.trim()).filter(Boolean)
+    if (!email || req.auth?.token.email_verified !== true || !admins.includes(email)) {
+      throw new HttpsError('permission-denied', 'Solo para admin.')
+    }
+    const db = getFirestore()
+
+    const rows = async (name: string): Promise<Row[]> =>
+      (await db.collection(name).select('userId', 'createdAt').get()).docs.map((d) => {
+        const at = d.get('createdAt')
+        const uid = d.get('userId')
+        return { userId: typeof uid === 'string' ? uid : null, createdAt: at instanceof Timestamp ? at.toDate() : null }
+      })
+
+    const people = async (): Promise<Person[]> => {
+      const out: Person[] = []
+      let page: string | undefined
+      do {
+        const res = await getAuth().listUsers(1000, page)
+        for (const u of res.users) out.push({ uid: u.uid, name: u.displayName ?? null, createdAt: new Date(u.metadata.creationTime) })
+        page = res.pageToken
+      } while (page)
+      return out
+    }
+
+    const [users, coffees, tastings, recipes, friendships, waitlist] = await Promise.all([
+      people(),
+      rows('coffees'),
+      rows('tastings'),
+      rows('recipes'),
+      db.collection('friendships').where('status', '==', 'accepted').count().get(),
+      db.collection('waitlist').count().get(),
+    ])
+    return pulse({
+      now: new Date(),
+      users,
+      coffees,
+      tastings,
+      recipes,
+      friendships: friendships.data().count,
+      waitlist: waitlist.data().count,
+    })
   },
 )
