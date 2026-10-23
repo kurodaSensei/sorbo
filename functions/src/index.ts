@@ -7,7 +7,7 @@ import { defineString } from 'firebase-functions/params'
 import { type CallableRequest, HttpsError, onCall } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { decide } from './decide.js'
-import { people, type ReminderWindow } from './people.js'
+import { people, type ReminderWindow, withoutHidden } from './people.js'
 import { pulse, type Person, type Row } from './pulse.js'
 
 initializeApp()
@@ -135,12 +135,15 @@ export const sendTestReminder = onCall(
 
 // Correos admin, separados por coma. Viven en functions/.env (no va a git).
 const ADMIN_EMAILS = defineString('ADMIN_EMAILS')
+// Cuentas de prueba que el panel no cuenta en ningún lado. También en functions/.env.
+const HIDDEN_EMAILS = defineString('HIDDEN_EMAILS', { default: '' })
+const emails = (raw: string) => raw.toLowerCase().split(',').map(e => e.trim()).filter(Boolean)
 
 // Panel admin (/app/admin): solo las cuentas de ADMIN_EMAILS, con el correo verificado.
 // Devuelve conteos y fechas; nunca el contenido de una nota, café o receta.
 function requireAdmin(auth: CallableRequest['auth']) {
   const email = auth?.token.email?.toLowerCase()
-  const admins = ADMIN_EMAILS.value().toLowerCase().split(',').map(e => e.trim()).filter(Boolean)
+  const admins = emails(ADMIN_EMAILS.value())
   if (!email || auth?.token.email_verified !== true || !admins.includes(email)) {
     throw new HttpsError('permission-denied', 'Solo para admin.')
   }
@@ -167,50 +170,45 @@ async function accounts() {
   return out
 }
 
-const accepted = () => getFirestore().collection('friendships').where('status', '==', 'accepted')
-
-export const adminPulse = onCall(ADMIN_OPTS, async (req) => {
-  requireAdmin(req.auth)
-  const [users, coffees, tastings, recipes, friendships, waitlist] = await Promise.all([
+// Todo lo que cuentan Pulso y Usuarios, ya sin las cuentas de prueba.
+async function dataset() {
+  const [users, coffees, tastings, recipes, friendships] = await Promise.all([
     accounts(),
     rows('coffees'),
     rows('tastings'),
     rows('recipes'),
-    accepted().count().get(),
-    getFirestore().collection('waitlist').count().get(),
+    getFirestore().collection('friendships').where('status', '==', 'accepted').select('uids').get(),
   ])
-  return pulse({
-    now: new Date(),
-    users,
-    coffees,
-    tastings,
-    recipes,
-    friendships: friendships.data().count,
-    waitlist: waitlist.data().count,
-  })
-})
-
-export const adminUsers = onCall(ADMIN_OPTS, async (req) => {
-  requireAdmin(req.auth)
-  const db = getFirestore()
-  const [users, coffees, tastings, recipes, friendships, prefs] = await Promise.all([
-    accounts(),
-    rows('coffees'),
-    rows('tastings'),
-    rows('recipes'),
-    accepted().select('uids').get(),
-    db.collection('userPreferences').where('reminders.enabled', '==', true).select('reminders.window').get(),
-  ])
-  const reminders = new Map<string, ReminderWindow>()
-  for (const d of prefs.docs) reminders.set(d.id, d.get('reminders.window') === 'afternoon' ? 'afternoon' : 'morning')
-  return people({
+  return withoutHidden({
     users,
     coffees,
     tastings,
     recipes,
     friendships: friendships.docs.map(d => d.get('uids')).filter((u): u is string[] => Array.isArray(u)),
-    reminders,
+  }, emails(HIDDEN_EMAILS.value()))
+}
+
+export const adminPulse = onCall(ADMIN_OPTS, async (req) => {
+  requireAdmin(req.auth)
+  const hidden = emails(HIDDEN_EMAILS.value())
+  const [d, waitlist] = await Promise.all([dataset(), getFirestore().collection('waitlist').select().get()])
+  return pulse({
+    now: new Date(),
+    ...d,
+    friendships: d.friendships.length,
+    waitlist: waitlist.docs.filter(w => !hidden.includes(w.id)).length,
   })
+})
+
+export const adminUsers = onCall(ADMIN_OPTS, async (req) => {
+  requireAdmin(req.auth)
+  const [d, prefs] = await Promise.all([
+    dataset(),
+    getFirestore().collection('userPreferences').where('reminders.enabled', '==', true).select('reminders.window').get(),
+  ])
+  const reminders = new Map<string, ReminderWindow>()
+  for (const p of prefs.docs) reminders.set(p.id, p.get('reminders.window') === 'afternoon' ? 'afternoon' : 'morning')
+  return people({ ...d, reminders })
 })
 
 // Salud: corridas del recordatorio (las escribe dailyReminder) y la lista de espera completa, para el CSV.
@@ -231,6 +229,7 @@ export const adminHealth = onCall(ADMIN_OPTS, async (req) => {
       pruned: d.get('pruned') ?? 0,
     })),
     waitlist: waitlist.docs
+      .filter(d => !emails(HIDDEN_EMAILS.value()).includes(d.id))
       .map(d => ({ email: d.id, source: String(d.get('source') ?? ''), createdAt: iso(d.get('createdAt')) }))
       .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '')),
   }

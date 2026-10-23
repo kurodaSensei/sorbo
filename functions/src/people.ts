@@ -76,3 +76,25 @@ export function people(i: PeopleInput): PersonRow[] {
     // Lo más reciente arriba; quien nunca anotó, por fecha de alta.
     .sort((a, b) => (b.lastAt ?? b.since).localeCompare(a.lastAt ?? a.since))
 }
+
+export interface Dataset {
+  users: PeopleInput['users']
+  coffees: Row[]
+  tastings: Row[]
+  recipes: Row[]
+  friendships: string[][]
+}
+
+/** Saca del panel las cuentas de prueba (HIDDEN_EMAILS) y todo lo suyo: cafés, notas, recetas y amistades. */
+export function withoutHidden(d: Dataset, hiddenEmails: string[]): Dataset {
+  const out = new Set(d.users.filter(u => u.email && hiddenEmails.includes(u.email.toLowerCase())).map(u => u.uid))
+  if (!out.size) return d
+  const keep = (r: Row) => !r.userId || !out.has(r.userId)
+  return {
+    users: d.users.filter(u => !out.has(u.uid)),
+    coffees: d.coffees.filter(keep),
+    tastings: d.tastings.filter(keep),
+    recipes: d.recipes.filter(keep),
+    friendships: d.friendships.filter(uids => !uids.some(uid => out.has(uid))),
+  }
+}
