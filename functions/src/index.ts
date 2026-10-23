@@ -7,6 +7,7 @@ import { defineString } from 'firebase-functions/params'
 import { type CallableRequest, HttpsError, onCall } from 'firebase-functions/v2/https'
 import { onSchedule } from 'firebase-functions/v2/scheduler'
 import { decide } from './decide.js'
+import { type Entry, groupNames, METHOD_LABELS, PROCESS_LABELS } from './catalogs.js'
 import { people, type ReminderWindow, withoutHidden } from './people.js'
 import { pulse, type Person, type Row } from './pulse.js'
 
@@ -209,6 +210,68 @@ export const adminUsers = onCall(ADMIN_OPTS, async (req) => {
   const reminders = new Map<string, ReminderWindow>()
   for (const p of prefs.docs) reminders.set(p.id, p.get('reminders.window') === 'afternoon' ? 'afternoon' : 'morning')
   return people({ ...d, reminders })
+})
+
+// Catálogos (solo lectura): cómo escribe la gente marcas, variedades, procesos y métodos.
+// ponytail: lee cafés, notas y recetas completos (solo los campos de catálogo) en cada llamada, igual que Pulso.
+export const adminCatalogs = onCall(ADMIN_OPTS, async (req) => {
+  requireAdmin(req.auth)
+  const db = getFirestore()
+  const hidden = emails(HIDDEN_EMAILS.value())
+  const [users, roasters, coffees, tastings, recipes, prefs] = await Promise.all([
+    accounts(),
+    db.collection('roasters').select('userId', 'name').get(),
+    db.collection('coffees').select('userId', 'roasterId', 'roasterName', 'variety', 'varieties', 'process').get(),
+    db.collection('tastings').select('userId', 'brewMethod').get(),
+    db.collection('recipes').select('userId', 'brewMethod').get(),
+    db.collection('userPreferences').select('customProcesses', 'customBrewMethods').get(),
+  ])
+  // Solo personas reales: fuera las cuentas de prueba y los documentos sin dueño.
+  const visible = new Set(users.filter(u => !(u.email && hidden.includes(u.email.toLowerCase()))).map(u => u.uid))
+  const own = <T extends { get: (f: string) => unknown }>(docs: T[]) => docs.filter((d) => {
+    const uid = d.get('userId')
+    return typeof uid === 'string' && visible.has(uid)
+  })
+  const str = (v: unknown) => (typeof v === 'string' ? v : '')
+
+  // Las etiquetas que cada persona les puso a sus procesos y métodos propios.
+  const custom = (field: string) => {
+    const m = new Map<string, Map<string, string>>()
+    for (const d of prefs.docs) {
+      const list = d.get(field)
+      if (Array.isArray(list)) m.set(d.id, new Map(list.filter(o => o && typeof o.value === 'string').map(o => [o.value, str(o.label) || o.value])))
+    }
+    return m
+  }
+  const customProcess = custom('customProcesses')
+  const customMethod = custom('customBrewMethods')
+  const label = (defaults: Record<string, string>, mine: Map<string, Map<string, string>>, uid: string, value: string) =>
+    defaults[value] ?? mine.get(uid)?.get(value) ?? value
+
+  const roasterName = new Map<string, string>()
+  const brands: Entry[] = []
+  for (const d of own(roasters.docs)) {
+    roasterName.set(d.id, str(d.get('name')))
+    brands.push({ userId: d.get('userId') as string, text: str(d.get('name')), uses: 0 })
+  }
+  const varieties: Entry[] = []
+  const processes: Entry[] = []
+  for (const d of own(coffees.docs)) {
+    const uid = d.get('userId') as string
+    const brand = roasterName.get(str(d.get('roasterId'))) || str(d.get('roasterName'))
+    if (brand) brands.push({ userId: uid, text: brand, uses: 1 })
+    const list = d.get('varieties')
+    for (const v of Array.isArray(list) && list.length ? list : [d.get('variety')]) if (str(v)) varieties.push({ userId: uid, text: str(v), uses: 1 })
+    const p = str(d.get('process'))
+    if (p) processes.push({ userId: uid, text: label(PROCESS_LABELS, customProcess, uid, p), uses: 1 })
+  }
+  const methods: Entry[] = []
+  for (const d of [...own(tastings.docs), ...own(recipes.docs)]) {
+    const uid = d.get('userId') as string
+    const m = str(d.get('brewMethod'))
+    if (m) methods.push({ userId: uid, text: label(METHOD_LABELS, customMethod, uid, m), uses: 1 })
+  }
+  return { brands: groupNames(brands), varieties: groupNames(varieties), processes: groupNames(processes), methods: groupNames(methods) }
 })
 
 // Salud: corridas del recordatorio (las escribe dailyReminder) y la lista de espera completa, para el CSV.

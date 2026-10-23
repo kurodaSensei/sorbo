@@ -1,7 +1,7 @@
 import { onMounted, ref } from 'vue'
 
 /** Trae los datos de una función del panel admin al montar la página. A quien no es admin lo devuelve a la app. */
-export function useAdminCall<T>(name: 'adminPulse' | 'adminUsers' | 'adminHealth') {
+export function useAdminCall<T>(name: 'adminPulse' | 'adminUsers' | 'adminCatalogs' | 'adminHealth') {
   const { $firebase } = useNuxtApp()
   const data = ref<T | null>(null)
   const error = ref('')
