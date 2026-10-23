@@ -1,6 +1,7 @@
 // Cifras del panel admin («Pulso»). Solo conteos y fechas: nunca el contenido de una nota.
 
-export interface Row { userId: string | null, createdAt: Date | null }
+/** `visibility`: 'private', 'friends' o 'community' (sin campo = privado). */
+export interface Row { userId: string | null, createdAt: Date | null, visibility?: string | null }
 export interface Person { uid: string, name: string | null, createdAt: Date }
 
 export interface PulseInput {
@@ -23,6 +24,8 @@ export interface Pulse {
   /** Notas por mes (hora de Bogotá), desde el primer mes con notas y como mucho 12, el más viejo primero. */
   monthly: { start: string, notes: number }[]
   funnel: { registered: number, firstCoffee: number, firstNote: number, threeNotes: number }
+  /** De quienes anotaron algo (café, nota o receta): cuántos compartieron al menos una cosa. */
+  sharing: { base: number, community: number, friends: number }
   recent: { name: string, createdAt: string, coffee: boolean, note: boolean, three: boolean }[]
   totals: { coffees: number, notes: number, recipes: number, friendships: number, waitlist: number }
 }
@@ -56,17 +59,19 @@ export function pulse(i: PulseInput): Pulse {
     return m
   }
   const coffeesBy = perUser(i.coffees)
+  // Solo cuentas que existen: los datos de una cuenta borrada no cuentan.
+  const registered = new Set(i.users.map(u => u.uid))
   const notesBy = perUser(i.tastings)
 
   const window = (days: number): Window => {
     const from = now - days * DAY
     const inside = (r: Row) => !!r.createdAt && r.createdAt.getTime() >= from
     const active = new Set<string>()
-    for (const r of [...i.coffees, ...i.tastings, ...i.recipes]) if (r.userId && inside(r)) active.add(r.userId)
+    for (const r of [...i.coffees, ...i.tastings, ...i.recipes]) if (r.userId && registered.has(r.userId) && inside(r)) active.add(r.userId)
     return {
       newUsers: i.users.filter(u => u.createdAt.getTime() >= from).length,
       active: active.size,
-      notes: i.tastings.filter(inside).length,
+      notes: i.tastings.filter(r => !!r.userId && registered.has(r.userId) && inside(r)).length,
     }
   }
 
@@ -86,6 +91,14 @@ export function pulse(i: PulseInput): Pulse {
   }
   const all = i.users.map(u => steps(u.uid))
 
+  const wrote = new Set<string>()
+  const shared = { community: new Set<string>(), friends: new Set<string>() }
+  for (const r of [...i.coffees, ...i.tastings, ...i.recipes]) {
+    if (!r.userId || !registered.has(r.userId)) continue
+    wrote.add(r.userId)
+    if (r.visibility === 'community' || r.visibility === 'friends') shared[r.visibility].add(r.userId)
+  }
+
   return {
     at: i.now.toISOString(),
     registered: i.users.length,
@@ -98,6 +111,7 @@ export function pulse(i: PulseInput): Pulse {
       firstNote: all.filter(s => s.note).length,
       threeNotes: all.filter(s => s.three).length,
     },
+    sharing: { base: wrote.size, community: shared.community.size, friends: shared.friends.size },
     recent: [...i.users]
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice(0, 5)
