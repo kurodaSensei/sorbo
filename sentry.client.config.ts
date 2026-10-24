@@ -37,6 +37,8 @@ Sentry.init({
     // Errores de extensiones del navegador, no de la app.
     /^chrome-extension:\/\//,
     /^moz-extension:\/\//,
+    // Script que inyecta el navegador de Instagram en Android (iabjs://) al cerrar la página.
+    'Java object is gone',
   ],
 
   // No incluir el contexto de URL completo si tiene tokens o query sensible.
