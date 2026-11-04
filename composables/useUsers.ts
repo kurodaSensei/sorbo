@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, collection, query, where, getDocs, Timestamp } from 'firebase/firestore'
+import { doc, getDoc, setDoc, collection, query, where, getDocs, limit, Timestamp } from 'firebase/firestore'
 import type { UserProfile } from '~/types'
 
 export const useUsers = () => {
@@ -15,7 +15,7 @@ export const useUsers = () => {
   }
 
   const findByEmail = async (email: string): Promise<UserProfile | null> => {
-    const q = query(collection($db, 'users'), where('email', '==', email.toLowerCase().trim()))
+    const q = query(collection($db, 'users'), where('email', '==', email.toLowerCase().trim()), limit(1))
     const snapshot = await getDocs(q)
     if (snapshot.empty) return null
     const d = snapshot.docs[0]

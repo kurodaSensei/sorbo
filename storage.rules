@@ -1,11 +1,10 @@
 rules_version = '2';
+// La app no sube archivos hoy. Cerrado hasta que vuelvan las fotos; entonces,
+// ruta users/{uid}/... con request.auth.uid == uid (ver docs/SEGURIDAD.md, C1).
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null
-        && request.resource.size < 5 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
+      allow read, write: if false;
     }
   }
 }

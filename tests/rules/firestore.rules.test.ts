@@ -4,7 +4,7 @@ import {
   initializeTestEnvironment, assertFails, assertSucceeds, type RulesTestEnvironment,
 } from '@firebase/rules-unit-testing'
 import {
-  doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, getDocs, collection, query, where,
+  doc, getDoc, setDoc, updateDoc, deleteDoc, deleteField, getDocs, collection, query, where, limit,
 } from 'firebase/firestore'
 
 let env: RulesTestEnvironment
@@ -197,6 +197,14 @@ describe('users', () => {
     await assertFails(getDoc(doc(db(null), `users/${OWNER}`)))
     await assertFails(setDoc(doc(db(STRANGER), `users/${OWNER}`), { email: 'x@y.co' }))
     await assertFails(deleteDoc(doc(db(STRANGER), `users/${OWNER}`)))
+  })
+
+  it('buscar por correo trae uno; no se puede bajar el directorio', async () => {
+    await assertSucceeds(setDoc(doc(db(OWNER), `users/${OWNER}`), { email: 'a@b.co' }))
+    const users = collection(db(STRANGER), 'users')
+    await assertSucceeds(getDocs(query(users, where('email', '==', 'a@b.co'), limit(1))))
+    await assertFails(getDocs(query(users, where('email', '==', 'a@b.co'))))
+    await assertFails(getDocs(users))
   })
 })
 
