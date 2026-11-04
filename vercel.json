@@ -5,6 +5,19 @@
   "framework": "nuxtjs",
   "routes": [
     {
+      "src": "/(.*)",
+      "continue": true,
+      "headers": {
+        "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(), microphone=(), camera=(), payment=(), usb=()",
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.cloudfunctions.net https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.ingest.us.sentry.io https://fonts.googleapis.com https://fonts.gstatic.com; frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; report-uri https://o4511475806437376.ingest.us.sentry.io/api/4511475809910784/security/?sentry_key=b1a99bb529e27d11ca47a0d8105da5df"
+      }
+    },
+    {
       "handle": "filesystem"
     },
     {
