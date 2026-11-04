@@ -1,0 +1,17 @@
+# Alertas y PRs semanales de dependencias (docs/SEGURIDAD.md, A2).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    groups:
+      menores: { update-types: [minor, patch] }
+  - package-ecosystem: npm
+    directory: /functions
+    schedule: { interval: weekly }
+    groups:
+      menores: { update-types: [minor, patch] }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
