@@ -1,4 +1,4 @@
-# Reglas de Firestore en cada PR y en main.
+# Reglas, unit tests, build y dependencias en cada PR y en main.
 # (Los tests de UI de v2 quedaron en la rama backup/v2-2026-10-14.)
 name: Tests
 
@@ -31,3 +31,35 @@ jobs:
       - run: npm ci
       - run: npm i -g firebase-tools@15.19.0
       - run: npm run test:rules
+
+  app:
+    name: Unit tests y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      # ponytail: critical mientras firebase 13 (mayor) deja altas en el SDK; subir a high al migrar.
+      - run: npm audit --omit=dev --audit-level=critical
+
+  functions:
+    name: Cloud Functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: functions
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: functions/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm audit --omit=dev --audit-level=high
