@@ -18,7 +18,7 @@ export interface PersonRow {
   uid: string
   name: string
   email: string
-  /** Nombre y correo completos en minúsculas, solo para buscar. */
+  /** Nombre y correo enmascarado en minúsculas, solo para buscar. El correo completo no sale de la función. */
   search: string
   since: string
   coffees: number
@@ -63,7 +63,7 @@ export function people(i: PeopleInput): PersonRow[] {
         uid: u.uid,
         name: shortName(u.name),
         email: maskEmail(u.email),
-        search: `${u.name ?? ''} ${u.email ?? ''}`.toLowerCase(),
+        search: `${u.name ?? ''} ${maskEmail(u.email)}`.toLowerCase(),
         since: u.createdAt.toISOString(),
         coffees: c.coffees,
         notes: c.notes,
