@@ -20,22 +20,24 @@ Analytics: lo que depende de ellas está marcado **«verificar»**.
 
 | | Cantidad |
 |---|---|
-| Críticos | 2 |
+| Críticos | 1 (C1 bajó a bajo: Storage no está activado) |
 | Altos | 6 |
 | Medios | 9 |
 | Bien hecho | 8 |
 
-Los dos críticos se arreglan en un día y no tocan la UI.
+El crítico que queda (C2) se arregla en un día y no toca la UI.
 
 ## Hallazgos
 
 ### Críticos
 
-**C1. Storage abierto entre cuentas** — `storage.rules`
-Cualquier persona con sesión puede leer, escribir y **sobrescribir** cualquier archivo de cualquier otra persona
-(`match /{allPaths=**}` sin dueño). La app hoy no sube nada (`uploadPhoto` en `composables/useStorage.ts` no tiene
-llamadas), así que es superficie gratis para abuso y costo.
-→ Cerrar todo (`allow read, write: if false`). Si vuelven las fotos: ruta `users/{uid}/...` y `request.auth.uid == uid`.
+**C1. Storage abierto entre cuentas** — `storage.rules` · *Corregido en #55; en la práctica, riesgo bajo*
+Las reglas dejaban que cualquier persona con sesión leyera y **sobrescribiera** cualquier archivo ajeno
+(`match /{allPaths=**}` sin dueño). Al desplegar (2026-11-04) se vio que **Firebase Storage nunca se activó** en
+`coffee-app-85052`: no hay bucket, así que esto nunca se pudo explotar. La app tampoco sube nada (`uploadPhoto` no tiene
+llamadas).
+→ Hecho: `storage.rules` niega todo y `firebase.json` las incluye. No hay que activar Storage. Si vuelven las fotos:
+ruta `users/{uid}/...` con `request.auth.uid == uid`, solo `create`, y desplegar las reglas antes de subir nada.
 SOC 2 CC6.1 · ISO A.8.3, A.8.9
 
 **C2. Los headers de seguridad no llegan a producción** — `nuxt.config.ts`, `vercel.json`
@@ -153,7 +155,7 @@ regla de interruptor y canvas.
 
 | # | Qué | Hallazgo | Esfuerzo |
 |---|---|---|---|
-| 0.1 | Cerrar `storage.rules` | C1 | 15 min |
+| 0.1 | Cerrar `storage.rules` (hecho; Storage no está activado) | C1 | — |
 | 0.2 | Headers + CSP report-only en `vercel.json`; quitar los de `routeRules` | C2 | 2 h |
 | 0.3 | `users`: `allow get` en vez de `read` (parche) | A1 | 30 min |
 | 0.4 | `search` del panel sin correo | A6 | 30 min |
