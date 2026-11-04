@@ -20,6 +20,7 @@
 | **Material de video** | `~/Projects/Sorbo/marketing/footage/` | Grabaciones y exports (no van a git) |
 | **Tokens para Figma** | `design/` en este repo | Puente código → Figma (Tokens Studio) |
 | **Roadmap del producto** | `ROADMAP.md` en este repo | |
+| **Seguridad y cumplimiento** | `docs/SEGURIDAD.md` en este repo | Audit (2026-11-04) y plan de hardening hacia SOC 2 e ISO 27001 |
 | **Bitácora y decisiones** | Obsidian · `SECBRAIN/01-Proyectos/Sorbo/_Sorbo.md` | Diario del proyecto, no fuente de verdad |
 | **Conversaciones** | Project **Sorbo** en claude.ai | Todos los chats nuevos de Sorbo van ahí |
 | **Instagram** | **@sorbo.app** | Cuenta propia de Sorbo, separada de @kurodacafe |
