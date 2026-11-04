@@ -67,7 +67,7 @@ async function copyId(uid: string) {
       <div class="tools">
         <div class="search">
           <label for="au-buscar" class="v3-label">Buscar por nombre o correo</label>
-          <input id="au-buscar" v-model="query" type="search" class="v3-input" placeholder="Laura, andres@…">
+          <input id="au-buscar" v-model="query" type="search" class="v3-input" placeholder="Laura, gmail.com…">
         </div>
         <div role="group" aria-label="Filtrar" class="chips">
           <button

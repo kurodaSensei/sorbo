@@ -29,8 +29,9 @@ describe('admin · usuarios', () => {
     expect(list.map(p => p.uid)).toEqual(['b', 'a', 'c'])
   })
 
-  it('busca por correo completo aunque se muestre enmascarado', () => {
-    expect(list.find(p => p.uid === 'c')!.search).toContain('mateo@icloud.com')
+  it('busca por dominio; el correo completo no sale de la función', () => {
+    expect(list.find(p => p.uid === 'c')!.search).toContain('@icloud.com')
+    expect(list.find(p => p.uid === 'c')!.search).not.toContain('mateo@')
     expect(maskEmail('x')).toBe('Sin correo')
   })
 })
