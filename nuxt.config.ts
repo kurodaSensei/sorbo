@@ -207,16 +207,8 @@ export default defineNuxtConfig({
     // (Firebase Auth + Firestore), no hay nada útil que prerender.
     '/app/**': { ssr: false },
 
-    // Headers de seguridad para todas las rutas (mantiene la config
-    // original — no rompe nada).
-    '/**': {
-      headers: {
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-      },
-    },
+    // Los headers de seguridad viven en vercel.json: con el preset static,
+    // routeRules.headers no llega a producción.
   },
 
   nitro: {
