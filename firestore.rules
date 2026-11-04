@@ -95,9 +95,12 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Users directory: anyone authenticated can look up, only owner writes
+    // Directorio: se lee un perfil por id, y buscar por correo trae como mucho uno.
+    // ponytail: limit 1 frena bajar la colección de golpe pero no paginar uno a uno;
+    // la búsqueda pasa a una función en la fase 1 (docs/SEGURIDAD.md, A1).
     match /users/{userId} {
-      allow read: if request.auth != null;
+      allow get: if request.auth != null;
+      allow list: if request.auth != null && request.query.limit <= 1;
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
