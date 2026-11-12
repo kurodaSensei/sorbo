@@ -9,6 +9,7 @@
 | Qué | Dónde | Notas |
 |---|---|---|
 | **Código de la app** | Este repo: `kurodaSensei/sorbo` (antes `coffee-app`; local: `~/Projects/Javascript/sorbo`, también accesible como `~/Projects/Sorbo/app`) | Nuxt 3 · Firebase · Vercel. Producción: https://sorbo.app |
+| **Conector MCP** | `~/Projects/Javascript/sorbo-mcp` (también `~/Projects/Sorbo/mcp`) | Uso personal: Claude registra cafés y recetas en tu cuenta. Ver su `README.md` |
 | **Marca y sistema de diseño** | Claude Design · **Sorbo Design System v3** — https://claude.ai/artifact/Tbe2V6AUQYkkeN3c8LAhUV | Fuente única de tokens (colores por rol, tema claro y oscuro), tipografía, componentes y voz. Incluye «De v1 a v3» |
 | **Reglas de redes** | Claude Design · Sorbo Design System v2 — https://claude.ai/artifact/QNUja9Q3Q9vetFHHJjXvgf, sección **Marca y redes** | Solo para Instagram y movimiento, hasta que se pasen al v3. Para la app, el v2 está retirado |
 | **Pantallas** | Claude Design · canvas **Sorbo v3 · Pantallas** — https://claude.ai/artifact/F2vthm43ogNcHuboW2QLmj | Cada pantalla v3 en móvil y escritorio, con su nota de paridad con v1 |
